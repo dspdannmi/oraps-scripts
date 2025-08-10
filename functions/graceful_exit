@@ -1,0 +1,61 @@
+
+#---------------------------------------------------------------------------------------
+#
+# function graceful_exit
+#	Exit script gracefully whether normal termination or abnormal interrupt
+#
+#---------------------------------------------------------------------------------------
+
+function graceful_exit
+    {
+    status=$?
+
+    if [ $status -ne 0 ] && [ "${EXITCODE}" = "0" ]
+    then
+        EXITCODE=$status
+    fi
+
+    if [ "$1" = "terminated" ]
+    then
+        SCRIPT_ABORTED=YES
+	echo
+	echo "${scriptname}: ABORTED: received terminate signal"
+
+	if [ "$EXITCODE" = "0" ]
+	then
+	    EXITCODE=1	# abnormal termination should return non-zero
+	fi
+
+    else
+        if [ "$EXITCODE" != "0" ] || [ $status -ne 0 ]
+        then
+
+           if [ "$USAGE_ERROR" != "YES" ] && [ "${WARN_ON_NONZERO_EXIT}" = "YES" ]
+           then
+               if [ "${SCRIPT_ABORTED}" = "YES" ]
+               then
+	           error_text="was aborted"
+               else
+	           error_text="encountered an error"
+               fi
+	       echo "WARNING: $scriptname ${error_text} (rc=$EXITCODE)"
+           fi
+        fi
+    fi
+
+    if [ "${SHOW_FOOTER_ON_EXIT}" = "YES" ]
+    then
+	scriptfooter
+    fi
+
+    if [ "$DEL_TEMPFILES" = "YES" ] && [ "${tmpfile}" != "" ]
+    then
+       if [[ "$(dirname ${tmpfile})" =~ ^/tmp ]]	# [[ ... ]] used to help with pattern matching =~, do not use trailing /
+       then
+           rm -f ${tmpfile}*				# only delete if tempfile is in /tmp
+       fi
+    fi
+
+    exit $EXITCODE
+    }
+

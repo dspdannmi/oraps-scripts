@@ -1,0 +1,27 @@
+
+#
+# OPERATIONAL
+#
+000:Production (PRD)
+010:Disaster Recovery (DR)
+020:Pre-production (PRE-PRD)
+030:System Test (TEST)
+040:User Acceptance Test (UAT)
+050:Development (DEV)
+060:Non-production (non-PRD)
+070:Other
+080:PRD + non-PRD
+
+#
+# LEGACY
+#
+100:Production (PRD) [LEGACY]
+010:Disaster Recovery (DR) [LEGACY]
+120:Pre-production (PRE-PRD) [LEGACY]
+130:System Test (TEST) [LEGACY]
+140:User Acceptance Test (UAT) [LEGACY]
+150:Development (DEV) [LEGACY]
+160:Non-production [LEGACY]
+170:Other [LEGACY]
+180:PRD + non-PRD [LEGACY]
+

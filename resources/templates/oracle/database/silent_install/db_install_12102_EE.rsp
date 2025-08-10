@@ -1,0 +1,28 @@
+## specify the installation option 
+oracle.install.responseFileVersion=/oracle/install/rspfmt_dbinstall_response_schema_v12.1.0
+oracle.install.option=INSTALL_DB_SWONLY
+ 
+# specify the Unix group for the inventory directory
+UNIX_GROUP_NAME=dba
+ 
+# specify the Inventory, Oracle Home and Base directories
+INVENTORY_LOCATION=/u01/app/oraInventory
+ORACLE_HOME=/u01/app/oracle/product/12.1.0.2/dbhome_1
+ORACLE_BASE=/u01/app/oracle
+ 
+# specify the installation edition (Enterprise Edition)
+oracle.install.db.InstallEdition=EE
+
+# specify Unix groups for DBA, OPER and BACKUPDBA privileges
+oracle.install.db.DBA_GROUP=dba
+oracle.install.db.OPER_GROUP=dba
+oracle.install.db.BACKUPDBA_GROUP=dba
+oracle.install.db.DGDBA_GROUP=dba
+oracle.install.db.KMDBA_GROUP=dba
+
+# specify whether to enable the user to provide the password for Oracle My Support credentials
+SECURITY_UPDATES_VIA_MYORACLESUPPORT=false
+
+# specify whether user doesn’t want to configure security updates 
+DECLINE_SECURITY_UPDATES=true
+

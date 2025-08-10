@@ -1,0 +1,19 @@
+
+#---------------------------------------------------------------------------------------
+#
+# function setalertlogvar
+#
+#---------------------------------------------------------------------------------------
+
+function setalertlogvar
+    {
+    ALERTLOG=$(showalertlogloc)
+
+    if [ "${ALERTLOG}" != "" ] && [ -r ${ALERTLOG} ]
+    then
+       echo "set ALERTLOG: ${ALERTLOG}"
+    else
+       echo "WARNING: derived alert log location [${ALERTLOG}] does not exist or not readable"
+    fi
+    }
+

@@ -1,0 +1,9 @@
+
+function showpath
+    {
+    for dir in $(echo $PATH | sed -e 's/:/\ /g')
+    do
+        echo $dir
+    done
+    }
+

@@ -1,0 +1,217 @@
+Skip to content
+ Accessibility PreferencesMy Oracle Support Logo
+PowerView is Off
+Last Login: February 13, 2022 2:57 PM GMT		Switch to Cloud Support	
+	
+DSP (Not Available)
+		Last Refreshed: Feb 13, 2022 5:25 PM GMT(0)					
+Contact Us
+Help
+ 
+ 
+DashboardKnowledgeService RequestsPatches & UpdatesCommunityCertificationsSystemsAdvanced Customer ServicesProactive Hardware ServicesSettings
+Favorites		
+Recent Searches	
+Global Search
+Global Search	
+	
+ 
+ 
+Give Feedback...
+	
+
+Copyright (c) 2022, Oracle. All rights reserved. Oracle Confidential.
+
+
+Click to add to Favorites		ALTER DATABASE OPEN RESETLOGS fails with ORA-00392 (Doc ID 1352133.1)	To BottomTo Bottom	
+
+In this Document
+Symptoms
+Changes
+Cause
+Solution
+References
+
+APPLIES TO:
+Oracle Database - Enterprise Edition - Version 10.1.0.2 to 11.2.0.2 [Release 10.1 to 11.2]
+Oracle Database Cloud Schema Service - Version N/A and later
+Oracle Database Exadata Cloud Machine - Version N/A and later
+Oracle Cloud Infrastructure - Database Service - Version N/A and later
+Oracle Database Exadata Express Cloud Service - Version N/A and later
+Information in this document applies to any platform.
+SYMPTOMS
+After a RESTORE/RECOVER for cloning a database, the following error appears while open the clone database:
+
+
+SQL> alter database open resetlogs;
+alter database open resetlogs
+*
+ERROR at line 1:
+ORA-00392: log 1 of thread 1 is being cleared, operation not allowed
+ORA-00312: online log 1 thread 1: '/<PATH>/group_1.log'
+ORA-00312: online log 1 thread 1: '/<PATH>/group_12.log'
+CHANGES
+Cloned a database by RESTORE/RECOVER.
+
+CAUSE
+The first command "alter database open resetlogs" is abnormally abrupted leaving the redo log status as CLEARING/CLEARING_CURRENT in controlfile :
+
+
+
+SQL> select GROUP#,THREAD#,SEQUENCE#,MEMBERS,ARCHIVED,STATUS,FIRST_CHANGE# from v$log order by first_change# ;
+
+       GROUP#     THREAD#   SEQUENCE#        MEMBERS   ARCHIVED STATUS                 FIRST_CHANGE#
+------------- ----------- ----------- -------------- ---------- ---------------- -------------------
+            2           1           0              2 YES        CLEARING              12142264718335
+            3           1           0              2 YES        CLEARING              12142306351551
+            1           1           0              2 NO         CLEARING_CURRENT      12142306351562
+
+3 rows selected.
+
+
+
+SOLUTION
+At first, see if below command helps :
+
+ 
+
+alter database clear unarchived logfile group 1 ;
+
+alter database clear unarchived logfile group 2 ;
+
+alter database clear unarchived logfile group 3 ;
+
+alter database open resetlogs;
+
+ELSE, 
+
+Recreate the controflile with the RESETLOGS option.
+
+1) Get the controlfile trace from below command :
+
+SQL> ALTER DATABASE BACKUP CONTROLFILE TO TRACE AS '/tmp/control.sql' resetlogs ;
+2) Modify the CREATE CONTROLFILE  script /tmp/control.sql and ensure that all directories for the online redo logs exist and Oracle has permission to write to it
+
+3) Create the controlfile in NOMOUNT state :
+
+SQL> STARTUP FORCE NOMOUNT
+SQL> @/tmp/control.sql
+
+controlfile created
+
+4) Run a fake recovery :
+
+SQL> RECOVER DATABASE USING BACKUP CONTROLFILE UNTIL CANCEL ;
+
+Type <CANCEL> when prompted
+
+
+5) Open with RESETLOGS option:
+
+SQL> ALTER DATABASE OPEN RESETLOGS ;
+REFERENCES
+NOTE:840647.1 - How to use Rman Duplicate on ASM/RAC/OMF/Single Instance
+	
+ 	
+Was this document helpful?
+ 
+Yes
+No
+ 	 	 
+ 	
+Document Details
+ 
+Email link to this documentOpen document in new windowPrintable Page
+	
+Type:
+Status:
+Last Major Update:
+Last Update:
+PROBLEM
+PUBLISHED
+Aug 1, 2019
+Jan 4, 2021
+
+ 	 	 
+
+ 	
+Related Products
+ 
+	
+Oracle Database - Enterprise Edition
+Oracle Database Cloud Schema Service
+Gen 1 Exadata Cloud at Customer (Oracle Exadata Database Cloud Machine)
+Oracle Cloud Infrastructure - Database Service
+Oracle Database Exadata Express Cloud Service
+Show More
+ 	 	 
+ 	
+Information Centers
+ 
+			
+19c Database Self-Guided Upgrade with Best Practices [1919.2]
+
+Information Center: Transportable Tablespaces (TTS) for Oracle Database [1461278.2]
+
+Index of Oracle Database Information Centers [1568043.2]
+
+インフォメーション・センター: データベースおよび Enterprise Manager 日本語ドキュメント [1946305.2]
+
+Information Center: Data Warehousing [1487754.2]
+
+Show More
+ 	 	 
+ 	
+Document References
+ 
+			
+How to use Rman Duplicate on ASM/RAC/OMF/Single Instance [840647.1]
+
+ 	 	 
+ 	
+Recently Viewed
+ 
+	Rel 11i: How to change the hostname and/or port of the Database Tier using AutoConfig [338003.1]	
+
+	How To change the Port Pool in the E-Business Suite [414439.1]	
+
+	The STATS on the table shows as STALE even after gathering the stats [2543362.1]	
+
+	Step by Step Guide to Create Physical Standby Using RMAN backup based DUPLICATE (non ASM) on different / new host [374069.1]	
+
+	RMAN: Standby Controlfile Checkpoint More Recent Than Duplication Point in Time [188429.1]	
+
+Show More
+ 	 	 
+Didn't find what you are looking for?Ask in Community...
+
+ 
+Related
+ 
+ 
+Products
+ 
+Oracle Database Products > Oracle Database Suite > Oracle Database > Oracle Database - Enterprise Edition > Recovery Manager > Restore command
+Oracle Cloud > Oracle Platform Cloud > Oracle Database Cloud Service > Oracle Database Cloud Schema Service
+Oracle Cloud > Oracle Infrastructure Cloud > Oracle Cloud at Customer > Gen 1 Exadata Cloud at Customer (Oracle Exadata Database Cloud Machine)
+Oracle Cloud > Oracle Platform Cloud > Oracle Cloud Infrastructure - Database Service > Oracle Cloud Infrastructure - Database Service
+Oracle Cloud > Oracle Platform Cloud > Oracle Database Cloud Service > Oracle Database Exadata Express Cloud Service
+Oracle Cloud > Oracle Platform Cloud > Oracle Database Backup Service > Oracle Database Backup Service
+Oracle Cloud > Oracle Platform Cloud > Oracle Database Cloud Exadata Service > Oracle Database Cloud Exadata Service
+Oracle Cloud > Oracle Platform Cloud > Oracle Database Cloud Service > Oracle Database Cloud Service
+ 
+Keywords
+ 
+CONTROLFILE;CREATE CONTROLFILE;LOG FILE;LOGGING;RECOVER DATABASE;RESETLOGS;V$LOG
+ 
+Errors
+ 
+ORA-00312;ORA-00376;ORA-00392;ORA-312;ORA-392
+
+Back to TopBack to Top
+ 
+Copyright (c) 2022, Oracle. All rights reserved.
+	 	
+Legal Notices and Terms of Use
+ 	
+Privacy Statement

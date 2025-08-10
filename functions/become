@@ -1,0 +1,14 @@
+
+function become
+    {
+    if [ "$1" = "" ]
+    then
+        echo usage: become user
+        return
+    fi
+
+    echo "ROOT password:"
+    su root -c "su - ${1}"
+    }
+
+

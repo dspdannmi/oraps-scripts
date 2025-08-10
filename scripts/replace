@@ -1,0 +1,66 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  bkup
+#
+# Description:                  Backup file/directory with timestamp
+#
+# Parameters:
+#
+# Environment:
+#
+# Modification history:
+#
+#       16-Feb-2003     1.0     oracle  Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="string1 string2 file(s)"
+
+if [ $# -lt 3 ]
+then
+    usage
+fi
+
+string1=$(echo $1 | sed -e 's/;/\;/g')
+string2=$(echo $2 | sed -e 's/;/\;/g')
+shift; shift
+
+
+for filename in ${*}
+do
+    if [ -w $filename ] 
+    then
+     if [ -f $filename ]
+     then
+	if (sed -e "s;${string1};${string2};g" ${filename} > ${tmpfile})
+	then
+	  if diff ${filename} ${tmpfile} 2>&1 > /dev/null
+	  then
+	      :
+	  else
+	    cp ${tmpfile} ${filename}
+	    status=$?
+
+	    if [ $status -ne 0 ]
+	    then
+		echo "ERROR: Encountered error when copying tempfile back to $filename"
+	    fi
+	  fi
+	else
+	    echo "ERROR: Encountered error when replacing in $filename - ignoring"
+	    EXITCODE=2
+	fi
+      fi
+    else
+	echo "ERROR: $filename not writable"
+	EXITCODE=2
+    fi
+done
+
+exit ${EXITCODE}

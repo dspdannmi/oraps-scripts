@@ -1,0 +1,43 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  XXSCRIPT_NAMEXX
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       02-Aug-2007     1.0     root    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. /opt/dsp/env/funcs.sh
+
+USAGE_STRING=""
+
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+du -sk ${*} | sort -h
+
+
+
+exit $EXITCODE
+

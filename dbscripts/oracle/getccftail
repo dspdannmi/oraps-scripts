@@ -1,0 +1,45 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:          	genccfhead
+#
+# Description:          
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#	27-Feb-2003	1.0	oracle	Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="ccf_file"
+
+
+if [ $# -ne 1 ]
+then
+    usage
+else
+    CCFILE=${1}
+
+    if [ ! -f ${CCFILE} ]
+    then
+        echo ERROR: $CCFILE does not exist
+        EXITCODE=1
+        exit $EXITCODE
+    fi
+fi
+
+awk '/^CHARACTER SET/,/;/' ${CCFILE}
+
+exit $EXITCODE
+

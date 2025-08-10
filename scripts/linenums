@@ -1,0 +1,49 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  linenums
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       29-Mar-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="file"
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+if [ $# -ne 1 ]
+then
+    usage
+else
+    file=$1
+fi
+
+if [ ! -r $file ]
+then
+    echo ERROR: file does not exist or is not readable
+    exit 1
+fi
+
+cat -n $file
+
+exit $EXITCODE
+

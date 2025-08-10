@@ -1,0 +1,51 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  chkoradbinoratab
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       27-Mar-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="SID [SID1, SID2, ...]"
+
+
+#
+# Script starts here
+#
+#
+#set_error_trap
+
+if [ $# -eq 0 ]
+then
+    usage
+fi
+
+for ORACLE_SID in ${*}
+do
+    if grep ^${ORACLE_SID}: ${ORATAB} 2>&1 > /dev/null
+    then
+	:
+    else
+ 	echo ERROR: $ORACLE_SID not in /etc/oratab
+	EXITCODE=1
+    fi
+done
+
+exit $EXITCODE
+

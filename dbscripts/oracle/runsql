@@ -1,0 +1,70 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  runsql
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       01-Oct-2003     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="[-c] [-d SID] [-h host] [-p pdb] [-z] script param(s)"
+
+#
+# Script starts here
+#
+#
+#set_error_trap
+
+if [ $# -eq 0 ]
+then
+    usage
+fi
+
+PARAMS=""
+while getopts 'cd:h:p:z' OPTION
+do
+    case "$OPTION" in
+        c) export SQL_EXIT_ON_ERROR=NO ;;
+        d) PARAMS="-d $OPTARG ${PARAMS}" ;;
+        h) PARAMS="-h $OPTARG ${PARAMS}" ;;
+        p) PARAMS="-p $OPTARG ${PARAMS}" ;;
+        z) PARAMS="-z ${PARAMS}" ;;
+        ?) usage ;;
+    esac
+done
+shift $((OPTIND-1))
+
+# add @ to remaining parameters to tell SQL*Plus to run a script
+if [ $# -eq 1 ]
+then
+    CMDLINE="@${*} %"		# only scriptname remains so pass in % wildcard in case script is expecting that
+else
+    CMDLINE="@${*}"
+fi
+
+sql ${PARAMS} ${CMDLINE}
+status=$?
+
+if [ $status -ne 0 ]
+then
+    echo ERROR: Encountered error when running sql
+    EXITCODE=$status
+fi
+
+exit $EXITCODE
+

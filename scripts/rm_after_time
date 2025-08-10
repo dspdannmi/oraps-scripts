@@ -1,0 +1,52 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  rm_after_time
+#
+# Description:			Remove a file after specified number of seconds
+#				Used for removing flag files after a certain time
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       17-Feb-2005     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="seconds file"
+
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+#set_error_trap
+
+if [ $# -ne 2 ]
+then
+    usage
+fi
+
+seconds=$1
+file=$2
+
+sleep $seconds
+
+[ -f $file ] && rm -f $file
+status=$?
+
+exit $EXITCODE

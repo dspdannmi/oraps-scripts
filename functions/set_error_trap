@@ -1,0 +1,12 @@
+
+#---------------------------------------------------------------------------------------
+#
+# function set_error_trap
+#	Set trap to run error_encountered function if command returns non-zero exit code
+#
+#---------------------------------------------------------------------------------------
+
+function set_error_trap
+    {
+    trap "error_encountered" ERR
+    }

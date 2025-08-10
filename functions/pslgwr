@@ -1,0 +1,5 @@
+
+function pslgwr
+    {
+    ps -ef | grep [l]gwr | grep "${1-^}" | sort -t\_ -k3
+    }

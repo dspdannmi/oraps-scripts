@@ -1,0 +1,67 @@
+
+Last checked:
+	Date:	2025-07-29
+	Who:	Mike Dann (mike.dann@dsp.co.uk)
+
+
+Oracle Database
+---------------
+
+
+
+Oracle Linux
+------------
+
+
+
+Red Hat Enterprise Linux
+------------------------
+
+
+Linux (kernel)
+--------------
+
+
+
+Oracle MySQL
+------------
+
+
+
+
+Oracle Virtual Machine (OVM)
+----------------------------
+
+
+
+Oracle Linux Virtualisation Manager
+-----------------------------------
+
+
+
+Oracle Linux Manager
+--------------------
+
+
+
+MariaDB
+-------
+
+
+
+
+PostgreSQL
+----------
+
+
+
+
+
+
+Oracle WebLogic
+---------------
+
+
+
+Oracle Applications / E-Business
+--------------------------------

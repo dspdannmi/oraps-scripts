@@ -1,0 +1,102 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  run_and_wait
+#
+# Description:			
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       12-Sep-2007     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="seconds command_line"
+
+typeset -i retval1
+typeset -i retval2
+
+
+retval1=0
+retval2=0
+
+
+function check_process
+    {
+    kill -0 $1 2>1 > /dev/null 
+    }
+
+#
+# Define local script variables
+#
+
+
+#
+# Script starts here
+#
+#
+
+if [ $# -lt 2 ]
+then
+    usage
+fi
+
+SECONDS_TO_WAIT=$1
+shift
+COMMAND="$*"
+
+echo --------------------------------------------------------------
+echo "command:  $COMMAND"
+echo "timeout:  $SECONDS_TO_WAIT"
+echo --------------------------------------------------------------
+echo
+
+exec ${*} &
+PID=$!
+
+sleep $SECONDS_TO_WAIT &
+SLEEPPID=$!
+
+
+while [ $retval1 -eq 0 ] && [ $retval2 -eq 0 ]
+do
+    check_process $PID
+    retval1=$?
+
+    check_process $SLEEPPID
+    retval2=$?
+
+    sleep 1
+done
+
+
+check_process $PID
+status=$?
+
+echo 
+
+if [ $status -eq 0 ]
+then
+    echo "TIMEOUT: command still running - BAD"
+    ps -fp $PID
+    EXITCODE=1
+else
+    echo "info: command completed within timeout - OK" 
+    EXITCODE=0
+fi
+
+echo
+
+exit $EXITCODE
+

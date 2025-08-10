@@ -1,0 +1,12 @@
+
+function col8()
+    {
+    col=8
+
+    if [ $# -gt 0 ]
+    then
+        cut -d: -f${col} ${*}
+    else
+        cut -d: -f${col}
+    fi
+    }

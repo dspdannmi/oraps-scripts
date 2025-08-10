@@ -1,0 +1,39 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  xxxxx
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       14-Jan-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+
+# Remove ora from name of script
+child_scriptname=$(basename ${0} | sed -e 's/^ora/db/')
+
+cmd="${CS_TOP}/dbscripts/oracle/${child_scriptname} ${*}"
+
+if [ "${thisuser}" = "oracle" ]
+then
+    eval ${cmd}
+    status=$?
+    check_status_exit "Encountered error"
+else
+    su oracle -c "${cmd}"
+fi
+

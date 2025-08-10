@@ -1,0 +1,256 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  serverstamp
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       28-Jul-2025     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING=""
+
+DEBUG=NO
+
+FORCE=NO
+
+while getopts 'f' OPTION
+do
+    case "$OPTION" in
+        f) FORCE=YES ;;
+        ?) usage ;;
+    esac
+done
+
+user=$(whoami)
+
+if [ "${user}" = "" ]
+then
+    echo "ERROR: could not determine user - exiting"
+    EXITCODE=1
+    exit ${EXITCODE}
+fi
+
+#
+# outstanding mods:
+#   - make sure running as correct owner
+
+if [ -f ${DSP_IDENTITY_FILE} ] && [ "${FORCE}" != "YES" ]
+then
+    echo "ERROR: identity file [${DSP_IDENTITY_FILE}] already exists and force option [-f] not specified - exiting"
+    EXITCODE=1
+    exit $EXITCODE
+fi
+
+owner=$(cut -d: -f1 ${DSP_OWNER_FILE})
+
+if [ "${user}" != "${owner}" ]
+then
+    echo "ERROR: this user [${user}] does not match owner [${owner}] - exiting"
+    EXITCODE=1
+    exit $EXITCODE
+fi
+
+serversummary
+
+newid=$(uuidgen)
+status=$?
+
+
+
+echo
+echo
+echo "Hostname"
+echo "--------"
+echo "${thishost}"
+echo
+echo
+echo "Register UUID for the server ID"
+echo "-------------------------------"
+echo
+if [ "${newid}" != "" ] && [ $status -eq 0 ]	# uuidgen exists and we could generate our own uuid
+then
+  unset selections
+  selections=("Generate a server ID" "Provide a UUID to use for server ID")
+  choose_from_menu "Please select a MAC address to use to stamp this server" selected_choice "${selections[@]}"
+  echo "Selected choice: $selected_choice"
+
+  if [ "${selected_choice}" = "Provide a UUID to use for server ID" ]
+  then
+      echo -n "Enter the UUID you wish to stamp for this server: "
+      read newid
+  fi
+fi
+
+echo ""
+echo ""
+echo "Choose MAC Address"
+echo "------------------"
+echo
+
+unset selections
+showmacaddrs | awk '{print $NF}' | grep -v '00:00:00:00:00:00' > ${tmpfile}.array
+readarray -t selections < ${tmpfile}.array
+choose_from_menu "Please select a MAC address to use to stamp this server" selected_choice "${selections[@]}"
+macaddr=${selected_choice}
+
+echo ""
+echo ""
+echo "Choose IP Address"
+echo "-----------------"
+
+unset selections
+showipaddrs | sort -n > ${tmpfile}.array
+readarray -t selections < ${tmpfile}.array
+choose_from_menu "Please select an IP address to use to stamp this server" selected_choice "${selections[@]}"
+ipaddr=${selected_choice}
+
+echo ""
+echo ""
+echo "Choose machine type"
+echo "-------------------"
+
+unset selections
+selections=(
+"physical server" 
+"virtual machine (on-prem)" 
+"virtual machine (cloud)"
+)
+choose_from_menu "Please select a machine type" selected_choice "${selections[@]}"
+machine_type=${selected_choice}
+
+echo machine_type=${machine_type}
+
+case "${machine_type}" in
+    "physical server" ) prefix="0[0-9][0-0]" ;;
+    "virtual machine (on-prem)" ) prefix="1[0-9][0-9]" ;;
+    "virtual machine (cloud)" ) prefix="2[0-9][0-9]" ;;
+    *) ;;
+esac
+
+#IFS="\n"
+unset selections
+grep ^${prefix}: ${SERVERCODE_LOOKUP_FILE} | awk -F: '{print $2}' > ${tmpfile}.array
+
+# had all kinds of issues with getting an array built and
+# for multi-line/multi-word content
+readarray -t selections < ${tmpfile}.array
+
+choose_from_menu "Please select a machine sub-type" selected_choice "${selections[@]}"
+machine_subtype=${selected_choice}
+
+# not the use of awk variable machine_subtype so $2 == machine_subtype is comparing the awk variable
+machine_subtype_code=$(awk -v machine_subtype="${machine_subtype}" -F: '$2 == machine_subtype {print $1}' ${SERVERCODE_LOOKUP_FILE})
+
+#
+# double-check validation
+X=$(grep ^${machine_subtype_code}: ${SERVERCODE_LOOKUP_FILE} | awk -F: '{print $2}')
+
+if [ "${X}" != "${machine_subtype}" ] # something weird has happened
+then
+    echo "ERROR: unknown error - double-check validation failed on machine_subtype - please raise with code maintainer(s) - exiting"
+    EXITCODE=1
+    exit
+fi
+
+echo ""
+echo ""
+echo "Choose Database Hosting Status"
+echo "------------------------------"
+
+unset selections
+grep ^[0-9].*: ${DBHOSTING_LOOKUP_FILE} | awk -F: '{print $2}' > ${tmpfile}.array
+
+# had all kinds of issues with getting an array built and
+# for multi-line/multi-word content
+readarray -t selections < ${tmpfile}.array
+
+choose_from_menu "Please select a machine sub-type" selected_choice "${selections[@]}"
+dbhosting_status=${selected_choice}
+
+# not the use of awk variable dbhosting_status so $2 == dbhosting_status is comparing the awk variable
+dbhosting_status_code=$(awk -v dbhosting_status="${dbhosting_status}" -F: '$2 == dbhosting_status {print $1}' ${DBHOSTING_LOOKUP_FILE})
+
+#
+# double-check validation
+X=$(grep ^${dbhosting_status_code}: ${DBHOSTING_LOOKUP_FILE} | awk -F: '{print $2}')
+
+echo X=[$X]
+echo dbhosting_status=[$dbhosting_status]
+if [ "${X}" != "${dbhosting_status}" ] # something weird has happened
+then
+    echo "ERROR: unknown error - double-check validation failed on dbhosting_status - please raise with code maintainer(s) - exiting"
+    EXITCODE=1
+    exit
+fi
+
+
+
+echo ""
+echo "CONFIRMATION"
+echo "------------"
+echo
+echo "The following will be used to stamp this server:"
+echo ""
+echo "    hostname  : ${thishost}"
+echo "    server id : ${newid}"
+echo ""
+echo "   machine-id : ${machine_id}"
+echo "       hostid : ${hostid}"
+echo ""
+echo "     mac addr : ${macaddr}"
+echo "      ip addr : ${ipaddr}"
+echo ""
+echo "  server type : ${machine_subtype}"
+echo "   db hosting : ${dbhosting_status}"
+echo ""
+echo "Press [ENTER] to proceed or <ctrl-C> to cancel"
+read userinput
+echo
+
+(
+    echo "hostname: ${thishost}"
+    echo "dspserverid: ${newid}"
+    echo "macaddr:  ${macaddr}"
+    echo "ipaddr:   ${ipaddr}"
+    echo "servercode: ${machine_subtype_code}"
+    echo "dbhostingstatus: ${dbhosting_status_code}"
+    echo "machine-id: ${machine_id}"
+    echo "hostid:     ${hostid}"
+    echo
+) > ${DSP_IDENTITY_FILE}
+status=$?
+
+serversummary
+
+
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+
+echo
+
+exit $EXITCODE
+

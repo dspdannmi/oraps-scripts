@@ -1,0 +1,343 @@
+
+#
+# -----------------------------------------------------------------------------------------------------
+# This environment setting script for DSP is intended to be called by a human
+# from interactive shell.  It should not be sourced from within a script
+# Scripts should source env/dsp.env
+# -----------------------------------------------------------------------------------------------------
+#
+
+#
+# only display server check etc.
+# if environment is not already set
+# so for example dont want to display
+# servercheck info again if merely
+# su'ing to root
+#
+if [ "${CS_ENV_SET}" = "YES" ]
+then
+    quiet=YES
+else
+    quiet=NO
+
+    # set marker to show that CS/DSP environment
+    # has been set / sourced
+    export CS_ENV_SET=YES
+fi
+
+echo -en "${On_Black}"
+
+DSP_ENV_SCRIPT_DIR=$(dirname "${BASH_SOURCE[0]}")
+
+DSP_ENV_SCRIPT=${DSP_ENV_SCRIPT_DIR}/env/dsp.env
+if [ ! -r ${DSP_ENV_SCRIPT} ]
+then
+    echo "ERROR: cannot find environment setting scripts [${DSP_ENV_SCRIPT}] or is not readable"
+else
+    . ${DSP_ENV_SCRIPT}
+fi
+
+DSP_FUNCS_INTERACTIVE_SHELL_SCRIPT=${DSP_ENV_SCRIPT_DIR}/env/funcs_interactive_shell.sh
+if [ ! -r ${DSP_FUNCS_INTERACTIVE_SHELL_SCRIPT} ]
+then
+    echo "ERROR: cannot find environment setting scripts [${DSP_FUNCS_INTERACTIVE_SHELL_SCRIPT}] or is not readable"
+else
+    . ${DSP_FUNCS_INTERACTIVE_SHELL_SCRIPT}
+fi
+
+# do not export this variable
+# otherwise it will interfere with
+# shell scripts
+profile=""
+profile_override="NO"
+
+
+## set OPTIND=1
+## https://stackoverflow.com/questions/23581368/bug-in-parsing-args-with-getopts-in-bash
+#OPTIND_SAVE=$OPTIND
+#export OPTIND=1
+
+while getopts 'nu:' OPTION
+do
+    case "$OPTION" in
+        u) profile=$OPTARG ;;
+        q) quiet=YES ;;
+        ?) usage ;;
+    esac
+done
+
+#export OPTIND=${OPTIND_SAVE}
+
+
+if [ "${quiet}" = "NO" ]
+then
+BANNER_FILE=${CS_TOP}/resources/banners/dsp/dsp.txt
+
+    #echo ""
+    echo "_________________________________________________________________________"
+    #echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+    #echo ""
+    echo -e "${BICyan}"
+    cat ${BANNER_FILE} | sed -e 's/^/                           /'
+    echo -e "${White}"
+    echo "Scripts" | sed -e 's/^/                                 /'
+    echo "                                                                    "
+    echo "                              maintained by:                        "
+    echo -e "                 --=== ${BGreen}Oracle Professional Services ${White}===--           "
+    echo "                (OracleProfessionalServicesTeam@dsp.co.uk)          "
+    echo ""
+    echo "                               (${dsp_version})"
+    
+    serversummary
+    
+    serverstampcheck 2>&1 > /dev/null
+    status=$?
+    
+    if [ $status -ne 0 ]
+    then
+        echo
+        echo -e "   ${BRed}*** WARNING: - server has not passed DSP registration checkhost${White}"
+        echo "                - server and scripts still functional - but metadata is suspect or does not exist"
+        echo "                - run checkhost for more details"
+    fi
+    
+    echo ""
+fi #quiet
+
+#
+# start section that deals with being an interactive shell
+# and potentially setting different settings for different
+# profiles and users
+#
+if [ "${profile}" = "" ]
+then
+    #
+    # no profile specified
+    # but environment previously did have profile set
+    # so need to clean-up including removing from PATH
+    if [ ! -z ${MY_PROFILE_DIR} ]
+    then
+        # MY_PROFILE_DIR is defined
+        # 
+    
+        export PATH=$(echo $PATH | sed -e "s;${MY_PROFILE_DIR}/bin;;g" -e "s;${MY_PROFILE_DIR}/scripts;;g" -e "s/::/:/g")
+    fi
+
+    MY_PROFILE_DIR=""
+
+else
+    MY_PROFILE_DIR=${CS_TOP}/profiles/${profile}
+ 
+    if [ -d ${MY_PROFILE_DIR} ]
+    then
+        profile_override="YES"	# there is a profile dir to give opportunity to override environment
+    else
+        echo "WARNING: profile for user [${profile}] does not exist - none will be set!!!"
+    fi
+fi
+
+
+export FPATH=${CS_TOP}/functions:${FPATH}
+
+export ORACLE_OWNER=oracle		# the owner and group of Oracle software
+export ORACLE_GROUP=dba
+
+export SQLPLUS_DBA_LOGON="/ as sysdba"
+
+export SQLPLUS_LINESIZE=${COLUMNS:-140}
+export SQLPLUS_PAGESIZE=${LINES:-80}
+
+export ALERTLOG=""
+    
+    
+
+    #
+    # Aliases
+    #
+
+    #
+    # aliases for Oracle Databases
+    #
+    # - (re-)generate Oracle Database aliases and then source file
+    # - this will create an alias in lower-case for any uncommeted entry in ${ORATAB}
+    ${CS_TOP}/dbscripts/oracle/gendbaliases > ${HOME}/.oradb_aliases ; . ${HOME}/.oradb_aliases
+    alias g='${CS_TOP}/dbascripts/gendbaliases > ${HOME}/.oradb_aliases ; . ${HOME}/.oradb_aliases'
+
+    oradb_aliases_file=${HOME}/.oradb_aliases
+    [ -r ${oradb_aliases_file} ] && . ${oradb_aliases_file}
+    
+    #alias scp='scp -q -c arcfour'
+    #alias ssh='ssh -oLogLevel=QUIET'
+    #
+    #   -- aliases for Oracle environment
+    #
+    alias s+='sqlplus'
+    alias nolog='sqlplus /nolog'
+    alias sysdba='sqlplus "/ as sysdba"'
+    alias sysasm='sqlplus "/ as sysasm"'
+
+    #
+    alias arch='cd $ORACLE_BASE/admin/$ORACLE_SID/arch'
+    alias adhoc='cd $ORACLE_BASE/admin/$ORACLE_SID/adhoc'
+    alias admin='cd $ORACLE_BASE/admin'
+    alias adump='cd $ORACLE_BASE/admin/$ORACLE_SID/adump'
+    alias base='cd $ORACLE_BASE'
+    alias bdump='cd $ORACLE_BASE/admin/$ORACLE_SID/bdump'
+    alias cdump='cd $ORACLE_BASE/admin/$ORACLE_SID/cdump'
+    alias create='cd $ORACLE_BASE/admin/$ORACLE_SID/create'
+    alias refresh='cd $ORACLE_BASE/admin/$ORACLE_SID/refresh'
+    alias clone='cd $ORACLE_BASE/admin/$ORACLE_SID/clone'
+    alias expdir='cd $ORACLE_BASE/admin/$ORACLE_SID/exp'
+    alias ohome='cd ${ORACLE_HOME}'
+    alias ohdbs='cd ${ORACLE_HOME}/dbs'
+    alias ohnetadmin='cd $ORACLE_HOME/network/admin'
+    alias cdnetadmin='cd $ORACLE_HOME/network/admin'
+    alias netadmin='cd $ORACLE_HOME/network/admin'
+    alias lsnetadmin='ls -al $ORACLE_HOME/network/admin'
+    alias opatch='$ORACLE_HOME/OPatch/opatch'
+    alias oraadmin='cd $ORACLE_BASE/admin/$ORACLE_SID'
+    alias setalertlog='setalertlogvar'
+    alias tnsadmin='cd $TNS_ADMIN'
+    alias pfile='cd $ORACLE_BASE/admin/$ORACLE_SID/pfile'
+    alias udump='cd $ORACLE_BASE/admin/$ORACLE_SID/udump'
+    alias tailfalert='tailalert -f'
+    alias tailalertf='tailalert -f'
+    #
+    #   -- aliases for cd shortcuts
+    #
+    alias cs='cd ${CS_TOP}'
+    alias dbascripts='cd ${CS_TOP}/dbascripts'
+    alias scripts='cd ${CS_TOP}/scripts'
+    alias tools='cd ${CS_TOP}/tools'
+    alias sqldir='cd ${CS_TOP}/sql'
+    alias bindir='cd ${CS_TOP}/bin'
+    #
+    # -- aliases for su shortcuts
+    #
+    alias oracle='su oracle -c "export ENV=$CS_TOP/setenv ; /usr/bin/sh"'
+    alias suoracle='su - oracle'
+
+    # /bin/bash/sh is legacy and uses ENV for interactive shell, no real equivalent
+    # in bash.  The below causes $CS_TOP/setenv to be called instead of ~/.bashrc
+    # but as we're just doing an su root the environment is maintained anyway
+    # so am not concerned that ~/.bashrc is not being run.  We need to run setenv
+    # to ensure the prompt is set correctly
+    alias root='su root -c "/bin/bash --init-file $CS_TOP/setenv"'
+    alias suroot='su - root'
+    #
+    # -- misc aliases
+    #
+    alias back='cd ..'
+    alias back2='cd ../..'
+    alias back3='cd ../../../..'
+    alias back4='cd ../../../../..'
+    alias back5='cd ../../../../../..'
+    alias back6='cd ../../../../../../..'
+    alias back7='cd ../../../../../../../..'
+    alias back8='cd ../../../../../../../../..'
+    alias back9='cd ../../../../../../../../../..'
+    alias dfh='df -h'
+    alias dush='du -sh *'
+    alias h='history'
+    alias hg='history | grep'
+    alias h10='history 10'
+    alias h20='history 20'
+    alias h50='history 50'
+    alias h100='history 100'
+    alias latr='ls -latr'
+    alias lu='du -sh * | sort -h'
+    alias path='echo -e ${PATH//:/\\n}'
+    alias cdssh='cd ${HOME}/.ssh'
+    alias rm='rm -i'
+    alias tailf='tail -100f'
+    
+    # square brackets around the grep string prevents
+    # the grep command matching on itself from the ps -ef
+    # output and returning itself
+    alias pslgwr='ps -ef | grep [l]gwr'
+    alias pssmon='ps -ef | grep [s]mon'
+    alias pspmon='ps -ef | grep [p]mon'
+    alias psdbwr='ps -ef | grep [d]bwr'
+    
+    
+    #
+    # Set prompt
+    #
+    if [ "${thisuser}" = "root" ]
+    then
+        #PS1='$PWD:[${ORACLE_SID}]:[ROOT] ## '
+        #PS1="${PS1}:[ROOT] ## "
+        PS1='[${USER}:$PWD:[${ORACLE_SID:-<*>}{${DSP_PDB_SID}}]: [ROOT] ##> '
+        #PATH=${PATH}:${ORACLE_HOME}/bin
+    elif [ "${thisuser}" = "oracle" ]
+    then
+        PS1='[${USER}:$PWD:[${ORACLE_SID:-<*>}{${DSP_PDB_SID}}]: ${thisuser}> '
+        #export PATH=${PATH}:/usr/local/bin:.
+    else
+        #PS1='$PWD:[${ORACLE_SID}> '
+        PS1='[${USER}:$PWD:[${ORACLE_SID:-<*>}{${DSP_PDB_SID}}]: ${thisuser}> '
+        #export PATH=${PATH}:/usr/local/bin:.
+    fi
+
+
+#
+# modify command line history to create a seperate history file
+# for each session with timestamp and also configure such that
+# history is written after each command
+#
+HISTDIR=$HOME/.history
+if [ ! -d ${HISTDIR} ]
+then
+    mkdir ${HISTDIR}
+fi
+
+history -a
+PROMPT_COMMAND="history -a"
+HISTFILE=${HISTDIR}/.bash_history.${todayfull}.${$}
+    
+
+#
+# PROFILE specific
+#
+if [ "${profile}" != "" ] && [ "${profile_override}" = "YES" ]
+then
+    HISTFILE=${HISTDIR}/.bash_history.${todayfull}.${profile}.${$}
+    PROFILE_ENV_SCRIPT=${MY_PROFILE_DIR}/env/setenv
+
+    # source individual profile env script if it exists
+    [ -r ${PROFILE_ENV_SCRIPT} ] && . ${PROFILE_ENV_SCRIPT} 
+
+    #
+    # update PATH with profile specific directories 
+    # (ie. override)
+    #
+    for execdir in ${MY_PROFILE_DIR}/bin ${MY_PROFILE_DIR}/scripts
+    do
+      case "$PATH" in
+       *$execdir:*)	;;
+       *:$execdir*)	;;
+       *)		export PATH=${execdir}:${PATH}
+       		    ;;
+      esac
+    done
+
+    #
+    # update SQLPATH with profile specific directories 
+    # (ie. override)
+    #
+    for execdir in ${MY_PROFILE_DIR}/sql # only one directory now but maybe more hence for loop
+    do
+      case "$SQLPATH" in
+       *$execdir:*)	;;
+       *:$execdir*)	;;
+       *)		export SQLPATH=${execdir}:${PATH}
+       		    ;;
+      esac
+    done
+
+    export ORACLE_PATH=${SQLPATH}
+
+fi
+    
+#script --timing=/tmp/mtd.timing.$$ /tmp/mtd.scriptfile
+

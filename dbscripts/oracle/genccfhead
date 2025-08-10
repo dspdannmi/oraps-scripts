@@ -1,0 +1,35 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:          	genccfhead
+#
+# Description:          
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#	27-Feb-2003	1.0	oracle	Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="[-d SID]"
+
+if [ $# -gt 2 ]
+then
+    usage
+fi
+
+genccf ${*} | awk '/^CREATE CONTROLFILE/,/^DATAFILE/'
+
+exit $EXITCODE
+

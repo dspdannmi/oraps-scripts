@@ -1,0 +1,85 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:          	bkup
+#
+# Description:         	 	Backup file/directory with timestamp
+#
+# Parameters:
+#
+# Environment:
+#
+# Modification history:
+#
+#	16-Feb-2003	1.0	oracle	Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+echo today=$today
+
+EXITCODE=0
+USAGE_STRING="file1 [file2 file3 ...]"
+
+
+if [ $# -lt 1 ]
+then
+    usage
+fi
+
+for filename in ${*}
+do
+    if [ -f $filename -o -d $filename ]
+    then
+	if [ -f $filename.$today -o -d $filename.$today ]
+	then
+	    echo error: backup file/directory for $filename already exists
+	    EXITCODE=1
+	else
+	    if [ -f $filename ]
+	    then
+		cp -p $filename $filename.$today
+		status=$?
+
+		if [ $status -ne 0 ]
+		then
+		    echo error: could not copy $filename to $filename.$today
+		    EXITCODE=1
+		fi
+
+                ls -ald $filename
+                ls -ald $filename.$today
+	    elif [ -d $filename ]
+	    then
+		cp -rp $filename $filename.$today
+		status=$?
+
+		if [ $status -ne 0 ]
+		then
+		    echo error: could not copy $filename to $filename.$today
+		    EXITCODE=1
+		fi
+
+                ls -ald $filename
+                ls -ald $filename.$today
+	    else
+		echo error: $filename not a regular file or directory
+	    fi
+	fi
+    else
+	echo error: $filename not a regular file or directory
+	EXITCODE=1
+    fi
+done
+
+if [ $EXITCODE -ne 0 ]
+then
+    echo
+    echo ERROR: See above for information
+fi
+
+exit $EXITCODE

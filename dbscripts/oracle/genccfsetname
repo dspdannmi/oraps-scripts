@@ -1,0 +1,51 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  genccfsetname
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       19-Jun-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="ccf_file"
+
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+if [ $# -ne 1 ]
+then
+    usage
+else
+    CCFILE=${1}
+
+    if [ ! -r $CCFILE ]
+    then
+	echo ERROR: $CCFILE does not exist
+	EXITCODE=1
+	exit $EXITCODE
+    fi
+fi
+
+sed -e "1s/ DATABASE / SET DATABASE /" -e "1s/NORESETLOGS/RESETLOGS/"  $CCFILE
+
+exit $EXITCODE
+

@@ -1,0 +1,40 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  runlater
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       09-Oct-2003     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. /opt/dsp/env/funcs.sh
+
+# dtree - list a directory tree
+#
+#usage: dtree directory
+#       ===============
+#
+# from:	http://www.uvsoftware.ca/scripts.htm#18A
+#
+#
+
+D=${1:-`pwd`}
+(cd $D; pwd)
+find $D -type d -print | sort |
+sed -e "s,^$D,,"\
+    -e "/^$/d"\
+    -e "s,[^/]*/\([^/]*\)$,\\\-----\1,"\
+    -e "s,[^/]*/,|     ,g" 

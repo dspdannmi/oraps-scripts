@@ -1,0 +1,256 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  runlater
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       09-Oct-2003     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. /opt/dsp/env/funcs.sh
+
+USAGE_STRING="[-t HH:MM|-s waitseconds|-d YYYYMMDDHH] command"
+DEL_TEMPFILES="NO"
+
+
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+SECONDS_UNTIL=""
+TIME_UNTIL=""
+DATE_UNTIL=""
+typeset -i HOUR ; HOUR=0
+typeset -i MINUTE ; MINUTE=0
+
+set -- `getopt "s:t:d:" "$@"` || usage
+
+    while :
+    do
+        case "$1" in
+        -s) shift; SECONDS_UNTIL=${1} ;;
+        -t) shift; TIME_UNTIL=${1}    ;;
+        -d) shift; DATE_UNTIL=${1}    ;;
+        --) break ;;
+        esac
+        shift
+    done
+    shift    # REMOVE THE TRAILING --
+
+if [ "${SECONDS_UNTIL}" != "" ] && [ "${TIME_UNTIL}" != "" ] && [ "${DATE_UNTIL}" != "" ]
+then
+    usage
+else
+    if [ "$TIME_UNTIL" != "" ]
+    then
+	if [ "${SECONDS_UNTIL}" != "" ] || [ "${DATE_UNTIL}" != "" ]
+	then
+	    usage
+	fi
+
+	TIME_UNTIL=$(echo $TIME_UNTIL | sed -e 's/ /:/g')
+	TIME_UNTIL=$(echo $TIME_UNTIL | sed -e 's/\./:/g')
+	TIME_UNTIL=$(echo $TIME_UNTIL | sed -e 's/\-/:/g')
+
+	HOUR=$(echo $TIME_UNTIL | awk -F: '{print $1}')
+	MINUTE=$(echo $TIME_UNTIL | awk -F: '{print $2}')
+
+	if [ $HOUR -lt 0 ] || [ $HOUR -gt 23 ]
+	then
+	    echo "ERROR: Invalid hour setting $HOUR"
+	    EXITCODE=1
+	    exit
+	fi
+
+	if [ $MINUTE -lt 0 ] || [ $MINUTE -gt 59 ]
+	then
+	    echo "ERROR: Invalid minute setting $MINUTE"
+	    EXITCODE=1
+	    exit
+	fi
+    fi
+
+    if [ "$SECONDS_UNTIL" != "" ]
+    then
+	if [ $SECONDS_UNTIL -lt 0 ]
+	then
+	    echo "ERROR: Invalid seconds until setting $SECONDS_UNTIL"
+	    EXITCODE=1
+	    exit
+	fi
+    fi
+fi
+
+
+if [ $# -eq 0 ]
+then
+    usage
+fi
+
+
+jobid=$$
+cmdfile=${tmpfile}.cmd.${jobid}
+outdir=${HOME}/dsp/out/runlater
+
+if [ ! -d ${outdir} ]
+then
+    mkdir -p ${outdir}
+fi
+
+outfile=${outdir}/runlater_$(date +%Y%m%d_%H%M)_job${jobid}.out
+
+[ -f $cmdfile.0 ] && rm -f $cmdfile.0
+[ -f $cmdfile.1 ] && rm -f $cmdfile.1
+[ -f $cmdfile.2 ] && rm -f $cmdfile.2
+[ -f $cmdfile.3 ] && rm -f $cmdfile.3
+[ -f $cmdfile.4 ] && rm -f $cmdfile.4
+
+#(
+ echo Job has been scheduled 
+ echo
+ echo "command line:          ${*}"
+ echo "current date:          $(date +%H:%M\ %d-%b-%Y)"
+ echo ""
+#)  > $tmpfile.initial_email
+
+
+if [ "$SECONDS_UNTIL" != "" ]
+then
+    (echo "#!/bin/bash"
+     echo
+     echo sleep $SECONDS_UNTIL
+    ) >> $cmdfile.0
+
+    (echo "seconds before run:    $SECONDS_UNTIL"
+    ) >> $tmpfile.initial_email
+
+elif [ "$TIME_UNTIL" != "" ]
+then
+    (echo "#!/bin/bash"
+     echo ""
+     echo "typeset -i H"
+     echo "typeset -i M"
+     echo 'H=$(date +%H)'
+     echo 'M=$(date +%M)'
+     echo ""
+     echo "HOUR=$HOUR"
+     echo "MINUTE=$MINUTE"
+     echo ""
+     echo 'RUN="NO"'
+     echo ""
+     echo 'while [ "$RUN" = "NO" ]'
+     echo "do"
+     echo "    sleep 5"
+     echo ""
+     echo '    H=$(date +%H)'
+     echo '    M=$(date +%M)'
+     echo ""
+     echo '    if [ $H -eq $HOUR ] && [ $M -eq $MINUTE ]'
+     echo "    then"
+     echo '        RUN="YES"'
+     echo "    fi"
+     echo "done"
+    ) >> $cmdfile.0
+
+    (echo "will run at time:      $HOUR:$MINUTE"
+    ) >> $tmpfile.initial_email
+
+elif [ "$DATE_UNTIL" != "" ]
+then
+    (echo "#!/bin/bash"
+     echo ""
+     echo "#DATE_UNTIL=${DATE_UNTIL}"
+     echo 'DATE=$(date +%Y%m%d%H)'
+     echo ""
+     echo 'RUN="NO"'
+     echo ""
+     echo 'while [ "$RUN" = "NO" ]'
+     echo "do"
+     echo "    sleep 5"
+     echo ""
+     echo '    DATE=$(date +%Y%m%d%H)'
+     echo ""
+     echo "    if [ \$DATE = \"${DATE_UNTIL}\" ]"
+     echo "    then"
+     echo '        RUN="YES"'
+     echo "    fi"
+     echo "done"
+    ) >> $cmdfile.0
+
+    (echo "will run at time:      $HOUR:$MINUTE"
+    ) >> $tmpfile.initial_email
+
+else
+    (echo "#/bin/bash"
+     echo ""
+     echo "exit 0"
+    ) >> $cmdfile.0
+
+    (echo "will run:              NOW"
+    ) >> $tmpfile.initial_email
+
+fi
+
+
+#cat $tmpfile.initial_email  | ${scriptdir}/mtdmail Job initiated on $(hostname): $jobid
+[ -f ${tmpfile}.initial_email ] && rm -f ${tmpfile}.initial_email
+
+
+(echo "#!/bin/bash"
+ echo
+ echo ${*}
+) >> $cmdfile.1
+
+(echo "#!/bin/bash"
+ echo
+ echo if [ \"\$\(wc -l $outfile \| awk \'{print \$1}\' \)\" = \"0\" \]
+ echo then
+    echo echo command finished: ${*} 
+ echo fi
+# echo cat $outfile \| ${scriptdir}/mtdmail Job complete on $(hostname): $jobid 
+) >> $cmdfile.2
+
+#debugcat $cmdfile.2
+
+(echo "#!/bin/bash"
+ echo /bin/bash $cmdfile.0
+ echo /bin/bash $cmdfile.1 2\>\&1 \> $outfile
+ echo /bin/bash $cmdfile.2
+ echo
+ echo rm -f $cmdfile.0
+ echo rm -f $cmdfile.1
+ echo rm -f $cmdfile.2
+ echo rm -f $cmdfile.3
+) >> $cmdfile.3
+
+chmod u+x $cmdfile.0 \
+	  $cmdfile.1 \
+	  $cmdfile.2 \
+	  $cmdfile.3
+
+echo
+echo "Submitting job: $jobid"
+echo
+echo "    command line:          ${*}"
+
+ nohup $cmdfile.3 2>&1 > $outfile & 
+echo
+
+
+

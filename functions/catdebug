@@ -1,0 +1,26 @@
+#---------------------------------------------------------------------------------------
+#
+# function catdebug
+#
+#---------------------------------------------------------------------------------------
+
+function catdebug
+    {
+    if [ $# -lt 1 ]
+    then
+        echo Invalid number of parameters to debugcat - expecting at least 1 file
+    fi
+
+    if [ "$DEBUG" = "YES" ]
+    then
+        for file in ${*}
+        do
+        echo ""
+        echo "<<< DEBUG::>-------------------------- ${file}:  START ---------------------------------- >>>"
+        cat ${file}
+        echo "<<< DEBUG::>-------------------------- ${file}:  END ---------------------------------- >>>"
+        echo ""
+        done
+    fi
+
+    }

@@ -1,0 +1,5 @@
+
+function pslsn
+    {
+    ps -ef | grep [t]nslsnr | grep ${1-^}
+    }

@@ -1,0 +1,74 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  listsqlscripts
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       12-Aug-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING=""
+
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+INDEXFILE=${CS_TOP}/sql/INDEX.txt
+
+if [ $# -ne 0 ]
+then
+    PARAM=${*}
+else
+    PARAM="^"
+fi
+
+#cd ${SQL}
+
+echo
+printf "%-40s%-19s%s\n" SCRIPT CATEGORY DESCRIPTION
+echo "--------------------------------------- ------------------ -----------------------------------------------------------------------"
+for param in "${PARAM}"
+do
+    param=$(echo $param | sed -e 's/\*/.*/g')	# wildcard star modified to suit pattern matching
+
+    awk "\$1 ~ /${param}.*\.sql\$/ {print \$0}" ${INDEXFILE} | while read LINE
+    do
+	script=$(echo $LINE | awk '{print $1}')
+	category=$(echo $LINE | awk '{print $2}')
+	description=$(echo $LINE | sed -e 's/.*\[\(.*\)\].*/\1/')
+
+	printf "%-40s%-19s%-40s\n" "${script}" "[${category}]" "${description}" 
+
+    done
+    awk -F\[ "\$2 ~ /${param}/ {print \$0}" ${INDEXFILE} | while read LINE
+    do
+	script=$(echo $LINE | awk '{print $1}')
+	category=$(echo $LINE | awk '{print $2}')
+	description=$(echo $LINE | sed -e 's/.*\[\(.*\)\].*/\1/')
+
+	printf "%-40s%-19s%-40s\n" "${script}" "[${category}]" "${description}" 
+    done
+done | sort -u
+
+echo
+
+exit $EXITCODE
+

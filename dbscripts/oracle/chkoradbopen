@@ -1,0 +1,61 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:          	chkoradbopen
+#
+# Description:			Determines if database is up or not          
+#
+# Parameters:
+#
+# Environment:
+#
+# Exit codes:			0	Database is up
+#				1	Error - could not locate database
+#				2	Database is not up
+#
+# Modification history:
+#
+#	18-Feb-2003	1.0	oracle	Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="SID"
+
+if [ $# -ne 1 ]
+then
+    usage
+else
+    export ORACLE_SID=${1}
+fi
+
+if chkoradbinoratab ${ORACLE_SID}
+then
+    export ORAENV_ASK=NO
+    . ${ORAENV} 2>&1 > /dev/null
+        
+#----------------- here document must be left-aligned ---------------------
+sqlplus -s ${SQLPLUS_DBA_LOGON} << *EOF* 2>&1 > /dev/null
+WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK;
+select user from dual;
+exit
+*EOF*
+#----------------- here document must be left-aligned ---------------------
+
+    status=$?
+    
+    if [ $status -ne 0 ]
+    then
+       echo "$ORACLE_SID is not up or cannot connect via ${SQLPLUS_DBA_LOGON}"
+       EXITCODE=2
+    fi
+else
+    EXITCODE=1
+fi
+
+exit $EXITCODE
+

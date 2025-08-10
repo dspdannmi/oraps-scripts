@@ -1,0 +1,116 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  genccf
+#
+# Description:			Generate a CREATE CONTROFILE script to standard output
+#
+# Parameters:			1	(optional)	SID
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       14-Jan-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="[-d SID] scn"
+
+
+
+if [ $# -gt 2 ]
+then
+    usage
+fi
+
+if [ "$1" = "-d" ]
+then
+    export ORACLE_SID=$(echo ${2} | awk -F: '{print $1}')
+
+    whichhost=$(echo ${2} | awk -F: '{print $2}' | tr "[:upper:]" "[:lower:]")
+
+    if [ "${whichhost}" = "" ] || [ "${whichhost}" = "${thishost}" ]
+    then
+        whichhost=$thishost
+
+        if chkoradbinoratab ${ORACLE_SID}
+        then
+            :
+        else
+            echo ERROR: $ORACLE_SID not in oratab
+            exit 1
+        fi
+
+        . /usr/local/bin/oraenv 2>&1 > /dev/null
+    fi
+
+    shift
+    shift
+else
+    whichhost=$thishost
+fi
+
+if [ $# -ne 0 ]
+then
+    usage
+fi
+
+
+if [ "$ORACLE_SID" = "" ]
+then
+    echo ERROR: ORACLE_SID not set
+    exit 1
+fi
+
+
+if [ "$whichhost" = "$thishost" ]
+then
+    if chkoradbopen $ORACLE_SID
+    then
+        :
+    else
+        echo ERROR: $ORACLE_SID is not up
+        exit 1
+    fi
+
+current_scn=$(sqlplus -s ${SQLPLUS_DBA_LOGON} << *EOF* 2>&1
+whenever sqlerror exit 4
+set pages 0
+set lines 500
+set feedback off
+select current_scn from v\$database;
+
+exit
+*EOF*
+)
+status=$?
+
+if [ $status -ne 0 ]
+then
+    echo ERROR: Encountered error when running $EXECUTABLE
+    EXITCODE=1
+fi
+
+else
+    current_scn=$(runremotecmd ${whichhost} $(which ${scriptname}) -d ${ORACLE_SID} )
+    status=$?
+
+      if [ $status -ne 0 ]
+      then
+          echo "ERROR: Encountered error running remote command"
+          EXITCODE=1
+      fi
+fi
+
+echo ${current_scn}
+
+exit $EXITCODE
+

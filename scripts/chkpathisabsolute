@@ -1,0 +1,61 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  chkpathisabsolute
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       29-Jul-2025     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="path"
+
+
+if [ $# -ne 1 ]
+then
+    usage
+fi
+
+path_to_check=${1}
+
+WARN_ON_NONZERO_EXIT="NO"
+
+if expr "${path_to_check}" : "/" 2>&1 > /dev/null
+then
+    echo "ABSOLLUTE: leading character is /"
+else
+    echo "RELATIVE: leading character is NOT /"
+    EXITCODE=1
+fi
+
+
+
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+
+
+exit $EXITCODE
+

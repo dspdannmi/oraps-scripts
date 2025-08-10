@@ -1,0 +1,50 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  listsqlcats
+#
+# Description:			List categories of SQL statements available
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       14-Aug-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING=""
+
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+if [ $# -ne 0 ]
+then
+    usage
+fi
+
+echo ""
+echo "CATEGORY"
+echo "-------------------------------------------------------------"
+ls -1d ${SQL}/CATEGORY/* | while read LINE
+do
+    echo $(basename ${LINE})
+done | sort
+
+
+
+exit $EXITCODE
+

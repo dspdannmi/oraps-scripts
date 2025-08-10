@@ -1,0 +1,13 @@
+
+function viewwhich
+    {
+    filepath=""
+    for file in ${*}
+    do
+        filepath="${filepath} $(which ${file})"
+    done
+
+    view ${filepath}
+    }
+
+

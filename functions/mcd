@@ -1,0 +1,21 @@
+
+function mcd
+    {
+    dir=${1}
+
+    if [ -d ${dir} ] || [ -f ${dir} ]
+    then
+	echo "warn: ${dir} already exists"
+    else
+	mkdir ${dir} || echo "mcd: mkdir error"
+    fi
+
+    if [ -d ${dir} ]
+    then
+	cd ${dir}
+    else
+	echo "mcd: error: ${dir} does not exist"
+    fi
+    }
+
+

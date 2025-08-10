@@ -1,0 +1,103 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  runsysdba
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       18-Jun-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="[-d SID] command"
+
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+if [ "$1" = "-d" ]
+then
+    if [ $# -eq 1 ]
+    then
+	usage
+    fi
+
+    export ORACLE_SID=$(echo ${2} | awk -F: '{print $1}')
+    export whichhost=$(echo ${2} | awk -F: '{print $2}')
+
+    if [ "$whichhost" = "" ]
+    then
+	whichhost=$thishost
+    else
+        if [ "$whichhost" != "$thishost" ]
+        then
+	    echo ERROR: Remote running of $scriptname not permitted
+	    EXITCODE=1
+	    exit $EXITCODE
+        fi
+    fi
+
+    if chkoradbinoratab ${ORACLE_SID}
+    then
+	:
+    else
+	echo ${ORACLE_SID} not defined in /etc/oratab
+	EXITCODE=1
+	exit
+    fi
+
+    clear_error_trap		# for Apps 11i database oraenv may return
+				# misc errors about TNS_ADMIN and ORACLE_BASE
+				# this will cause EXITCODE to be set so error
+				# trap needs to be cleared prior
+
+    export ORAENV_ASK=NO
+    . /usr/local/bin/oraenv 2>&1 > /dev/null
+
+    set_error_trap		# reset error trap
+
+    shift 
+    shift
+fi
+
+if [ $# -ne 0 ]
+then
+    usage
+fi
+
+EXECUTABLE=svrmgrl
+CMD=${*}
+
+if [ ! -x ${ORACLE_HOME}/bin/${EXECUTABLE} ]
+then
+    EXECUTABLE="sqlplus /nolog"
+else
+    #EXECUTABLE="${CS_TOP}/bin/svrmgrl_p"	# bug#622943
+    EXECUTABLE="svrmgrl"	
+fi
+
+${EXECUTABLE} << *EOF*
+connect / as sysdba
+col change# format 999999999999999999999999999999999999999999999999999
+select min(change#) change# from v\$backup;
+exit
+*EOF*
+
+exit $EXITCODE
+

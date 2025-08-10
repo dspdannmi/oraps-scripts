@@ -1,0 +1,48 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  findext
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       29-Dec-2009     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="dir"
+
+if [ $# -ne 1 ]
+then
+    usage
+fi
+
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+find $1 -type f -name \*\.\* | awk -F. '{print $NF}' | sort -u | sed -e 's/^/./'
+
+
+
+exit $EXITCODE
+

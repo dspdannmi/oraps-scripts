@@ -1,0 +1,81 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  chkfsusage
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:		0 	filesystem OK
+#			1	filesystem above threshold
+#			2	other error
+#
+# Modification history:
+#
+#       04-Jun-2005     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="filesystem [usage]"
+
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+typeset -i threshold
+typeset -i currentusage
+
+if [ $# -lt 1 ] && [ $# -gt 2 ]
+then
+    usage
+fi
+
+if [ $# -eq 2 ]
+then
+    threshold=$2
+else
+    threshold=99
+fi
+
+filesystem=${1}
+
+if [ ! -r ${filesystem} ]
+then
+   echo ERROR: ${filesystem} not a valid file or filesystem
+   EXITCODE=2
+   exit $EXITCODE
+fi
+
+currentusage=$(bdf ${filesystem} | grep -v ^Filesystem | awk '{print $5}' | sed -e 's/%//g')
+status=$?
+
+if [ $status -ne 0 ]
+then
+    echo "ERROR: bdf returned non-zero exit code $status"
+    EXITCODE=$status
+else
+    if [ ${currentusage} -gt ${threshold} ]
+    then
+        echo "WARNING: ${filesystem} at ${currentusage}: threshold=${threshold}"
+        EXITCODE=1
+    fi
+fi
+
+
+exit $EXITCODE
+

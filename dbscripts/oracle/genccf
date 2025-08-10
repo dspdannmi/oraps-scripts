@@ -1,0 +1,211 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  genccf
+#
+# Description:			Generate a CREATE CONTROFILE script to standard output
+#
+# Parameters:			1	(optional)	SID
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       14-Jan-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+
+USAGE_STRING="[-d SID]"
+
+typeset -i attempts
+typeset -i max_awk_attempts	# sometimes the awk fails because of extremely long SQL in the tracefile
+			# Oracle will append to tracefiles if a tracefile process corresponds to
+			# an already exists tracefile.  In this rare event and should the tracefile
+			# previously contain selects statements, for example, with more than 199
+			# fields, awk will fail.  Therefore multiple attempts up to this value
+			# of times will be attempted
+max_awk_attempts=5
+
+#
+# KNOWN ISSUES
+# ============
+#
+# Issue#1
+# -------
+#
+#   If the database trace mode is at high level (ie. including wait events)
+#   then the following will be erroneously returned:
+#
+
+
+if [ $# -gt 2 ]
+then
+    usage
+fi
+
+if [ "$1" = "-d" ]
+then
+    export ORACLE_SID=$(echo ${2} | awk -F: '{print $1}')
+
+    whichhost=$(echo ${2} | awk -F: '{print $2}' | tr "[:upper:]" "[:lower:]")
+
+    if [ "${whichhost}" = "" ] || [ "${whichhost}" = "${thishost}" ]
+    then
+        whichhost=$thishost
+
+        if chkoradbinoratab ${ORACLE_SID}
+        then
+            :
+        else
+            echo ERROR: $ORACLE_SID not in oratab
+            exit 1
+        fi
+
+        . /usr/local/bin/oraenv 2>&1 > /dev/null
+    fi
+
+    shift
+    shift
+else
+    whichhost=$thishost
+fi
+
+
+if [ "$ORACLE_SID" = "" ]
+then
+    echo ERROR: ORACLE_SID not set
+    exit 1
+fi
+
+
+
+#---------------------------------------------------------------------#
+# Backup controlfile to trace then determine process ID               #
+# and udump destination for trace file                                #
+#---------------------------------------------------------------------#
+
+function dump_ccf
+{
+dump_ccf_tracefile_identifier=$1
+
+sqlplus -s ${SQLPLUS_DBA_LOGON} << *EOF* 2>&1 > /dev/null
+whenever sqlerror exit 4
+set pages 0
+set termout off
+set feedback off
+set echo off
+
+spool $tmpfile
+
+rem
+rem Turn off all tracing as if database is in a 
+rem sufficietly high trace mode ie. including wait
+rem events, wait metrics will be interspersed amongst
+rem the create control text
+rem
+alter session set sql_trace=false;
+
+alter session set tracefile_identifier = "${dump_ccf_tracefile_identifier}";
+
+alter database backup controlfile to trace;
+
+
+select 'DIRECTORY:' || value
+from v\$parameter
+where name = 'user_dump_dest'
+union
+select 'DIRECTORY:' || value || '/diag'
+from v\$parameter
+where name = 'diagnostic_dest'
+/
+
+spool off
+exit
+*EOF*
+status=$?
+
+   if [ $status -ne 0 ]
+   then
+       echo ERROR: Encountered error when running $EXECUTABLE
+       EXITCODE=1
+   fi
+
+echo ====
+cat $tmpfile
+echo ====
+
+for dir in $(grep ^DIRECTORY: $tmpfile | cut -d: -f2)
+do
+echo DIR=$dir
+    if [ -d $dir ]
+    then
+        find ${dir} -name \*${dump_ccf_tracefile_identifier}\*.trc -exec cat {} \;
+    fi
+done
+
+}
+
+TRACEFILE_IDENTIFIER=genccf$(date +%Y%m%d%H%M%S_${$})
+
+
+if [ "$whichhost" = "$thishost" ]
+then
+    if chkoradbopen $ORACLE_SID
+    then
+        :
+    else
+        echo ERROR: $ORACLE_SID is not up
+        exit 1
+    fi
+
+
+   #
+   # Do not display trace file header 
+   # Do not display recover commands at tail of trace file
+   #
+   GOT_IT=NO
+   attempts=0
+
+   while [ "${GOT_IT}" = "NO" ] && [ $attempts -le $max_awk_attempts ]
+   do
+       dump_ccf ${TRACEFILE_IDENTIFIER} | awk '/^CREATE.*NORESETLOGS/,/;/ ' 2>&1 > ${tmpfile}
+       status=$?
+   
+       if [ "$(head -1 ${tmpfile} | awk '{print $1}')" != "CREATE" ]
+       then
+           let attempts=$attempts+1 
+       else
+	   GOT_IT=YES
+       fi
+   done
+
+   if [ "${GOT_IT}" = "YES" ]
+   then
+       cat ${tmpfile}
+   else
+       echo "ERROR: could not get ccf"
+       EXITCODE=1
+   fi
+
+
+else
+    runremotecmd ${whichhost} $(which genccf) -d ${ORACLE_SID} 
+    status=$?
+
+      if [ $status -ne 0 ]
+      then
+	  echo "ERROR: Encountered error running remote command"
+	  EXITCODE=1
+      fi
+fi
+
+exit $EXITCODE
+

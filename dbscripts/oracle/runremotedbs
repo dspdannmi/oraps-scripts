@@ -1,0 +1,35 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  runalldbs
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       23-Jul-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+runallhosts $(which runalldbs) "${*}"
+EXITCODE=$?
+
+exit $EXITCODE
+

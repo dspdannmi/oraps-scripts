@@ -1,0 +1,44 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  touchflagfile
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       15-Apr-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+DEL_TEMPFILES="NO"
+
+#
+# Script starts here
+#
+#
+#set_error_trap
+
+FLAGFILE=${tmpfile}.flagfile
+
+touch ${FLAGFILE}
+
+if [ -f ${FLAGFILE} ]
+then
+    echo ${tmpfile}.flagfile
+fi
+
+
+exit $EXITCODE
+

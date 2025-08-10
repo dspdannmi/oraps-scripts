@@ -1,0 +1,38 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  lsbysize
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       02-Jul-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+dir=${1:-}
+
+ls -al $dir | sort -k5n
+
+
+
+exit $EXITCODE
+

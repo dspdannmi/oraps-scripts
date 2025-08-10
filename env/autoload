@@ -1,0 +1,58 @@
+# autoload
+#
+# credit: https://stackoverflow.com/questions/60578731/is-lazier-ksh-like-function-autoloading-possible-in-bash
+#
+##################################################################################################################
+# comments:MikeDann(DSP)
+# autoload is an attempt to replicate KSH autoload functionality
+# whereby functions can be created and stored in scripts and only
+# loaded upon first invokation to prevent the need to pre-load
+# all possible created function scripts that may not be required
+# in that shell and/or at that time
+#
+##################################################################################################################
+#
+# This file must be sourced
+# - From your rc files if you need autoloadable fuctions from your
+#   interactive shell
+# - From any script that need autoloadable functions.
+#
+# The FPATH must be set with a set of dirs/ where to look to find
+# file name match the function name to source and execute.
+#
+# Note that if FPATH is exported, this is a way to export functions to
+# script subshells
+
+# Create a default command_not_found_handle if none exist
+declare -F command_not_found_handle >/dev/null ||
+function command_not_found_handle { ! echo bash: $1 command not found>&2; }
+
+# Rename current command_not_found_handle
+_cnf_body=$(declare -f command_not_found_handle | tail -n +2)
+eval "function _cnf_prev $_cnf_body"
+
+# Change USR1 to your liking
+CNF_SIG=USR2
+
+function autoload
+{ declare f=$1 ; shift
+  declare d s
+  for d in $(IFS=:; echo $FPATH)
+  do s=$d/$f
+    [ -f $s -a -r $s ] &&
+    { . $s
+      declare -F $f >/dev/null ||
+      { echo "$s exist but don't define $f" >&2 ; return 127
+      }
+      $f "$@" ; return
+    }
+  done
+  _cnf_prev $f "$@"
+}
+
+trap 'autoload ${BASH_COMMAND[@]}' $CNF_SIG
+#trap 'autoload $_' $CNF_SIG
+function command_not_found_handle
+{ kill -$CNF_SIG $$
+}
+

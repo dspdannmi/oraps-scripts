@@ -1,0 +1,13 @@
+
+#acknowledge: https://www.reddit.com/r/bash/comments/jm5vu1/what_are_some_useful_functions_you_have_in_your/
+
+function ssh-asap
+    {
+    until nc -vzw 2 $1 22 > /dev/null 2>&1
+    do
+        sleep 1
+    done	
+    
+    ssh $1;
+    }
+

@@ -1,0 +1,77 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:          	chk_default_pwds
+#
+# Description:			Checks for default passwords and passwords same as username          
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#	18-Feb-2003	1.0	oracle	Original version
+#
+#+++___________________________________________________________________________________
+
+
+EXITCODE=0
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+if [ $# -ne 0 ]
+then
+    echo usage: $scriptname
+    exit 1
+fi
+
+
+CheckPwd()
+    {
+    username=$1
+    password=$2
+
+    echo Checking password for $1...
+    ${CS_TOP}/dbscripts/oracle/chk_uname_pwd $username $password 2>&1 > /dev/null
+    status=$?
+    
+    if [ $status -eq 0 ]	# 0 return code means successful login
+    then
+        echo error: $username password is default or same as username and is NOT LOCKED
+        EXITCODE=1
+    fi
+    }
+
+#
+# Generate list of users
+#
+sql select username from dba_users order by username > $tmpfile
+status=$?
+
+
+echo ------------------------------------
+echo Database: ${ORACLE_SID}
+echo ------------------------------------
+echo
+
+CheckPwd SYSTEM manager
+CheckPwd SYS change_on_install
+CheckPwd SCOTT tiger
+
+for username in $(cat $tmpfile)
+do
+    CheckPwd $username $username $account_status
+done
+
+
+
+rm -f $tmpfile
+
+exit $EXITCODE
+

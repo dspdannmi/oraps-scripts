@@ -1,0 +1,116 @@
+#!/usr/bin/sh
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  serversummary
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       28-Jul-2025     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. /opt/dsp/env/funcs.sh
+
+DSP_COLOURS_SCRIPT=${CS_TOP}/env/colours.env
+
+if [  -r ${DSP_COLOURS_SCRIPT} ]
+then
+    . ${DSP_COLOURS_SCRIPT}
+fi
+
+
+#
+# get IP addresses
+#
+ip_addrs=$(hostname -I)
+
+#
+# get uptime
+#
+upSeconds="$(/usr/bin/cut -d. -f1 /proc/uptime)"
+secs=$((${upSeconds}%60))
+mins=$((${upSeconds}/60%60))
+hours=$((${upSeconds}/3600%24))
+days=$((${upSeconds}/86400))
+uptime=`printf "%d days, %02dh %02dm %02ds" "$days" "$hours" "$mins" "$secs"`
+
+lastboot=$(uptime -s)
+
+#
+# get load averages
+read one five fifteen rest < /proc/loadavg
+#
+
+# echo -e needed to get colours displaying
+#echo "-------------------------------------------------------------------------"
+echo "_________________________________________________________________________"
+echo ""
+echo -e "hostname      :  ${BYellow}${thishost}${White}"
+echo -e "dspserverid:  :  ${BYellow}${dspserverid:-<null>}${White}"
+echo ""
+echo -e "machine-id    :  ${BYellow}${machine_id:-<null>}${White}"
+echo -e "hostid        :  ${BYellow}${hostid:-<null>}${White}"
+echo ""
+echo -e "server type   :  ${BYellow}${server_type:-<null>}${White}"
+echo -e "db hosting    :  ${BYellow}${dbhostingstatus:-<null>}${White}"
+echo ""
+echo -e "release       :  ${BYellow}$(cat /etc/system-release)${White}"
+echo -e "kernel release:  ${BYellow}$(uname -r)${White}"
+echo -e "kernel version:  ${BYellow}$(uname -v)${White}"
+echo -e "uptime        :  ${BYellow}${uptime}${White}"
+echo -e "last boot     :  ${BYellow}${lastboot}${White}"
+echo -e "load avgs     :  ${BYellow}${one} (1 min) ${five} (5 mins) ${fifteen} (15 mins)${White}"
+echo -e "memory        :  ${BYellow}$(free -h | awk 'NR==2 {print $4}') (free) /  $(free -h | awk 'NR==2 {print $2}') (total)${White}"
+
+#
+# display IP addresses
+#
+line_prefix="ip addrs"
+for ip in ${ip_addrs}
+do
+    echo -e "${line_prefix}      :  ${BYellow}${ip}${White}"
+    line_prefix="        "
+done
+
+echo ""
+echo -e "server time   :  ${BYellow}$(date)${White}"
+echo ""
+
+echo ""
+echo -e "         /    :  ${BYellow}$(df -h / | awk 'NR==2 {print $5 " (" $3 "/" $2 ") used on " $1 }')${White}"
+echo -e "     /home    :  ${BYellow}$(df -h /home | awk 'NR==2 {print $5 " (" $3 "/" $2 ") used on " $1 }')${White}"
+
+echo "_________________________________________________________________________"
+#echo "-------------------------------------------------------------------------"
+
+
+#
+# branding / identity
+#
+if [ ! -r ${DSP_IDENTITY_FILE} ]
+then
+    echo "   *** WARNING: No identity file: Please register this server ***"
+else
+    :
+fi
+
+if [ -z "${dsp_version}" ]
+then
+    echo "   *** SEVERE WARNING: No version file or information on DSP scripts"
+fi
+
+echo
+
+#
+# end of script

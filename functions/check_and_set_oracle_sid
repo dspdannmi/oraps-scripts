@@ -1,0 +1,35 @@
+
+#---------------------------------------------------------------------------------------
+#
+# function check_and_set_oracle_sid
+#
+#---------------------------------------------------------------------------------------
+
+function check_and_set_oracle_sid
+    {
+    export ORACLE_SID=${1}
+
+    if chkoradbinoratab ${ORACLE_SID}
+    then
+        :
+    else
+        echo "ERROR: $ORACLE_SID not in [${ORATAB}]"
+        EXITCODE=1
+        exit ${EXITCODE}
+    fi
+ 
+    . /usr/local/bin/oraenv 2>&1 > /dev/null
+ 
+    if chkoradbopen $ORACLE_SID
+    then
+        :
+    else
+        echo "ERROR: $ORACLE_SID is not up"
+        EXITCODE=1
+        exit ${EXITCODE}
+    fi
+ 
+    setalertlogvar
+
+    }
+

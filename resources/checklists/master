@@ -1,0 +1,51 @@
+
+firewall open for UIM
+log on to UIM hub, can you connect to 48000 on server
+log on to server, can you connect to 48000-48003 on UIM hub
+account passwords set not to expire and documented
+server backups configured and confirmed working
+database backups configured and confirmed working
+
+entry for CDB and all PDBs in $ORACLE_HOME/network/admin/tnsnames.ora to allow UIM monitoring to be setup
+
+server transition to support spreadsheet setup and ocmpleted
+monitoring setup for
+- server
+- database (CDB)
+- pluggable (PDB)
+
+capture information about the server BEFORE works
+- what is THIS server
+	- physical / virtual /
+	- Oracle Engineered System (ie. creating / managing a DB on Exa or ODA is different than a "standard" server
+		- /opt/oracle/dcs  (base system or oda etc?)
+		- odacli?
+		- dcs agent running
+- OS
+	- time and time zone
+- GI
+	- alert log for erros
+	- freespace in disk groups
+	- excessive archivelogs / flashbacks
+- Database
+	- alert log for erros
+	- what state are the DG standby databases in
+	- what time is the database in:
+		- when you connect directory from the server (ie. sqlplus / as sysdba)
+		- when you connect via Oracle*Net (this can be different in an ASM/GI environment when connectiving via listener and also, with this type of env and also ODAs etc, can set differently depending on the db etc.
+
+
+
+
+Public IP addresses
+	- use reserved IP addresses for those IP address that would cause a problem if they change (eg. LBs)
+
+Load Balancer
+	- failing health check
+		- is there actually anything listening on the port at the backend
+		- firewalld
+		- SE linux
+
+	- use reserved IP addresses
+
+

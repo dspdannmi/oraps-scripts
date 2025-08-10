@@ -1,0 +1,55 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  runonthehour
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       08-Mar-2007     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING=""
+
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+while true
+do
+    minutes=$(date +%M)
+
+    echo minutes=$minutes
+
+    if [ "$minutes" = "0" ] || [ "$minutes" = "00" ]
+    then
+	exec ${*}
+    else
+	sleep 5
+    fi
+done
+
+
+
+exit $EXITCODE
+

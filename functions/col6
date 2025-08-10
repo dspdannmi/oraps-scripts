@@ -1,0 +1,12 @@
+
+function col6()
+    {
+    col=6
+
+    if [ $# -gt 0 ]
+    then
+        cut -d: -f${col} ${*}
+    else
+        cut -d: -f${col}
+    fi
+    }

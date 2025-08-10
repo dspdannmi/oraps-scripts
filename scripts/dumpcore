@@ -1,0 +1,65 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  dumpcore
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       26-Jan-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+
+. /opt/dsp/env/dsp.env
+. /opt/env/funcs.sh
+
+
+#
+# Script starts here
+#
+#
+#set_error_trap
+
+if [ $# -eq 0 ]
+then
+    echo usage: $scriptname pid1 \[pid2 pid3 pidXX\]
+    exit 1
+fi
+
+for pid in ${*}
+do
+    if [ "$pid" = "1" ]
+    then
+	echo WARNING: Will not dump core for init \(pid 1\)
+    else
+	kill -0 $pid 2>&1 > /dev/null
+	status=$?
+
+	if [ $status -eq 0 ]
+	then
+	    echo Dumping core for pid $pid...
+	    kill -SIGSYS $pid
+	    status=$?
+
+	    if [ $status -ne 0 ]
+	    then
+		echo ERROR: error status $status returned when sending SIGSYS to process
+	    fi
+	else
+	    echo ERROR: could not connect to process $pid
+	fi
+    fi
+done
+
+exit $EXITCODE
+

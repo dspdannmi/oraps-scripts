@@ -1,0 +1,70 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:          	newsql
+#
+# Description:          
+#
+# Parameters:
+#
+# Environment:
+#
+# Modification history:
+#
+#	DD-MON-YYYY	1.0	oracle	Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+
+modhist=$(date +%d-%b-%Y)
+
+if [ $# -lt 1 ]
+then
+    echo usage: ${scriptname} file1 [file2, file3, ...]
+    exit 1
+fi
+
+for newsql in ${*}
+do
+ if [ -f ${newsql} ]
+ then
+     echo error: $newsql exists
+     EXITCODE=1
+ else
+    cp $CS_TOP/templates/sql.template ${newsql}
+    status=$?
+
+    if [ $status -ne 0 ]
+    then
+	echo error: could not create script ${newsql}
+	EXITCODE=1
+    else
+	chmod ug+x,u+w ${newsql}
+	status=$?
+
+	if [ $status -ne 0 ]
+	then
+	    echo error: could not chmod script ${newsql}
+	    EXITCODE=1
+	else
+	    replace XXSCRIPT_NAMEXX ${newsql} ${newsql}
+	    replace DD-MON-YYYY ${modhist} ${newsql}
+	    replace  xxxuseridxxx ${thisuser} ${newsql}
+	    status=$?
+
+	    if [ $status -ne 0 ]
+	    then
+		echo error: could not replace new script ${newsql}
+		EXITCODE=1
+	    else
+		vi ${newsql}
+	    fi
+	fi
+    fi
+ fi
+done

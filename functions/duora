@@ -1,0 +1,15 @@
+function duora
+    {
+    if [ $# -eq 0 ]
+    then
+        PARAM="${ORACLE_SID:-}"
+    else
+        PARAM="$@"
+    fi
+
+    for sid in ${PARAM}
+    do
+        du -sk /*/oradata/${sid}
+    done
+    }
+

@@ -1,0 +1,17 @@
+
+function sleeptrue
+    {
+    if [ $# -lt 2 ]
+    then
+	echo "whiletrue: sleeptime command"
+	return
+    fi
+
+    sleeptime=${1} ; shift
+
+    while :
+    do
+	eval "$@"
+	sleep ${sleeptime}
+    done
+    }

@@ -1,0 +1,46 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:          	isrunning
+#
+# Description:			Determines if database appears to be running based on 
+#                               ps output
+#
+# Parameters:
+#
+# Environment:
+#
+# Exit codes:			0	Database is up
+#				1	Error - could not locate database
+#				2	Database is not up
+#
+# Modification history:
+#
+#	18-Feb-2003	1.0	oracle	Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="SID"
+WARN_ON_NONZERO_EXIT="NO"
+
+if [ $# -ne 1 ]
+then
+    usage
+else
+    export ORACLE_SID=${1}
+fi
+
+if ps -ef | grep -c ora_lgwr_${ORACLE_SID}\$ 2>&1 > /dev/null
+then
+    EXITCODE=0
+else
+    EXITCODE=1
+fi
+
+exit $EXITCODE
+

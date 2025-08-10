@@ -1,0 +1,9 @@
+
+function setdbaliases
+    {
+    gendbaliases | while read LINE
+    do
+	eval $LINE
+    done
+    }
+

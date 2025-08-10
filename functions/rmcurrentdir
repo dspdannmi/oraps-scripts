@@ -1,0 +1,9 @@
+
+function rmcurrentdir
+    {
+    # change back directory one level and try to delete OLDPWD and if that fails
+    # drop back in to the directory again
+    cd .. && rmdir ${OLDPWD} || cd ${OLDPWD}
+    }
+
+

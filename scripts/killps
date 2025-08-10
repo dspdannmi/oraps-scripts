@@ -1,0 +1,85 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  killps
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       21-Apr-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="[-x]"
+
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+if [ $# -gt 1 ]
+then
+    usage
+fi
+
+SHOWONLY="YES"
+
+if [ "$1" != "" ]
+then
+    if [ "$1" != "-x" ]
+    then
+	usage
+    else
+	SHOWONLY="NO"
+    fi
+fi
+
+awk '$2 ~ /[0-9]*/' | while read LINE
+do
+  pid=$(echo $LINE | awk '{print $2}')
+  PSOUT=$(ps -fp $pid | tail +2)	
+
+  if [ "$pid" != "1" ]
+  then
+    if [ "$SHOWONLY" = "YES" ]
+    then
+
+	if [ "$PSOUT" != "" ]
+	then
+	    echo "would kill: $(ps -fp $pid| tail +2)"
+	fi
+    else
+	if [ "$PSOUT" != "" ]
+	then
+	    echo "killing $pid..."
+	    kill $pid
+	    if kill $pid
+	    then
+		kill -9 $pid
+	    fi
+	fi
+    fi
+
+  else
+    echo "pid 1: CANNOT KILL init"
+  fi
+done
+
+
+
+exit $EXITCODE
+

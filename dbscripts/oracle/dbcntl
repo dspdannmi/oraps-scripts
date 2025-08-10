@@ -1,0 +1,180 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  dbcntl
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       14-Jan-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+
+USAGE_STRING="SID [mode]"
+
+umask 022
+
+if [ $# -eq 0 ] || [ $# -gt 2 ]
+then
+    usage
+else
+    export ORACLE_SID=${1}
+    export ORAENV_ASK=NO
+    mode=$(echo $2 | tr [:upper:] [:lower:])
+fi
+
+. /usr/local/bin/oraenv 2>&1 > /dev/null
+
+
+
+#
+# svrmgrl is no longer supplied with Oracle 9i and
+# later versions of Oracle
+#
+if [ -f ${ORACLE_HOME}/bin/svrmgrl ]
+then
+    #EXECUTABLE="${CS_TOP}/bin/svrmgrl_p"   # this is a patched version
+    EXECUTABLE="svrmgrl"   # this is a patched version
+					   # of svrmgrl to prevent errors
+					   # when reading input (bug#622943)
+else
+    EXECUTABLE="sqlplus /nolog"
+fi
+
+
+function shutdown_db
+    {
+    if isrunning ${ORACLE_SID}
+    then
+	: #do nothing
+    else
+	scriptout "WARNING: $ORACLE_SID appears to be down"
+	EXITCODE=2
+    fi
+
+    if [ "$1" = "" ] 
+    then
+	shutdown_mode=normal
+    else
+	shutdown_mode=$1
+    fi
+
+    case $shutdown_mode in 
+		normal | immediate | abort | transactional )	ACTION="Shutdown:"
+								#timestamp
+								;;
+		*)						scriptout "ERROR: Unknown shutdown method $shutdown_mode"
+								EXITCODE=1
+								exit $EXITCODE
+								;;
+    esac
+		
+    ${EXECUTABLE} << *EOF*
+set echo on
+set termout on
+connect / as sysdba
+shutdown $shutdown_mode
+exit
+*EOF*
+
+    sleep 2
+
+    if isrunning ${ORACLE_SID}
+    then
+	scriptout "WARNING: $ORACLE_SID appears to still to be up"
+	EXITCODE=2
+    fi
+    }
+
+function startup_db
+    {
+    if isrunning ${ORACLE_SID}
+    then
+	scriptout "WARNING: $ORACLE_SID appears to already be up"
+	EXITCODE=2
+    fi
+
+    if [ "$1" = "" ]
+    then
+	startup_mode=""
+    else
+	startup_mode=$1
+    fi
+
+    case $startup_mode in 
+		"" | restrict )	ACTION="Startup:"
+				#timestamp
+				;;
+
+		* )		scriptout "ERROR: Unknown startup mode: $startup_mode"
+				exit 1
+			 	;;	
+    esac
+
+    ${EXECUTABLE} << *EOF*
+set echo on
+connect / as sysdba
+startup $startup_mode
+exit
+*EOF*
+
+    if isrunning ${ORACLE_SID}
+    then
+	: # do nothing
+    else
+	scriptout "WARNING: $ORACLE_SID appears to have not started"
+	EXITCODE=2
+    fi
+
+    if [ "$thisuser" != "oracle" ]
+    then
+	scriptout WARNING: $ORACLE_SID started as non-oracle user
+    fi
+    }
+
+function bounce_db
+    {
+    shutdown_db immediate
+    echo
+    startup_db $1
+    }
+
+
+echo
+scriptheader
+
+case "$scriptname" in
+			"dbdown" )	ACTION="Shutdown:"
+					shutdown_db $mode
+					;;
+			"dbup" )	ACTION="Startup:"
+					startup_db $mode
+					;; 
+			"dbbounce" )	ACTION="Bounce:"
+					bounce_db $mode
+					;;
+			*)		scriptout "ERROR: Unknown scriptname $scriptname"
+					EXITCODE=1
+					exit $EXITCODE
+					;;
+esac
+
+scriptfooter
+echo
+
+exit $EXITCODE
+	
+

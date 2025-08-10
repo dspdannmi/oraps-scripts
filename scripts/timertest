@@ -1,0 +1,41 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  runlater
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       09-Oct-2003     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. /opt/dsp/env/funcs.sh
+
+typeset -i x
+typeset -i y
+
+x=0
+y=0
+
+echo "Starting test..."
+
+while [ $y -lt 10 ]
+do
+    while [ $x -lt 100000 ]
+    do
+        let x=x+1
+    done
+    x=0
+    let y=y+1
+done

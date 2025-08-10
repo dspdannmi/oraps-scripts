@@ -1,0 +1,128 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  lockfile
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       14-Apr-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="filename"
+
+
+
+#---------------------------------------------------------------------------------------
+#
+# function dolock
+#
+#     This function provides a very crude locking mechanism by using the atomic creation
+#     of a symbolic link.  If this creation fails it means the link already exists and
+#     therefore it can be considered that another process holds the lock
+#
+#     Not implemented yet in this function but the use of a symbolic link enables including
+#     information in the link name about the process holding the link.
+#
+#		ie. ln -s "pid=$$ description=$$ etc" LOCKFILE
+#
+#---------------------------------------------------------------------------------------
+
+function dolock
+    {
+	typeset -i num_retries
+	typeset -i max_retries
+
+	num_retries=0
+	max_retries=${RETRIES}
+
+        trylock="yes"
+	while [ "$trylock" = "yes" ]
+	do
+	    # do not use -f option as this negates purpose
+	    # of waiting for lock to become available
+
+	    ln -s ${LOCKFILE}.lockfile ${LOCKFILE} 2> /dev/null
+	    status=$?
+
+	    if [ $status -eq 0 ]
+	    then
+		echodebug "got lock: ${LOCKFILE}"
+		trylock="no"
+	    else
+	        echodebug "failed to get lock: ${LOCKFILE}"
+		num_retries=$num_retries+1
+
+		if [ $num_retries -le $max_retries ] || [ $max_retries -lt 0 ]
+		then
+		    echodebug "retries: $num_retries / maxretries: $max_retries"
+		    echodebug "sleeping: ${SLEEPTIME}"
+		    sleep ${SLEEPTIME}
+		else
+		    echo "$scriptname: max retries $max_retries exceeded"
+		    EXITCODE=1
+		    trylock="no"
+		fi
+	    fi
+	done
+    }
+
+
+#
+# Script starts here
+#
+#
+#set_error_trap
+
+LOCKFILE=""
+SLEEPTIME=1
+RETRIES=-1
+
+
+set -- `getopt "s:r:v" "$@"` || usage
+
+    while :
+    do
+        case "$1" in
+        -s) shift; SLEEPTIME=$1 ;;
+        -r) shift; RETRIES=$1 ;;
+        -v) DEBUG="YES";;
+        --) break ;;
+        esac
+        shift
+    done
+    shift    # REMOVE THE TRAILING --
+
+
+if [ $# -ne 1 ]
+then
+    usage
+else
+    LOCKFILE=${1}
+    LOCKDIR=$(dirname ${LOCKFILE})
+
+    if [ ! -d ${LOCKDIR} ] && [ ! -w ${LOCKDIR} ]
+    then
+	echo ERROR: ${LOCKDIR} not a directory or not writable
+	EXITCODE=1
+	exit $EXITCODE
+    fi
+fi
+
+dolock
+
+exit $EXITCODE
+

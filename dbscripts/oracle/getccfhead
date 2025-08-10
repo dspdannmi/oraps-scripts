@@ -1,0 +1,54 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:          	genccfhead
+#
+# Description:          
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#	27-Feb-2003	1.0	oracle	Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. /opt/dsp/env/funcs.env
+
+EXITCODE=0
+
+scriptname=$(basename ${0})
+today=$(date +%Y%m%d)
+tmpfile=/tmp/$scriptname.$$
+
+if [ $# -ne 1 ]
+then
+    echo usage: ${scriptname} ccffile
+    EXITCODE=1
+    exit $EXITCODE
+else
+    CCFILE=${1}
+
+    if [ ! -f ${CCFILE} ]
+    then
+	echo ERROR: $CCFILE does not exist
+	EXITCODE=1
+	exit
+    fi
+fi
+
+
+awk '/^CREATE CONTROLFILE/,/^DATAFILE/' ${CCFILE}
+
+
+[ -f $tmpfile ] && rm $tmpfile
+
+exit $EXITCODE
+

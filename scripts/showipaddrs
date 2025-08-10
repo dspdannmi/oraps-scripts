@@ -1,0 +1,41 @@
+#!/usr/bin/sh
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  showipaddrs
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       28-Jul-2025     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING=""
+
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+hostname -I | xargs -n 1
+
+exit $EXITCODE
+

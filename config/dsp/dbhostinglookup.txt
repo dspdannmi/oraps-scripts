@@ -1,0 +1,10 @@
+
+#00x - does not host databases
+000:none
+
+#10x - does host databases
+101:Oracle database(s)
+102:MySQL database(s)
+103:PostgreSQL database(s)
+199:Other database(s)
+

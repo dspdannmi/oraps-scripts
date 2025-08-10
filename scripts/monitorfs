@@ -1,0 +1,63 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  monitorfs
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       04-Jun-2005     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="filesystem usage email terminate_date"
+
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+if [ $# -ne 4 ]
+then
+    usage
+fi
+
+filesystem=${1}
+usage=${2}
+email_address=${3}
+term_date=${4}
+
+while [ "${term_date}" != "$(date +%Y%m%d)" ]
+do
+    chkfsusage $filesystem $usage
+    status=$?
+
+    if [ $status -ne 0 ]
+    then
+	echo "ERROR: chkfsusage for $filesystem on $thishost errored" | mailx -s "WARNING: ${thishost}:${filesystem} warning" ${email_address}
+	sleep 60
+    fi
+done
+
+
+
+exit $EXITCODE
+

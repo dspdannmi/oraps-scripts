@@ -1,0 +1,27 @@
+
+#How to check if Oracle Linux /Oracle VM server is booted using UEFI (Doc ID 2318501.1)
+#
+#1. First Method
+#
+## df -h | grep /boot
+#/dev/sdxx 120M 250K 119M 1% /boot/efi  
+#
+#/boot/efi in the output indicates UEFI mode
+#
+#2. Second Method
+#
+#Check if the folder "/sys/firmware/efi" exists
+#
+#3. Third Method
+#
+#Grep for efi in dmesg. In case of Oracle VM server grep for efi in "xm dmesg"
+#
+#4. Fourth Method
+#
+#Run the command "mokutil --sb-state"
+
+df -h | grep /boot
+ls -ald /sys/firmware/efi
+dmesg | grep efi
+mokutil --sb-state
+

@@ -1,0 +1,57 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  repointlink
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       01-Oct-2003     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="string1 string2 file(s)"
+#
+# Script starts here
+#
+#
+set_error_trap
+
+if [ $# -lt 3 ]
+then
+    usage
+fi
+
+string1=${1}
+string2=${2}
+shift; shift
+
+for file in ${*}
+do
+    if [ -h ${file} ]
+    then
+	target=$(ls -ald ${file} | awk -F'->' '{print $2}')
+	target=$(echo $target | sed -e "s/$string1/$string2/g")
+	ln -sf $target $file
+    else
+	echo "$file: not symbolic link"
+	EXITCODE=2
+    fi
+done
+
+
+
+exit $EXITCODE
+

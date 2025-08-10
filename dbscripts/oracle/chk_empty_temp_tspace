@@ -1,0 +1,66 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:          	chk_empty_temp_tspace
+#
+# Description:          
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#	18-Feb-2003	1.0	oracle	Original version
+#
+#+++___________________________________________________________________________________
+
+
+EXITCODE=0
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+
+sqlplus -s ${SQLPLUS_DBA_LOGON} << *EOF*  2>&1 > /dev/null
+whenever sqlerror exit sql.sqlcode
+set pages 0
+set lines 132
+set echo off
+set feedback on
+set termout on
+spool $tmpfile
+select decode(count(*), 0, 'TEMP_TSPACE:EMPTY', 'TEMP_TSPACE:OK')
+from dba_temp_files;
+rem
+rem Do it twice in case there are more than one temporary tablespace
+rem
+select tablespace_name, decode(count(*), 0, 'TEMP_TSPACE:EMPTY', 'TEMP_TSPACE:OK')
+from dba_temp_files
+group by tablespace_name;
+exit
+*EOF*
+status=$?
+
+if [ $status -ne 0 ]
+then
+    echo error: could not log on to database
+    EXITCODE=1
+fi
+
+if [ "$(grep TEMP_TSPACE:EMPTY $tmpfile)" != "" ]
+then
+    echo error: Empty temporary tablespace\(s\) detected
+    EXITCODE=1
+fi
+
+
+
+[ -f $tmpfile ] && rm -f $tmpfile
+
+exit $EXITCODE
+

@@ -1,0 +1,73 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  runlater
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       09-Oct-2003     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. /opt/dsp/env/funcs.sh
+
+
+
+trap "graceful_exit" 0
+trap "graceful_exit terminated" 1 2 3 15
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+
+#
+# Convert the filename of a file to lowercase
+# but leave extension the same
+#
+
+file=${1}
+
+if [ ! -f ${file} ]
+then
+    echo error: ${file} does not exist
+    exit 1
+fi
+
+typeset -i fields
+fields=$(echo ${file} | awk -F. '{print NF}')
+
+if [ ${fields} -gt 1 ]
+then
+    let fields=fields-1
+
+    filename=$(echo ${file} | cut -d. -f-${fields} | tr [:upper:] [:lower:])
+    extension=$(echo ${file} | awk -F. '{print $NF}')
+
+    newfile=${filename}.${extension}
+
+    if [ -f ${newfile} ]
+    then
+	echo error ${newfile} already exists - will not rename ${file}
+	exit 1
+    else
+        mv ${file} ${newfile}
+        status=$?
+
+        if [ ${status} -ne 0 ]
+        then
+            echo error encountered renaming file ${file}
+            exit 1
+        fi
+    fi
+fi

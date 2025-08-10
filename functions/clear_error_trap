@@ -1,0 +1,20 @@
+
+#---------------------------------------------------------------------------------------
+#
+# function clear_error_trap
+#	Turn off automatic non-zero exit code returns checking by shell
+#
+#---------------------------------------------------------------------------------------
+
+#trap "graceful_exit terminated" 1 2 3 15
+
+
+
+# "" I think used to be for sh and ksh but actually does not seem to clear it in bash
+#
+function clear_error_trap
+    {
+    trap - ERR
+    trap - 1 2 3 15
+    }
+

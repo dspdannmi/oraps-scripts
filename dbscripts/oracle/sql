@@ -1,0 +1,191 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  runsql
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       01-Oct-2003     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="[-c] [-d SID[:pdb]] [-p pdb] [-h host] [-z]  script param(s)"
+
+#DEBUG=YES
+
+#
+# Script starts here
+#
+#
+#set_error_trap
+
+if [ $# -eq 0 ]
+then
+    usage
+fi
+
+INTERACTIVE_SHELL="YES"
+while getopts 'd:h:p:xz' OPTION
+do
+    case "$OPTION" in
+        c) SQL_NO_EXIT_ON_ERROR=YES ;;
+        d) db=$OPTARG ; unset ORACLE_PDB_SID ; unset DSP_PDB_SID ;; 	# if -d parameter then clear any PDB env references
+        h) dbhost=$OPTARG ;;
+        p) pdb=$OPTARG ;;
+        z) INTERACTIVE_SHELL="NO" ;;
+        ?) usage ;;
+    esac
+done
+shift $((OPTIND-1))
+
+db=${db:-$ORACLE_SID}	# set to ORACLE_SID if not set from command line -d option
+
+if [ "${dbhost}" != "" ]
+then
+    : # run on different host
+else
+   :  # run on this host
+   export ORACLE_SID=$(echo ${db} | awk -F: '{print $1}')
+
+   if [ "${ORACLE_SID}" = "" ]
+   then
+        echo ERROR: ORACLE_SID is null
+        EXITCODE=1
+        exit $EXITCODE
+   fi
+
+   X=$(echo ${db} | awk -F: '{print $2}')
+
+   if [ "${X}" != "" ]
+   then
+       if [ "${pdb}" = "" ]
+       then
+           pdb=${X}
+       else
+           if [ "${X}" != "${pdb}" ]
+           then
+               echo "ERROR: pdb specified in both [-d] and [-p] clause and they do not match - exiting"
+               EXITCODE=1
+               exit $EXITCODE
+           fi
+       fi
+   fi
+
+   if [ "${pdb}" != "" ]
+   then
+       export DSP_PDB_SID=${pdb}
+   fi
+
+   if chkoradbinoratab ${ORACLE_SID}
+   then
+       :
+   else
+       echo "ERROR: $ORACLE_SID not in [${ORATAB}]"
+       EXITCODE=1
+       exit ${EXITCODE}
+   fi
+
+   . /usr/local/bin/oraenv 2>&1 > /dev/null
+
+   if chkoradbopen $ORACLE_SID 
+   then
+       :
+   else
+       echo "ERROR: $ORACLE_SID is not up"
+       EXITCODE=1
+       exit ${EXITCODE}
+   fi
+
+   SQL_EXIT_ON_ERROR=${SQL_EXIT_ON_ERROR:-YES}
+   if [ "${SQL_EXIT_ON_ERROR}" != "NO" ]
+   then
+	SQL_WHENERROR="exit sql.sqlcode"
+   else
+	SQL_WHENERROR="continue"
+   fi
+
+   #
+   # parse parameters
+   #   if the first character is an @ or the first word is start
+   #   then this means the call is to run a sql scripts
+   #
+   #   if the call is _not_ to run a sql script then need to add a 
+   #   semi-colon to the end of line
+   PARAM="${*}"
+
+   firstchar=$(echo $PARAM | cut -c1)
+   firstword=$(echo $PARAM | awk '{print $1}' | tr [:upper:] [:lower:])
+   lastchar=$(echo $PARAM | sed -e 's/.*\(.$\)/\1/')
+   
+   if [ "$firstchar" != "@" ] && [ "$firstword" != "start" ]
+   then
+       if [ "$lastchar" != ";" ]
+       then
+   	  PARAM="${PARAM};"
+       fi
+   fi
+
+    if [ "${INTERACTIVE_SHELL}" = "YES" ]
+    then
+        sqlplus_set_cmd="set pagesize ${SQLPLUS_PAGESIZE} linesize ${SQLPLUS_LINESIZE} echo on feedback on termout on"
+    else
+        sqlplus_set_cmd="set pagesize 0 linesize 140 echo off feedback off verify off"
+    fi
+    
+    if [ "${DSP_PDB_SID}" != "" ]
+    then
+        if [ "${INTERACTIVE_SHELL}" = "YES" ]
+        then
+            echo "info: using DSP_PDB_SID=${DSP_PDB_SID}"
+        fi
+    
+        sqlplus_set_container="alter session set container=${DSP_PDB_SID};"
+    
+    elif [ "${ORACLE_PDB_SID}" != "" ]
+    then
+        if [ "${INTERACTIVE_SHELL}" = "YES" ]
+        then
+            echo "info: using ORACLE_PDB_SID=${ORACLE_PDB_SID}"
+        fi
+    
+        sqlplus_set_container="alter session set container=${ORACLE_PDB_SID};"
+    else
+        sqlplus_set_container=""
+    fi
+
+sqlplus -s ${SQLPLUS_DBA_LOGON} << *EOF*
+whenever sqlerror ${SQL_WHENERROR}
+${sqlplus_set_container}
+${sqlplus_set_cmd}
+${PARAM}
+exit
+*EOF*
+status=$?
+
+    if [ $status -ne 0 ]
+    then
+        EXITCODE=$status
+    fi
+
+fi #dbhost
+
+if [ "${INTERACTIVE_SHELL}" = "YES" ]
+then
+   # blank line before returning prompt
+    echo ""
+fi
+
+exit $EXITCODE

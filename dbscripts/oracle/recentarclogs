@@ -1,0 +1,100 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  lastarclogs
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       15-Apr-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="[-d SID] touchfile"
+
+#
+# Script starts here
+#
+#
+#set_error_trap
+
+
+if [ "$1" = "-d" ]
+then
+    export ORACLE_SID=$(echo ${2} | awk -F: '{print $1}')
+
+    whichhost=$(echo ${2} | awk -F: '{print $2}' | tr "[:upper:]" "[:lower:]")
+
+    if [ "$whichhost" = "" ]
+    then
+        whichhost=$thishost
+
+        if chkoradbinoratab ${ORACLE_SID}
+        then
+            :
+        else
+            echo ERROR: $ORACLE_SID not in oratab
+            exit 1
+        fi
+
+        . /usr/local/bin/oraenv 2>&1 > /dev/null
+    fi
+
+    shift
+    shift
+else
+    whichhost=$thishost
+fi
+
+if [ $# -ne 1 ]
+then
+    usage
+else
+    touchfile=${1}
+fi
+
+if [ "$whichhost" != "$thishost" ]
+then
+    runremotecmd ${whichhost} $(which $scriptname) -d ${ORACLE_SID} ${touchfile}
+else
+    if [ ! -f ${touchfile} ]
+    then
+	echo ERROR: file $touchfile does not exist
+	EXITCODE=1
+	exit $EXITCODE
+    fi
+
+    LOGDEST=""
+    tmpvar=$(fullarclogdest -d ${ORACLE_SID})
+
+    for dir in $tmpvar
+    do
+	if [ ! -d $dir ]
+	then
+	    LOGDEST="$LOGDEST $(dirname $dir)"
+	else
+	    LOGDEST="$LOGDEST $dir"
+	fi
+    done
+
+    if [ "$LOGDEST" != "" ]
+    then
+	find $LOGDEST -follow -type f -newer ${touchfile}
+    fi
+
+fi
+
+exit $EXITCODE
+

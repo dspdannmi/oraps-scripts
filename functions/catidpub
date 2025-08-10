@@ -1,0 +1,11 @@
+
+function catidpub
+    {
+    for file in $HOME/.ssh/*.pub
+    do
+        echo "=========== ${file} ========="
+        cat ${file}
+    done
+    
+    echo ===========================
+    }

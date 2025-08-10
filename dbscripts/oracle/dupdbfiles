@@ -1,0 +1,31 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:          	dupdbfiles
+#
+# Description:          	Show database files that have duplicate names
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#	20-Feb-2003	1.0	oracle	Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+for file in $(allfiles)
+do
+    basename $file
+done | sort | uniq -c | grep -v ^\ \*1
+
+exit $EXITCODE
+

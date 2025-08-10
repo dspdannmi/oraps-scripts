@@ -1,0 +1,11 @@
+
+function scriptout3
+    {
+    if [ "${scriptname}" = "" ]
+    then
+	:
+    else
+	echo "${scriptname}:            ${*}" | tee -a ${LOGFILE}
+    fi
+    }
+

@@ -1,0 +1,4 @@
+select value from v$diag_info where name = 'Diag Trace'
+union
+select value from v$parameter where name = 'background_dump_dest'
+/

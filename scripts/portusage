@@ -1,0 +1,77 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:          	 chk_port_usage.sh
+#
+# Description:          	 This script will detect ports that are current being listend
+#				 on and show the Unix process that is listening on that port
+#
+#				 netstat -an is used to determine ports being listened on
+#				 lsof        is used to determine the Unix pid listening
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#	06-JUN-2003	1.0	MTD		Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="[pid]"
+
+if [ $# -gt 1 ]
+then
+    echo usage: $scriptname \[pid\]
+    exit 1
+fi
+
+PID=""
+if [ $# -eq 1 ]
+then
+    PID=$1
+fi
+
+
+
+# Determine from which column "ps" starts displaying running process
+# The column lines up with the COMMAND heading in the first line of a ps output
+#
+
+process_col=$(ps -f | head -1 | awk -F"impossible"  '{print match($1, /COMMAND/)}')
+
+
+
+# For each port being listened on, determine Unix pid using lsof.  Display both lsof output and process
+# returned by ps
+#
+
+for port in $(netstat -an | grep ^tcp | grep LISTEN | awk '{print $4}' | awk -F'.' '{print $NF}' | sort -n | uniq | grep ^$PID) 
+do
+    lsof_output=$(lsof -i:${port} | grep '(LISTEN)' | grep -v ^COMMAND | cut -d- -f1 | head -1)
+    pid=$(echo $lsof_output | awk '{print $2}')
+
+    if [ "$pid" != "" ]
+    then
+        ps_output=$(ps -fp $pid | tail -1 | cut -c${process_col}-)
+    fi
+
+    if [ "$lsof_output" != "" ]
+    then
+        echo "${port}: ${lsof_output}:  [ ${ps_output} ]"
+    fi
+done
+
+
+[ -f $tmpfile ] && rm $tmpfile
+
+exit $EXITCODE
+

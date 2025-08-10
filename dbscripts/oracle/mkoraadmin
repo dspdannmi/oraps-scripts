@@ -1,0 +1,115 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  mkoraadmin
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       01-Oct-2003     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="[SID]"
+
+if [ $# -gt 1 ]
+then
+    usage
+fi
+
+if [ $# -eq 1 ]
+then
+    check_and_set_oracle_sid ${1}
+else
+    if [ "$ORACLE_SID" = "" ]
+    then
+	echo ERROR: ORACLE_SID not set
+	exit 1
+    fi
+
+fi
+
+if [ "${ORAADMIN_DIRS}" = "" ]
+then
+    echo "ERROR: ORAADMIN_DIRS not set"
+    EXITCODE=1
+    exit
+fi
+
+
+ORAADMIN=$ORACLE_BASE/admin
+if [ ! -d $ORAADMIN ]
+then
+    ORAADMIN=$ORACLE_HOME/admin
+    if [ ! -d $ORAADMIN ]
+    then
+	echo "WARNING: Could ont locate appropriate ORACLE_BASE/admin or ORACLE_HOME/admin directory"
+	echo "         Creating in CURRENT directory [${PWD}]"
+	ORAADMIN=${PWD}
+    fi
+fi
+
+if [ ! -d ${ORAADMIN}/${ORACLE_SID} ]
+then
+    mkdir -m 770 ${ORAADMIN}/${ORACLE_SID}
+    status=$?
+
+    if [ $? -ne 0 ]
+    then
+        echo ERROR: Could not create toplevel ${ORACLE_SID} directory in $ORAADMIN
+        exit 1
+    fi
+
+    chown oracle:dba $ORAADMIN/${ORACLE_SID}
+    status=$?
+
+    if [ $? -ne 0 ]
+    then
+        echo ERROR: Could not change ownership of ${ORACLE_SID} directory in $ORAADMIN
+	EXITCODE=1
+    fi
+else
+    echo "WARNING: ${ORAADMIN}/${ORACLE_SID} already exists"
+fi
+
+
+for i in ${ORAADMIN_DIRS}
+do
+    NEWDIR=${ORAADMIN}/${ORACLE_SID}/${i}
+
+    if [ ! -e ${NEWDIR} ]
+    then
+        echo "creating: ${NEWDIR}"
+        mkdir -m 770 ${NEWDIR}
+        if [ $? -ne 0 ]
+        then
+	    echo "ERROR: Encountered creating $NEWDIR"
+            EXITCODE=1
+        fi
+    else
+        if [ -d ${NEWDIR} ]
+        then
+            echo "${NEWDIR} already exists: skipping"
+        else
+            echo "WARNING: ${NEWDIR} already exists but is not a directory"
+            EXITCODE=1
+        fi
+    fi
+done
+
+exit ${EXITCODE}
+

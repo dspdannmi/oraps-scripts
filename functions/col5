@@ -1,0 +1,12 @@
+
+function col5()
+    {
+    col=5
+
+    if [ $# -gt 0 ]
+    then
+        cut -d: -f${col} ${*}
+    else
+        cut -d: -f${col}
+    fi
+    }

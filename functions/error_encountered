@@ -1,0 +1,26 @@
+
+#---------------------------------------------------------------------------------------
+#
+# function error_encountered
+#	Function called when shell detects command returned a non-zero exit code
+#
+#---------------------------------------------------------------------------------------
+
+function error_encountered
+    {
+    status=$?
+    if [ $status -ne 0 ]
+    then
+	EXITCODE=$status
+    else
+        EXITCODE=1
+    fi
+
+    echo "ERROR: previous command returned an error: status: $EXITCODE"
+
+    if [ "${ERRMSG}" != "" ]
+    then
+        echo "        ( ${ERRMSG} )"
+    fi
+    }
+

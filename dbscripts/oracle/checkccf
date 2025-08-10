@@ -1,0 +1,80 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  checkccf
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       29-Mar-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="ccf_file"
+
+if [ $# -ne 1 ]
+then
+    usage
+    exit 1
+else
+    CCFILE=${1}
+fi
+
+if [ ! -f ${CCFILE} ]
+then
+    echo ERROR: $CCFILE does not exist
+    EXITCODE=1
+    exit $EXITCODE
+fi
+
+
+echo
+echo Checking file.... ${i}
+echo
+
+DBDIRS=""
+
+for file in $(awk -F\' '{print $2}' ${CCFILE})
+do
+    DBDIRS="${DBDIRS} $(dirname $file)"
+    if  [ -f ${file} ]
+    then
+	echo "OK:        ${file}"
+    else
+	echo "NOT FOUND: ${file}"
+	EXITCODE=$EXITCODE+1
+    fi
+done
+
+echo
+
+for dir in $(echo $DBDIRS | xargs -n1 echo | sort -u)
+do
+    for file in ${dir}/*
+    do
+	if grep \'${file}\' ${CCFILE} 2>&1 > /dev/null
+	then
+	    :
+	else
+	    echo "EXTRA:     ${file} exist in directory - not in ccf"
+	    EXITCODE=1
+	fi
+    done
+done
+
+echo
+
+exit $EXITCODE

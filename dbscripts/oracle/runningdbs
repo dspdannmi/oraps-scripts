@@ -1,0 +1,65 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  runningdbs
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       26-Mar-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+
+#
+# Script starts here
+#
+#
+#set_error_trap
+
+#long listing
+LONG=NO
+
+function usage
+{
+echo usage
+exit 1
+}
+
+while getopts ':l' OPTION ${*}
+do
+    case "$OPTION" in
+        l) LONG=YES ;;
+        \?) usage ;;
+        \:) usage ;;
+    esac
+done
+
+#
+# the square brackets around smon to prevent
+# the grep showing up in the list
+#
+if [ "${LONG}" = "NO" ]
+then
+    ps -ef | grep [s]mon | cut -d_ -f3 | sort
+else
+    ps -ef | grep [s]mon 
+fi
+
+
+
+exit $EXITCODE
+

@@ -1,0 +1,32 @@
+
+#00x Physical servers
+#-------------------
+001:Physcal server (commodity hardware)
+002:Oracle Database Appliance (ODA) (bare metal)
+003:Oracle Exadata (bare metal)
+004:Oracle Private Cloud Appliance (PCA) (bare metal)
+
+
+
+#10x Virtual Machines (on-premises)
+#----------------------------------
+
+110:Virtual Machine (OVM hypervisor)
+120:Virtual Machine (OLVM / KVM hypervisor)
+130:Virtual Machine (Hyper-V hypervisor)
+140:Virtual Machine (VMware hypervisor)
+150:Virtual Machine (other on-prem)
+160:Virtual Machine (ODA hosted)
+170:Virtual Machine (OraEXA hosted)
+180:Virtual Machine (OCI Base DB System)
+
+
+#20x Virtual Machines (cloud)
+#---------------------------
+210:Virtual Machine (OCI - instance)
+211:Virtual Machine (OCI - DB system)
+220:Virtual Machine (Azure VM)
+230:Virtual Machine (AWS EC2 instance)
+240:Virtual Machine (GCP Compute Engine instance)
+250:Virtual Machine (other cloud)
+

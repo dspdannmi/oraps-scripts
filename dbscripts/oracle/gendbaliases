@@ -1,0 +1,31 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  runlater
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       09-Oct-2003     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+
+for i in $(grep -v ^# ${ORATAB} | grep ^[A-Za-z0-9] | cut -d: -f1 | sort) 
+do
+    lowercase_db=$(echo ${i} | tr '[:upper:]' '[:lower:]')
+#    echo alias ${lowercase_db}=\'ORAENV_ASK_SAVE=\$ORAENV_ASK \; unset DSP_PDB_SID \; ORAENV_ASK=NO \; export ORACLE_SID=${i}\; . /usr/local/bin/oraenv \; export ORAADMIN=\$ORACLE_BASE/admin/${i} \; ORAENV_ASK=\$ORAENV_ASK_SAVE\'
+    echo alias ${lowercase_db}=\'setoradbenv ${i}\'
+done

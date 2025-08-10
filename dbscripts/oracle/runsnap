@@ -1,0 +1,54 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  runsnap
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       02-May-2007     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="sleep_time_seconds"
+
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+if [ $# -ne 1 ]
+then
+    usage
+else
+    sleep_time_seconds=$1
+fi
+
+while true
+do
+    sql execute statspack.snap
+    sleep $sleep_time_seconds
+done
+
+
+
+exit $EXITCODE
+

@@ -1,0 +1,275 @@
+#!/usr/bin/sh
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  servercheckstamp
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       28-Jul-2025     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+DSP_COLOURS_SCRIPT=${CS_TOP}/env/colours.env
+
+if [  -r ${DSP_COLOURS_SCRIPT} ]
+then
+    . ${DSP_COLOURS_SCRIPT}
+fi
+
+USAGE_STRING=""
+FORCE=NO
+
+while getopts 'f' OPTION
+do
+    case "$OPTION" in
+        f) FORCE=YES ;;
+        ?) usage ;;
+    esac
+done
+
+
+
+#serversummary
+#echo
+
+user=$(whoami)
+
+if [ "${user}" = "" ]
+then
+    echo "ERROR: could not determine user - exiting"
+    EXITCODE=1
+    exit ${EXITCODE}
+fi
+
+DEBUG=NO
+
+echodebug
+echodebug DSP_DATADIR=${DSP_DATADIR}
+echodebug DSP_IDENTITY_FILE=${DSP_IDENTITY_FILE}
+echodebug DSP_OWNER_FILE=${DSP_OWNER_FILE}
+echodebug SERVERCODE_LOOKUP_FILE=${SERVERCODE_LOOKUP_FILE}
+echodebug DBHOSTING_LOOKUP_FILE=${DBHOSTING_LOOKUP_FILE}
+echodebug DSP_VERSION_FILE=${DBHOSTING_LOOKUP_FILE}
+echodebug
+
+hostname_check="FAIL"
+dspserverid_check="FAIL"
+machine_id_check="FAIL"
+hostid_check="FAIL"
+macaddr_check="FAIL"
+ipaddr_check="FAIL"
+
+
+# use xargs to remove whitespace
+registered_hostname=$(grep ^hostname: ${DSP_IDENTITY_FILE} | cut -d: -f2- | xargs)
+registered_dspserverid=$(grep ^dspserverid: ${DSP_IDENTITY_FILE} | cut -d: -f2- | xargs)
+registered_hostid=$(grep ^hostid: ${DSP_IDENTITY_FILE} | cut -d: -f2- | xargs)
+registered_machine_id=$(grep ^machine-id: ${DSP_IDENTITY_FILE} | cut -d: -f2- | xargs)
+registered_macaddr=$(grep ^macaddr: ${DSP_IDENTITY_FILE} | cut -d: -f2- | xargs)	 # very important -f2- as mac addresses have : in them
+registered_ipaddr=$(grep ^ipaddr: ${DSP_IDENTITY_FILE} | cut -d: -f2- | xargs)
+
+# ---------------------------------------------------
+# check hostname
+# ---------------------------------------------------
+#
+echo
+check_status_colour=${Red}
+echo -e "Checking hostname:"
+echo    "-----------------"
+echo -e "        expecting: ${BYellow}${registered_hostname:-<notset>}${White}"
+if [ "${thishost}" = "${registered_hostname}" ]
+then
+    check_status_colour=${Green}
+    hostname_check=OK
+fi
+
+echo -e "           actual: ${check_status_colour}${thishost}${White}"
+echo -e "Status: ${check_status_colour}${hostname_check}${White}"
+
+
+#
+# ---------------------------------------------------
+# check dspserverid
+# ---------------------------------------------------
+#
+# - nothing really to check as this is an arbitrary ID
+echo
+echo
+check_status_colour=${Red}
+echo -e "Checking dspserverid:"
+echo    "--------------------"
+echo -e "        expecting: ${BYellow}${registered_dspserverid:-<notset>}${White}"
+if [ "${registered_dspserverid}" != "" ]
+then
+    check_status_colour=${Green}
+    dspserverid_check="OK"
+    echo -e "        actual:    ${Green}${dspserverid}${White}"
+else
+    echo -e "        actual:    ${Red}${dspserverid:-<notset>}${White}"
+fi
+
+echo -e "Status: ${check_status_colour}${dspserverid_check}${White}"
+
+#
+# ---------------------------------------------------
+# check machine-id
+# ---------------------------------------------------
+#
+echo
+echo
+check_status_colour=${Red}
+echo -e "Checking machine-id:"
+echo    "-------------------"
+echo -e "        expecting: ${BYellow}${registered_machine_id:-<notset>}${White}"
+if [ "${registered_machine_id}" != "" ]
+then
+  if [ "${machine_id}" = "${registered_machine_id}" ]
+  then
+    check_status_colour=${Green}
+    machine_id_check="OK"
+  fi
+
+  echo -e "           actual: ${colour}${machine_id}${White}"
+
+else
+    #
+    # registered_machine_id is null but /etc/machine-id only
+    # came in around OL7 / RHEL7 so maybe this machine does not 
+    # have /etc/machine-id
+    if [ ! -r /etc/machine-id ]
+    then
+        # as potentially suspected, registered machine-id is null
+        # and this server has no /etc/machine-id so likely early
+        # version of Linux so not really a problem
+        :
+    else
+        # registered machine-id is null but /etc/machine-id does 
+        # exist on the server so houston, we have a problem
+        echo -e "    ${Red}${machine_id:-<notset>}${White}"
+    fi
+fi
+echo -e "Status: ${check_status_colour}${machine_id_check}${White}"
+
+#
+# ---------------------------------------------------
+# check hostid
+# ---------------------------------------------------
+#
+check_status_colour=${Red}
+echo
+echo
+echo -e "Checking hostid:"
+echo    "---------------"
+echo -e "        expecting: ${BYellow}${registered_hostid}${White}"
+if [ "${registered_hostid}" != "" ]
+then
+  if [ "${hostid}" = "${registered_hostid}" ]
+  then
+    check_status_colour=${Green}
+    hostid_check="OK"
+  fi
+  echo -e "           actual: ${check_status_colour}${hostid}${White}"
+else
+    echo -e "           actual: ${check_status_colour}${hostid:-<notset>}${White}"
+fi
+echo -e "Status: ${check_status_colour}${hostid_check}${White}"
+
+#
+# ---------------------------------------------------
+# check macaddr
+# ---------------------------------------------------
+#
+echo
+echo
+check_status_colour=${Red}
+echo -e "Checking MAC addresses:"
+echo    "----------------------"
+echo -e "        expecting: ${BYellow}${registered_macaddr}${White}"
+prefix="actual: "
+for macaddr in $(showmacaddrs | awk '{print $2}')
+do
+    if [ "${macaddr}" = "${registered_macaddr}" ]
+    then
+        check_status_colour=${Green}
+        colour=${Green}
+        macaddr_check=OK
+        suffix=" ***"
+    else
+        colour=${White}
+        suffix=""
+    fi
+    # use colour here as there may be a list of MAC addresses
+    # and we only register against one
+    echo -e "           ${prefix}${colour}${macaddr}${suffix}${White}"
+    prefix="        "
+done
+echo -e "Status: ${check_status_colour}${macaddr_check}${White}"
+
+#
+# ---------------------------------------------------
+# check ipaddr
+# ---------------------------------------------------
+#
+check_status_colour=${Red}
+echo
+echo
+echo -e "Checking IP addresses:"
+echo    "---------------------"
+echo -e "        expecting: ${BYellow}${registered_ipaddr}${White}"
+prefix="actual: "
+for ipaddr in $(showipaddrs) 
+do
+    if [ "${ipaddr}" = "${registered_ipaddr}" ]
+    then
+    check_status_colour=${Green}
+        colour=${Green}
+        ipaddr_check=OK
+        suffix=" ***"
+    else
+        colour=${White}
+        suffix=""
+    fi
+    # use colour here as there may be a list of IP addresses
+    # and we only register against one
+    echo -e "           ${prefix}${colour}${ipaddr}${suffix}${White}"
+    prefix="        "
+done
+echo -e "Status: ${check_status_colour}${ipaddr_check}${White}"
+
+
+#
+# ---------------------------------------------------
+# checks complete - now return results
+# ---------------------------------------------------
+#
+if [ "${hostname_check}" = "OK" ] && [ "${dspserverid_check}" = "OK" ] && [ "${hostid_check}" = "OK" ] && [ "${machine_id_check}" = "OK" ] && [ ${macaddr_check} = "OK" ] && [ ${ipaddr_check} = "OK" ]
+then
+    colour="${BGreen}"
+    OVERALL_STATUS="SUCCESS"
+else
+    colour="${BRed}"
+    OVERALL_STATUS="FAIL"
+    EXITCODE=1
+fi
+
+echo
+echo "----------------------------------------------------"
+echo -e "Host check status: ${colour}${OVERALL_STATUS}${White}"
+echo "----------------------------------------------------"
+echo
+
+exit $EXITCODE
+

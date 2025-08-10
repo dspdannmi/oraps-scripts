@@ -1,0 +1,60 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  desc
+#
+# Description:			Performs a describe on a table as SQL*Plus does
+#
+# Parameters:			-d		database:host (optional)
+#				tablename	the object to describe
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       12-Aug-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="[-d SID] tablename"
+
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+if [ "$1" = "-d" ]
+then
+    PARAM="-d ${2}"
+    shift ; shift
+else 
+    PARAM=""
+fi
+
+if [ $# -ne 1 ]
+then
+    usage
+fi
+
+sql ${PARAM} desc ${*}
+    
+
+
+
+
+
+exit $EXITCODE
+

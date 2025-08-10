@@ -1,0 +1,57 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  dbversion
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       29-Mar-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="[-d DB]"
+
+
+#
+# Script starts here
+#
+#
+#set_error_trap
+
+if [ $# -ne 0 ] && [ $# -ne 2 ]
+then
+    usage
+fi
+
+#
+# Query version table from DB looking for lines starting with Oracle
+# Extract field containing at least 3 numeric fields seperated by dots (ie. version number)
+#
+DBVERS=$(vversion ${*} | grep ^Oracle | sed -e 's/.* \([0-9]*\.[0-9]*\.[0-9]*.*\) .*/\1/' | awk '{print $1}' | sort -u)
+status=$?
+
+if [ $status -ne 0 ] || [ "$DBVERS" = "" ]
+then
+    echo ERROR: Encountered error running vversion
+    EXITCODE=1
+    exit $EXITCODE
+else
+    echo $DBVERS
+fi
+
+
+exit $EXITCODE
+

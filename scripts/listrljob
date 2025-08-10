@@ -1,0 +1,41 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  tailrljob
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       22-Jul-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="[jobid]"
+WARN_ON_NONZERO_EXIT="NO"
+
+#
+# Script starts here
+#
+#set_error_trap
+
+if [ $# -gt 1 ]
+then
+    usage
+fi
+
+ls -1trd $CS_TOP/out/runlater/*.out 
+
+exit $EXITCODE
+

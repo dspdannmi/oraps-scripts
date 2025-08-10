@@ -1,0 +1,66 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  runtk
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       17-May-2006     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING=""
+
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+for file in ${*}
+do
+    sid=$(echo $file | sed -e 's/.*_\([0-9]*\)_.*/\1/')
+
+    if [ -f $sid.prf ]
+    then
+	mv $sid.prf $sid.prf.$(date +%H%m%d%H%M%S)
+	status=$?
+
+	if [ $status -ne 0 ]
+	then
+	    echo ERROR: Encountered error renaming $sid.prf as $sid.prf already exists
+	fi
+    fi
+
+    echo Generating tkprof for: $file
+    tkprof $file $sid.prf 2>&1 > /dev/null
+    status=$?
+
+    if [ $status -ne 0 ]
+    then
+	echo "    ERROR: Encountered error generating tkprof output for: $file"
+    fi
+done
+
+
+
+exit $EXITCODE
+

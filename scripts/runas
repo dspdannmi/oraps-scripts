@@ -1,0 +1,50 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  runas
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       10-Oct-2003     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+if [ $# -lt 2 ]
+then
+    echo "usage: $scriptname user command"
+    EXITCODE=1
+    exit
+fi
+
+runas=${1}
+shift
+
+if [ "$thisuser" = "root" ]
+then
+    su - ${runas} -c ${*}
+else
+    echo "Enter ROOT"
+    su root -c "su - ${runas} -c ${*}"
+fi
+
+exit $EXITCODE
+

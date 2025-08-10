@@ -1,0 +1,58 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  getremotehostname
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       14-Aug-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="host"
+
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+if [ $# -ne 1 ]
+then
+    usage
+else
+    HOST=${1}
+fi
+
+realname=$(runremotecmd ${HOST} hostname)
+status=$?
+
+if [ $status -ne 0 ] || [ "${realname}" = "" ]
+then
+    echo "ERROR: Encountered error determining actual hostname"
+    EXITCODE=1
+    exit $EXITCODE
+else
+    echo ${realname}
+fi
+
+exit $EXITCODE
+

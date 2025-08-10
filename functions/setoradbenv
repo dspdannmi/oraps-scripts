@@ -1,0 +1,42 @@
+
+function setoradbenv 
+    {
+    if [ $# -eq 1 ]
+    then
+        old_oracle_sid=${ORACLE_SID}	# save it off in case we want to something
+					# different in this function depending on
+					# whether we are switching to completely
+					# different SID or setting the environment
+					# again for the SID already in ORACLE_SID
+
+        export ORACLE_SID=${1}
+    
+        ORAENV_ASK_SAVE=$ORAENV_ASK 
+        ORAENV_ASK=NO 
+
+        unset DSP_PDB_SID 
+        unset ALERTLOG
+    
+        . ${ORAENV} 2>&1 > /dev/null
+        status=$?
+
+        if [ ${status} -eq 0 ]
+        then
+            export ORAADMIN=$ORACLE_BASE/admin/ORCL 
+            export ORAENV_ASK=$ORAENV_ASK_SAVE
+
+            echo ""
+            echo "ORACLE_SID:   ${ORACLE_SID}"
+            echo ""
+            echo "ORACLE_HOME:  ${ORACLE_HOME}"
+            echo ""
+        else
+            echo "ERROR: encountered error running ${ORAENV}"
+            return 1
+        fi 
+    
+    else
+        echo "ERROR: SID value not passed in"
+        return 1
+    fi
+    }

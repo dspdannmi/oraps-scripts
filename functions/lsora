@@ -1,0 +1,16 @@
+
+function lsora
+    {
+    if [ $# -eq 0 ]
+    then
+	PARAM="${ORACLE_SID:-}"
+    else
+	PARAM="$@"
+    fi
+
+    for sid in ${PARAM}
+    do
+	ls -ald /*/oradata/${sid}/*
+    done
+    }
+

@@ -1,0 +1,111 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:          	pstree
+#
+# Description:          
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#	06-Mar-2003	1.0	oracle	Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="pid"
+
+if [ $# -ne 1 ]
+then
+    usage
+else
+    specified_pid=${1}
+fi
+
+pidtree=""
+
+
+function get_parent
+    {
+    pid=${1:-}
+    pidtree="$pid $pidtree"
+    if [ "$pid" = "1" ]
+    then
+	:
+    else
+        parent=$(ps -fp ${pid} | grep ${pid} | awk '{print $3}')
+
+	if [ "$pid" != "$parent" ]
+	then
+	    get_parent $parent
+	fi
+    fi
+    }
+
+function display_children
+    {
+    typeset -i loopcounter=1
+    pid=${2:-}
+
+    if [ "${pid}" = "" ]
+    then
+	return
+    fi
+
+
+    for pid in $(ps -ef | awk "\$3 == ${pid} {print \$2}")
+    do
+        x=""
+        while [ $loopcounter -lt $1 ]
+        do
+	    x="\ \ ${x}"
+	    loopcounter=$loopcounter+1
+        done
+
+        ps -fp ${pid} | grep ${pid} | sed -e "s/^/${x}/"
+
+        display_children $(( $1+1 )) ${pid}
+    done
+    }
+
+
+
+#
+# Determine parent PID
+#
+get_parent ${specified_pid}
+
+#
+# Display 'ps' headers
+#
+ps -fp 1 | head -1
+for pid in ${pidtree}
+do
+     if [ "$pid" = "$specified_pid" ]
+     then
+	 echo --------------
+     fi
+
+    ps -fp $pid | grep $pid 
+
+    if [ "$pid" = "$specified_pid" ]
+    then
+	 echo --------------
+    fi
+done
+
+display_children 2 ${specified_pid}
+
+echo
+
+exit $EXITCODE
+

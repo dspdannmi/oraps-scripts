@@ -1,0 +1,47 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:          	checkuniq
+#
+# Description:          	Check that filenames are uniqe
+#				eg. /dirA/test and /dirB/test are not unique
+#				as they are in different directories but have the
+#				same basename
+#
+# Parameters:			$* files to check
+#
+# Environment:
+#
+# Return codes:			0	success		all are unique
+#				1	fail		there are files not unique
+#
+# Modification history:
+#
+#	01-Apr-2003	1.0	oracle	Original version
+#
+#+++___________________________________________________________________________________
+
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="file(s)"
+
+if [ $# -lt 1 ]
+then
+    usage
+fi
+
+
+for file in ${*}
+do
+    basename $file
+done | sort | uniq -c 
+
+
+[ -f $tmpfile ] && rm $tmpfile
+
+exit $EXITCODE
+

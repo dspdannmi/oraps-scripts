@@ -1,0 +1,53 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  checkimplog
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       08-Dec-2003     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="logfile"
+
+
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+if [ $# -ne 1 ]
+then
+    usage
+else
+    implogfile=${1}
+fi
+
+if [ ! -r ${implogfile} ]
+then
+    echo "ERROR: ${implogfile} does not exist or is not readable"
+    EXITCODE=1
+    exit $EXITCODE
+fi
+
+grep -E '^IMP-|^ORA-|warn|fail|critical' ${implogfile} | sort | uniq -c
+
+
+exit $EXITCODE
+

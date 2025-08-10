@@ -1,0 +1,11 @@
+
+function mkold
+    {
+    for file in "$@"
+    do
+	if [ ! -f ${file}.old ] && [ ! -d ${file}.old ] && [ ! -h ${file}.old ]
+	then
+	    mv ${file} ${file}.old
+	fi
+    done
+    }

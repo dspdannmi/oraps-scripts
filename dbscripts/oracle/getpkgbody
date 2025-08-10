@@ -1,0 +1,65 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  getpkgbody
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       20-Feb-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="owner.package_name"
+
+
+#
+# Script starts here
+#
+#
+#set_error_trap
+
+if [ $# -ne 1 ]
+then
+    usage
+else
+    package=${1}
+fi
+
+if [ "$ORACLE_SID" = "" ]
+then
+    echo ERROR: \$ORACLE_SID not set
+    exit 1
+fi
+
+sqlplus -s ${SQLPLUS_DBA_LOGON} << *EOF* > $tmpfile
+set pages 0
+set lines 1000
+set feedback off
+set termout on
+set echo off
+set verify off
+set trimspool on
+set trimout on
+@ pkgbody ${package}
+exit 
+*EOF*
+
+sed -e 's/  *$//g' $tmpfile
+
+
+
+exit $EXITCODE
+

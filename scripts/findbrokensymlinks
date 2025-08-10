@@ -1,0 +1,42 @@
+#!/usr/bin/sh
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  ../../findbrokensymlinks
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       01-Aug-2025     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING=""
+
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+find -xtype l ${*}
+
+
+exit $EXITCODE
+

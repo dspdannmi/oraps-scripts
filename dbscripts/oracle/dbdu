@@ -1,0 +1,77 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:          	dbdu
+#
+# Description:          	List directories used for datafiles and other dbfiles
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#	18-Feb-2003	1.0	oracle	Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="[-d DB]"
+
+if [ $# -gt 2 ] || [ $# -eq 1 ]
+then
+    usage
+fi
+
+if [ $# = 2 ]
+then
+  if [ "$1" = "-d" ]
+  then
+    export ORACLE_SID=${2}
+  else
+     usage
+  fi
+fi
+
+if [ "$ORACLE_SID" = "" ]
+then
+    echo error: \$ORACLE_SID not set
+    EXITCODE=1
+    exit $EXITCODE
+fi
+
+export ORAENV_ASK=NO
+export PATH=$PATH:/usr/local/bin
+. /usr/local/bin/oraenv 2>&1 > /dev/null
+
+listallfiles | grep ^\/ > $tmpfile
+status=$?
+
+if [ $status -ne 0 ]
+then
+    echo error: error running SQL\*Plus
+    EXITCODE=1
+    exit $EXITCODE
+fi
+ 
+if [ ! -f ${tmpfile} ]
+then
+    echo error: did not create temp spool file
+    EXITCODE=1
+    exit $EXITCODE
+fi
+
+for dir in $(cat ${tmpfile})
+do
+    dirname ${dir}
+done | sort | uniq | xargs -i du -sk {}
+
+exit $EXITCODE
+
+

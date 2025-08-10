@@ -1,0 +1,13 @@
+
+function viwhich
+    {
+    filepath=""
+    for file in ${*}
+    do
+        filepath="${filepath} $(which ${file})"
+    done
+
+    vi ${filepath}
+    }
+
+

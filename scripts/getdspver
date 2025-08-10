@@ -1,0 +1,40 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  getcsver
+#
+# Description:			Get the build/version number for CS
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       07-Jul-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+if [ -f ${DSP_VERSION_FILE} ]
+then
+    cat ${DSP_VERSION_FILE} 
+else
+    echo '*not defined*'
+    EXITCODE=1
+fi
+
+exit $EXITCODE
+

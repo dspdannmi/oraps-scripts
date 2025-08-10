@@ -1,0 +1,55 @@
+#!/usr/bin/sh
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  dspcli
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       06-Aug-2025     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="not enough arguments passed - exiting"
+
+if [ $# -eq 0 ]
+then
+    usage
+fi
+
+
+case "${1}" in
+    os)		echo Linux ;;
+    ora)	echo Oracle Database ;;
+    postgres)   echo PostgreSQL ;;
+    mysql)	echo mysql ;;
+    wl)		echo Oracle WebLogic ;;
+esac
+
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+
+
+exit $EXITCODE
+

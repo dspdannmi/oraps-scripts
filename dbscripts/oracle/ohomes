@@ -1,0 +1,43 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:          	ohomes
+#
+# Description:          
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#	18-Feb-2003	1.0	oracle	Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING=""
+
+if [ "${DSP_INTERACTIVE_SHELL}" = "YES" ]
+then
+    echo "-------------------------------"
+    echo "Oracle homes in ${ORATAB}"
+    echo "-------------------------------"
+fi
+
+grep -v ^\# ${ORATAB:-/etc/oratab} | grep -v ^\$ | cut -d: -f2 | sort -u
+
+if [ "${DSP_INTERACTIVE_SHELL}" = "YES" ]
+then
+    echo
+fi
+
+
+exit $EXITCODE
+

@@ -1,0 +1,160 @@
+#!/usr/bin/sh
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  showalertlogloc
+#
+# Description:			Attempt to derive the location of the alertlog
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       29-Jul-2025     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="[-d SID] [-h host]"
+
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+while getopts 'd:h:' OPTION
+do
+    case "$OPTION" in
+        d) db=$OPTARG ; unset ORACLE_PDB_SID ; unset DSP_PDB_SID ;;     # if -d parameter then clear any PDB env references
+        h) dbhost=$OPTARG ;;
+        ?) usage ;;
+    esac
+done
+shift $((OPTIND-1))
+
+if [ "${db}" != "" ]
+then
+    export ORACLE_SID=$(echo ${db} | cut -d: -f1)
+    pdb=$(echo ${db} | cut -d: -f2)
+
+    if [ "${pdb}" != "" ]
+    then
+        echoerr "WARNING: pdb specified [${pdb}] but will be ignored"
+    fi
+
+    check_and_set_oracle_sid ${ORACLE_SID}
+    status=$?
+fi
+
+#
+# dont currently check dbhost and run a remote command on another server
+# this functionality needs to be added
+#
+
+if [ "${ORACLE_SID}" = "" ]
+then
+    echo "ERROR: ORACLE_SID not set - exiting"
+    EXITCODE=1
+    exit ${EXITCODE}
+fi
+
+sqlplus / as sysdba << *EOF* > ${tmpfile}
+
+rem v\$diag_info does not exist in pre-11g so error is expected for earlier versions
+whenever sqlerror continue
+
+select 'diag_trace:' || value from v\$diag_info where name = 'Diag Trace';
+select 'bdump_dest:' || value from v\$parameter where name = 'background_dump_dest';
+select 'diag_dest:'  || value from v\$parameter where name = 'diagnostic_dest';
+
+exit 
+*EOF*
+
+diag_trace=$(grep ^diag_trace: ${tmpfile} | cut -d: -f2)
+bdump_dest=$(grep ^bdump_dest: ${tmpfile} | cut -d: -f2)
+diag_dest=$(grep ^diag_dest: ${tmpfile} | cut -d: -f2)
+
+echodebug diag_trace=$diag_trace
+echodebug bdump_dest=$bdump_dest
+echodebug diag_dest=$diag_dest
+
+alert_log_filename="alert_${ORACLE_SID}.log"
+
+# 
+# start with diag_trace
+
+if [ "${diag_trace}" != "" ] 
+then
+  if [ -d ${diag_trace} ]
+  then
+    if [ -f ${diag_trace}/${alert_log_filename} ]
+    then
+        : # ah-ha found it already
+        alert_log_location=${diag_trace}/${alert_log_filename}
+    else
+        echo "ERROR: diag_trace configured but alert log not found - refer to maintainers - exiting"
+        EXITCODE=1
+        exit $EXITCODE
+    fi
+  else
+      echo "ERROR: diag_trace configured but directory does not exist - refer to maintainers - exiting"
+      EXITCODE=1
+      exit $EXITCODE
+  fi
+
+elif [ "${bdump_dest}" != "" ]
+then 
+  if [ -d ${bdump_dest} ]
+  then
+    if [ -f ${bdump_dest}/${alert_log_filename} ]
+    then
+        alert_log_location=${bdump_dest}/${alert_log_filename}
+    else
+        :
+    fi
+  else
+     :
+  fi 
+
+elif [ "${diag_dest}" != "" ] 
+then
+  if [ -d ${diag_dest} ]
+  then
+    FOUND=NO
+    for file in $(find $diag_dest -name ${alert_log_filename} -type f)
+    do
+        if [ "${FOUND}" = "YES" ]
+        then
+            echo "WARNING: multiple candidates found"
+            EXITCODE=1
+        fi
+        
+        FOUND=YES
+    done
+  else
+     :
+  fi
+else
+    :
+fi
+
+echo ${alert_log_location}
+
+
+
+
+exit $EXITCODE
+

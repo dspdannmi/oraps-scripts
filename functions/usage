@@ -1,0 +1,21 @@
+
+#---------------------------------------------------------------------------------------
+#
+# function usage
+#
+#---------------------------------------------------------------------------------------
+
+function usage
+    {
+    echo "usage: ${scriptname} ${USAGE_STRING}"
+    
+    if [ "${EXITCODE}" = "" ] || [ "${EXITCODE}" = "0" ]
+    then
+        EXITCODE=1
+    fi
+
+    USAGE_ERROR="YES"
+
+    exit ${EXITCODE}
+    }
+

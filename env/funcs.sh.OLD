@@ -1,0 +1,55 @@
+
+#
+# use BASH_SOURCE to get the path when a script is sourced
+#
+funcs_script_dir=$(dirname $BASH_SOURCE)
+
+if [ -r ${funcs_script_dir}/autoload ]
+then
+    . ${funcs_script_dir}/autoload
+    . ${funcs_script_dir}/../functions/graceful_exit
+
+    #
+    # Shared Environment Variables
+    #
+    scriptname=$(basename ${0})
+    scriptdir=$(dirname ${0})
+    tmpfile=$(mktemp -t ${scriptname}_${$}.XXXXXXXX)
+
+    unset TWO_TASK
+    
+    typeset -i MAX_WORKERS=12
+    
+    EXITCODE=0
+    ERRMSG=""
+    DEBUG="NO"
+    DEL_TEMPFILES="YES"
+    USAGE_STRING=""
+    USAGE_ERROR="NO"
+    SHOW_FOOTER_ON_EXIT="YES"
+    WARN_ON_NONZERO_EXIT="YES"
+    
+    #
+    # autoload functions to be used
+    # in shell scripts
+    #
+    if [ "$(uname)" != "Linux" ]
+    then
+        autoload check_status
+        autoload check_status_exit
+        autoload clear_error_trap
+        autoload echodebug
+        autoload error_encountered
+        autoload graceful_exit
+        autoload scriptfooter
+        autoload scriptheader
+        autoload scriptout
+        autoload scriptout2
+        autoload scriptout3
+        autoload set_error_trap
+        autoload setpdb
+        autoload usage
+    fi
+else
+    :
+fi

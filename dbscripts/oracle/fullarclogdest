@@ -1,0 +1,87 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  fullarchlogdest
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       19-Jun-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="[-d SID]"
+
+
+#
+# Script starts here
+#
+#
+#set_error_trap
+
+if [ $# -gt 2 ]
+then
+    usage
+fi
+
+
+if [ "$1" = "-d" ]
+then
+    export ORACLE_SID=$(echo ${2} | awk -F: '{print $1}')
+
+    whichhost=$(echo ${2} | awk -F: '{print $2}' | tr "[:upper:]" "[:lower:]")
+
+    if [ "$whichhost" = "" ]
+    then
+        whichhost=$thishost
+
+        if chkoradbinoratab ${ORACLE_SID}
+        then
+            :
+        else
+            scriptout "ERROR: $ORACLE_SID not in oratab"
+	    EXITCODE=1
+            exit $EXITCODE
+        fi
+
+        . /usr/local/bin/oraenv 2>&1 > /dev/null
+    fi
+
+    shift
+    shift
+else
+    whichhost=$thishost
+fi
+
+if [ "$whichhost" = "$thishost" ]
+then
+    ARCLOG_DEST=$(showlogdest -d ${ORACLE_SID} | cut -d= -f2-)
+    ARCLOG_FORMAT=$(showlogformat -d ${ORACLE_SID})
+
+    if [ -d ${ARCLOG_DEST} ]
+    then
+	ARCLOG_DEST=${ARCLOG_DEST}/
+    fi
+
+    FULL_ARCLOG_DEST=$(echo ${ARCLOG_DEST}${ARCLOG_FORMAT} | sed -e 's!//!/!g')
+
+    echo ${FULL_ARCLOG_DEST}
+else
+    runremotecmd ${whichhost} $(which $scriptname) -d ${ORACLE_SID}
+    status=$?
+fi
+
+exit $EXITCODE
+

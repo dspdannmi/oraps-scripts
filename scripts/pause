@@ -1,0 +1,37 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:          	suspend
+#
+# Description:          	Send process SIGTSTP to process
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#	13-Mar-2003	1.0	oracle	Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="PID"
+
+if [ $# -ne 1 ]
+then
+    usage
+else
+    PID=${1}
+fi
+
+kill -SIGTSTP ${PID}
+
+exit $EXITCODE
+

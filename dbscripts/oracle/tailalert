@@ -1,0 +1,123 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  xxxxx
+#
+# Description:
+#
+# We base it on setting of ALERTLOG so we can still see / interact with the alert log
+# when database is down.  If we had to rely on DB being up to get location then likely
+# fine for most times but makes it difficult when DB is down and want to easy see the
+# alert log.  Could extend this such that one can choose with switch whether to get
+# alert log location fresh from DB or oterhwise use ALERRTLOG environment variable
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       14-Jan-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="[-l #lines] [-d SID] [-f]"
+
+new_sid=${ORACLE_SID}	# assume we are working with current ORACLE_SID unless
+                        # parameter suggests otherwise
+tailf_option=""
+LINES=30
+
+while getopts 'l:d:f' OPTION
+do
+    case "$OPTION" in
+        l) LINES=$OPTARG ;;
+        d) new_sid=$OPTARG ;;
+        f) tailf_option="f" ;;
+        ?) usage ;;
+    esac
+done
+
+shift $((OPTIND-1))
+
+if [ "${new_sid}" != "${ORACLE_SID}" ]
+then
+   export ORACLE_SID=${new_sid}
+
+   if chkoradbinoratab ${ORACLE_SID}
+   then
+       :
+   else
+       echo "ERROR: $ORACLE_SID not in [${ORATAB}]"
+       EXITCODE=1
+       exit ${EXITCODE}
+   fi
+
+   . /usr/local/bin/oraenv 2>&1 > /dev/null
+
+   if chkoradbopen $ORACLE_SID
+   then
+       :
+   else
+       echo "ERROR: $ORACLE_SID is not up"
+       EXITCODE=1
+       exit ${EXITCODE}
+   fi
+
+   setalertlogvar
+fi
+
+if [ "$ORACLE_SID" = "" ]
+then
+    echo ERROR: ORACLE_SID not set
+    exit 1
+else
+    expected_alertlog_name=alert_${ORACLE_SID}.log
+fi
+
+if [ "${ALERTLOG}" != "" ]
+then
+    if [ -f ${ALERTLOG} ]
+    then
+      if [ "$(basename ${ALERTLOG})" = "${expected_alertlog_name}" ]
+      then
+        # ALERTLOG is set and file exists
+        echo ""
+        echo "==================================================================================="
+        echo "ALERT LOG: ${ALERTLOG}" 
+        echo "==================================================================================="
+        echo ". . ."
+        echo ". . ."
+        echo ". . ."
+
+        if [ "${tailf_option}" = "f" ]
+        then
+            # as it is normal to <ctrl-C> a tail -f we shouldn't trap and report it as an error
+            clear_error_trap
+        fi
+
+        tail -${LINES}${tailf_option} ${ALERTLOG}	#no space between lines and tailf_option
+      else
+          echo "ERROR: ALERTLOG is set but filename [$(basename ${ALERTLOG})] does not match expected [${expected_alertlog_name}] - exiting"
+          EXITCODE=1
+          exit $EXITCODE
+      fi
+    else
+        :
+    fi
+else
+    echo "ERROR: environment variable ALERTLOG not set - call setalertlog"
+    EXITCODE=1
+    exit $EXITCODE
+fi
+
+#
+# end of script
+#

@@ -1,0 +1,50 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  runremotecmd
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       09-Aug-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+
+USAGE_STRING="host param1 [param2 [param 3 [ ...] ] ]"
+#
+# Script starts here
+#
+#
+#set_error_trap
+
+if [ $# -lt 2 ]
+then
+    usage
+fi
+
+HOST=${1}
+shift
+
+${REMSHCMD} ${HOST} ${*}
+status=$?
+
+if [ $status -ne 0 ]
+then
+      EXITCODE=1
+fi
+
+exit $EXITCODE
+

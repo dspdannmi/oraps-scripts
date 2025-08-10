@@ -1,0 +1,78 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  runalldbs
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       23-Jul-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+
+#
+# Script starts here
+#
+#
+#set_error_trap
+
+if [ $# -lt 1 ]
+then
+    usage
+fi
+
+unset TWO_TASK
+export ORAENV_ASK=NO
+
+VERBOSE="NO"
+if [ "$1" = "-v" ]
+then
+    VERBOSE="YES"
+    shift
+fi
+
+for ORACLE_SID in $(runningdbs)
+do
+  if [ "$VERBOSE" = "NO" ]
+  then
+    echo "-----------------------------------------------------------------------------------------------"
+    echo "sid:${ORACLE_SID} (host=${thishost})"
+    echo "-----------------------------------------------------------------------------------------------"
+    echo
+  fi
+    export ORACLE_BASE=${ORACLE_BASE:-}
+    export TNS_ADMIN=${TNS_ADMIN:-}
+
+    . /usr/local/bin/oraenv 2>&1 > /dev/null
+
+    if [ "$VERBOSE" = "NO" ]
+    then
+        ${*}
+    else
+	${*} | sed -e "s/^/${ORACLE_SID}:${thishost}>> /"
+    fi
+
+  if [ "$VERBOSE" = "NO" ]
+  then
+    echo
+    echo
+  fi
+done
+
+
+
+exit $EXITCODE
+

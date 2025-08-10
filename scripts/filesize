@@ -1,0 +1,53 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  filesize
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       30-Mar-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="file(s)"
+
+#
+# Script starts here
+#
+#
+#set_error_trap
+
+if [ $# -eq 0 ]
+then
+    usage
+fi
+
+
+for file in ${*}
+do
+    if [ ! -f ${file} ] && [ ! -d ${file} ]
+    then
+       echo ERROR: $file does not exist
+       EXITCODE=1
+       exit $EXITCODE
+    fi
+
+    du -k ${file}
+done
+
+
+exit $EXITCODE
+

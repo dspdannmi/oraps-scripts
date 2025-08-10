@@ -1,0 +1,62 @@
+BACKUPS USING CONTROLFILE ONLY
+==============================
+
+rman target /
+
+crosscheck archivelog all;   or
+change archivelog all validate;
+
+delete expired archivelog all;
+
+sql "alter system switch logfile";
+
+configure device type disk parallelism 5; 
+
+run {allocate channel d1 type disk;
+     backup database tag FULL_BACKUP format '/uda02/rman_backup/RMANTST/rman_%d_%T_%U.bkup' 
+     include current controlfile 
+     plus archivelog tag FULL_BACKUP_ARCLOGS format '/uda02/rman_backup/RMANTST/rman_%d_%T_%U.arc';
+    }
+
+
+
+/* incremental level */
+run {allocate channel d1 type disk;
+       backup incremental level 1database tag INCREMENTAL_LVL1  format '/uda02/rman_backup/RMANTST/rman_%d_%U.rman' 
+       filesperset=1
+       include current controlfile 
+       plus archivelog;
+       sql "alter system archive log current";
+      }
+
+
+RECOVERY
+========
+
+sql "alter tablespace test offline";
+restore datafile '/uda70/oradata/RMANTST/test01.dbf';
+recover datafile '/uda70/oradata/RMANTST/test01.dbf';
+sql "alter tablespace test online";
+
+UNAVAILABLE BACKUPS
+===================
+If backups are unavailable (ie. offsite of whatever)
+
+list backup summary;
+change backupset 191 unavailable;
+
+
+Format
+%c	copy number of the backup piece
+%d	Database name
+%D	Day of the month (DD)
+%M	Month of the year
+%F	Unique name based on DBID, DD/MM/YY and sequence#
+%n	database name , right padded to max length 8 chars
+%u	8 character name representing the backup set and the time it was created
+%p	piece number of each file within the backup set ; number starts at 1 and increembets by one for each file
+%U	unique filename %u_%p_%c
+%s	backup set number
+%t	timestamp of the backup set
+%T	year, montha dn day in YYYYMMDD
+

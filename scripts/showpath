@@ -1,0 +1,35 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  showpath
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       29-Mar-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+echo $PATH | sed 's/:/ /g' | xargs -n1 echo
+
+exit $EXITCODE
+

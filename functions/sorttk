@@ -1,0 +1,12 @@
+
+function sorttk
+    {
+    for file in ${*}
+    do
+	echo ====================== $file ====================== 
+	echo
+	grep ^total ${file} | sort -k4n 
+	echo
+    done
+    }
+

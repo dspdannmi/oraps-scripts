@@ -1,0 +1,67 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:          	chk_uname_pwd
+#
+# Description:          	Check username and password combination
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#	18-Feb-2003	1.0	oracle	Original version
+#
+#+++___________________________________________________________________________________
+
+
+EXITCODE=0
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+
+if [ $# -ne 2 ]
+then
+    echo usage: $scriptname username password
+    exit 1
+else
+    username=${1}
+    password=${2}
+fi
+
+if [ "$ORACLE_SID" = "" ] && [ "TWO_TASK" = "" ]
+then
+    echo error: ORACLE_SID and TWO_TASK not set
+    exit 1
+fi
+
+
+dummy=`sqlplus ${username}/${password} << *EOF*
+       WHENEVER SQLERROR EXIT SQL.SQLCODE ROLLBACK;
+       select user from dual;
+       exit;
+       *EOF*`
+status=$?
+
+if [ $status -ne 0 ]
+then
+    echo error: error running SQL\*Plus
+    EXITCODE=1
+else
+    if [ "$(echo $dummy | grep ORA-)" != "" ]
+    then
+	echo error: could not connect
+	EXITCODE=1
+    fi
+fi
+
+[ -f $tmpfile ] && rm -f $tmpfile 
+
+exit $EXITCODE
+

@@ -1,0 +1,69 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  serverinfo2
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       20-Jul-2025     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING=""
+
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+#
+# hostname
+#
+HOSTNAME_HOSTNAME=$(hostname)
+HOSTNAME_IP_ADDRESSES=$(hostname -I)
+
+#
+# uname
+#
+UNAME_KERNEL_NAME=$(uname -s)
+UNAME_NODENAME=$(uname -n)
+UNAME_KERNEL_RELEASE=$(uname -r)
+UNAME_KERNEL_VERSION=$(uname -v)
+UNAME_MACHINE=$(uname -m)
+UNAME_PROCESSOR=$(uname -p)
+UNAME_HARDWARE_PLATFORM=$(uname -i)
+UNAME_OPERATING_SYSTEM=$(uname -o)
+
+
+
+
+echo kernel_name:${UNAME_KERNEL_NAME}
+echo nodename:${UNAME_NODENAME}
+echo kernel_release:${UNAME_KERNEL_RELEASE}
+echo kernel_version:${UNAME_KERNEL_VERSION}
+echo machine:${UNAME_MACHINE}
+echo processor:${UNAME_PROCESSOR}
+echo hardware_platform:${UNAME_HARDWARE_PLATFORM}
+echo operating_system:${UNAME_OPERATING_SYSTEM}
+
+exit $EXITCODE
+

@@ -1,0 +1,71 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:          	dbs
+#
+# Description:          
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#	18-Feb-2003	1.0	oracle	Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="[-q]"
+
+quick=NO
+while getopts 'q' OPTION
+do
+    case "$OPTION" in
+        q) quick=YES ;;
+        ?) usage ;;
+    esac
+done
+
+
+if [ "${DSP_INTERACTIVE_SHELL}" = "YES" ]
+then
+    echo "-------------------------------"
+    echo "Databases in ${ORATAB}"
+    echo "-------------------------------"
+fi
+
+for DB in $(grep -v ^\# ${ORATAB:-/etc/oratab} | grep -v ^\$ | cut -d: -f1 | sort)
+do
+  if [ "${quick}" = "NO" ]
+  then
+
+    if chkoradbopen ${DB} 2>&1 > /dev/null
+    then
+        dbstatus="running"
+    else
+        dbstatus="not running"
+    fi
+
+    output="${DB} (${dbstatus})"
+  else
+    output="${DB}"
+  fi
+
+  echo ${output}
+done
+
+if [ "${DSP_INTERACTIVE_SHELL}" = "YES" ]
+then
+    echo
+fi
+
+
+exit $EXITCODE
+

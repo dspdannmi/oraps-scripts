@@ -1,0 +1,19 @@
+
+#
+# change directory to the directory containing the file
+# passed as a parameter
+#
+
+function cdfile
+    {
+    dir=$(dirname ${1})
+
+    if [ -d ${dir} ]
+    then
+	cd ${dir}
+    else
+	echo "cdfile: error: ${dir} does not exist"
+    fi
+    }
+
+
