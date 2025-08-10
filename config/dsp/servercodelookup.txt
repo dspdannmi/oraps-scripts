@@ -11,14 +11,14 @@
 #10x Virtual Machines (on-premises)
 #----------------------------------
 
-110:Virtual Machine (OVM hypervisor)
-120:Virtual Machine (OLVM / KVM hypervisor)
-130:Virtual Machine (Hyper-V hypervisor)
-140:Virtual Machine (VMware hypervisor)
-150:Virtual Machine (other on-prem)
-160:Virtual Machine (ODA hosted)
-170:Virtual Machine (OraEXA hosted)
-180:Virtual Machine (OCI Base DB System)
+110:Virtual Machine (on-prem)(OVM hypervisor)
+120:Virtual Machine (on-prem)(OLVM / KVM hypervisor)
+130:Virtual Machine (on-prem)(Hyper-V hypervisor)
+140:Virtual Machine (on-prem)(VMware hypervisor)
+150:Virtual Machine (on-prem)(other on-prem)
+160:Virtual Machine (on-prem)(ODA hosted)
+170:Virtual Machine (on-prem)(OraEXA hosted)
+180:Virtual Machine (on-prem)(OCI Base DB System)
 
 
 #20x Virtual Machines (cloud)
@@ -28,5 +28,5 @@
 220:Virtual Machine (Azure VM)
 230:Virtual Machine (AWS EC2 instance)
 240:Virtual Machine (GCP Compute Engine instance)
-250:Virtual Machine (other cloud)
+250:Virtual Machine (Cloud - other)
 
