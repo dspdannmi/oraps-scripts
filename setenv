@@ -25,6 +25,30 @@ else
     export CS_ENV_SET=YES
 fi
 
+if [ "${USER}" = "" ]
+then
+    export USER=$(whoami)
+fi
+
+if [ "${HOME}" = "" ] || [ ! -d "${HOME}" ] 
+then
+    # HOME environment variable not set or is not a directory
+    # this should be rare but can happen if acounts are provisioned on
+    # the fly or similarly - one example is a client that uses remote
+    # authentication / IAM and sssd.  The HOME environment variable on
+    # logging in is set to UNKNOWN and there is no HOME directory
+    # in such cases lets create a temporary home directory in /tmp
+    # but make this clear
+    #
+    export HOME=/tmp/.home/${USER}
+
+    if [ ! -d ${HOME} ]
+    then
+        mkdir -p ${HOME}
+        status=$?
+    fi
+fi
+
 echo -en "${On_Black}"
 
 DSP_ENV_SCRIPT_DIR=$(dirname "${BASH_SOURCE[0]}")
@@ -160,8 +184,13 @@ export ALERTLOG=""
     #
     # - (re-)generate Oracle Database aliases and then source file
     # - this will create an alias in lower-case for any uncommeted entry in ${ORATAB}
-    ${CS_TOP}/dbscripts/oracle/gendbaliases > ${HOME}/.oradb_aliases ; . ${HOME}/.oradb_aliases
-    alias g='${CS_TOP}/dbascripts/gendbaliases > ${HOME}/.oradb_aliases ; . ${HOME}/.oradb_aliases'
+    if [ -f ${ORATAB} ]
+    then
+        # not all servers would have an oratab file, only ones hosting Oracle Database
+        ${CS_TOP}/dbscripts/oracle/gendbaliases > ${HOME}/.oradb_aliases ; . ${HOME}/.oradb_aliases
+        alias g='${CS_TOP}/dbascripts/gendbaliases > ${HOME}/.oradb_aliases ; . ${HOME}/.oradb_aliases'
+    fi
+
 
     oradb_aliases_file=${HOME}/.oradb_aliases
     [ -r ${oradb_aliases_file} ] && . ${oradb_aliases_file}
