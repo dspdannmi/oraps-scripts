@@ -314,15 +314,24 @@ export ALERTLOG=""
 # for each session with timestamp and also configure such that
 # history is written after each command
 #
-HISTDIR=$HOME/.history
+HISTDIR=${HOME}/.history
 if [ ! -d ${HISTDIR} ]
 then
     mkdir ${HISTDIR}
+    status=$?
 fi
 
+#
+# make sure to set HISTFILE first before history -a
+# for some strange environments where authentication is
+# external and might not actually have a home directory
+# with HOME being set to "Unknown" or blank
+# this gives an error with history -a so set HISTFILE
+# first such that we have more confidence that directory
+# and path exist
+HISTFILE=${HISTDIR}/.bash_history.${todayfull}.${$}
 history -a
 PROMPT_COMMAND="history -a"
-HISTFILE=${HISTDIR}/.bash_history.${todayfull}.${$}
     
 
 #

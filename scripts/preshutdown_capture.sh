@@ -3,7 +3,7 @@
 #+++___________________________________________________________________________________
 #
 #
-# Script name:                  runlater
+# Script name:                  preshutdown_capture.sh
 #
 # Description:
 #
@@ -71,9 +71,12 @@ fi
 
 if [ "${thisuser}" != "root" ]
 then
-    echo "WARNING: It is beneficial for this script to run as root"
+    echo "" 
+    echo "**********************************************************"
+    echo "WARNING: It is recommended that this script is run as root"
     echo ""
-    echo "current user: [${thisuser}]"
+    echo "current user: ${thisuser}"
+    echo "**********************************************************"
     echo ""
     echo "Press <ENTER> to continue to <ctrl-C> to abort!!!"
     read userinput
@@ -81,8 +84,6 @@ fi
 
 
 #
-# pending:
-# 	crontab entries
 #	what filesystems are CIFS / NFS mounted
 #	$ORACLE_HOME/network/admin/*.ora files
 #	wallets(?)
@@ -233,18 +234,34 @@ done
 
 #---------------------------------------------------------------
 header grubby
-(
-grubby --default-index
-grubby --default-title
-) | tee grubby.out > ${output_device}
+if [ "${thisuser}" = "root" ]
+then
+    (
+    grubby --default-index
+    grubby --default-title
+    ) | tee grubby.out > ${output_device}
+else
+    echo "                      not root - skipping"
+fi
 
 #---------------------------------------------------------------
 header needs-restarting -r
-needs-restarting -r | tee needs-restarting-r.out > ${output_device}
+if [ "${thisuser}" = "root" ]
+then
+    needs-restarting -r | tee needs-restarting-r.out > ${output_device}
+else
+    echo "                      not root - skipping"
+fi
+
 
 #---------------------------------------------------------------
 header needs-restarting -s
-needs-restarting -s | tee needs-restarting-s.out > ${output_device}
+if [ "${thisuser}" = "root" ]
+then
+    needs-restarting -s | tee needs-restarting-s.out > ${output_device}
+else
+    echo "                      not root - skipping"
+fi
 
 #---------------------------------------------------------------
 header last
@@ -256,7 +273,7 @@ header /boot
 ls -al /boot
 echo "-----------------------------------------------------"
 find /boot | xargs ls -ald
-) | tee _boot-contents.out > ${output_device}
+) | tee _boot-contents.out 2>&1 > ${output_device}
 
 
 #---------------------------------------------------------------
@@ -322,7 +339,12 @@ systemctl status 2>&1 | tee systemctl-status.out > ${output_device}
 
 #---------------------------------------------------------------
 header check-update
-dnf check-update 2>&1 | tee dnf-check-update.out > ${output_device}
+if [ "${thisuser}" = "root" ]
+then
+    dnf check-update 2>&1 | tee dnf-check-update.out > ${output_device}
+else
+    echo "                      not root - skipping"
+fi
 
 #---------------------------------------------------------------
 header rpm-qa
@@ -334,15 +356,30 @@ rpm -qa --last 2>&1 | tee rpm-qa--last.out > ${output_device}
 
 #---------------------------------------------------------------
 header "vgs (volume groups)"
-vgs 2>&1 | tee vgs.out > ${output_device}
+if [ "${thisuser}" = "root" ]
+then
+    vgs 2>&1 | tee vgs.out > ${output_device}
+else
+    echo "                      not root - skipping"
+fi
 
 #---------------------------------------------------------------
 header "lvs (logical volumes)"
-lvs 2>&1 | tee lvs.out > ${output_device}
+if [ "${thisuser}" = "root" ]
+then
+    lvs 2>&1 | tee lvs.out > ${output_device}
+else
+    echo "                      not root - skipping"
+fi
 
 #---------------------------------------------------------------
 header "pvs (physical volumes)"
-pvs 2>&1 | tee pvs.out > ${output_device}
+if [ "${thisuser}" = "root" ]
+then
+    pvs 2>&1 | tee pvs.out > ${output_device}
+else
+    echo "                      not root - skipping"
+fi
 
 echo
 echo "===================================================="
