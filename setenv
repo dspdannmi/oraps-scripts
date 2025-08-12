@@ -252,6 +252,8 @@ export ALERTLOG=""
     # so am not concerned that ~/.bashrc is not being run.  We need to run setenv
     # to ensure the prompt is set correctly
     alias root='su root -c "/bin/bash --init-file $CS_TOP/setenv"'
+    alias sudoroot='sudo su root -c "/bin/bash --init-file $CS_TOP/setenv"'
+
     alias suroot='su - root'
     #
     # -- misc aliases

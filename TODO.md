@@ -13,6 +13,8 @@ PRIORITY:  HIGH
 PRIORITY:  MEDIUM
 ===============
 
+- change serverstamp to give an UKNOWN option and save that and then have ability to update unknown or indeed any config later:  serverstamp -update
+
 - dbdown etc. might not be dispalying output of echoing commands to screen
 
 - check worklog_202508 entry 20250812 - does not deal well with UofLeeds environment where no user $HOME set, including but not limited to every command gives error as can't write $HOME

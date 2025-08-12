@@ -72,6 +72,13 @@ hostid_check="FAIL"
 macaddr_check="FAIL"
 ipaddr_check="FAIL"
 
+if [ ! -r ${DSP_IDENTITY_FILE} ]
+then
+    echo "ERROR - DSP identity file [${DSP_IDENTITY_FILE} ] does not exist - this server has not been stamped"
+    EXITCODE=1
+    exit $EXITCODE
+fi
+
 
 # use xargs to remove whitespace
 registered_hostname=$(grep ^hostname: ${DSP_IDENTITY_FILE} | cut -d: -f2- | xargs)
