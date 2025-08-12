@@ -13,6 +13,8 @@ PRIORITY:  HIGH
 PRIORITY:  MEDIUM
 ===============
 
+- check worklog_202508 entry 20250812 - does not deal well with UofLeeds environment where no user $HOME set, including but not limited to every command gives error as can't write $HOME
+
 - update end-of-life/support document and include a check for when it is deemed stale
 - maybe include patch set numbers for main quarterly patches
 - have a script to modify wget.sh from Oracle so it actcually works
