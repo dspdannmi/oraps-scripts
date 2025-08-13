@@ -1,0 +1,72 @@
+#!/usr/bin/sh
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  checkmounts
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       12-Aug-2025     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="[df_file]"
+
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+if [ $# -eq 0 ]
+then
+   df_file=df-h.out
+else
+   df_file=$1
+fi
+
+if [ ! -r ${df_file} ]
+then
+    echo "ERROR: df file [${df_file}] does not exist or not readable - exiting"
+    EXITCODE=1
+    exit $EXITCODE
+fi
+
+
+for i in $(awk '{print $NF}' ${df_file} | grep -v /run/usr/ | grep ^/ )
+do
+    echo "===> $i"
+    A=$(awk -v fs=${i} '$NF==fs' df-h.out | sed -e 's/  */ /g')
+    B=$(df -h $i | grep -v ^Files | sed -e 's/  */ /g')
+
+    if [ "${A}" != "${B}" ]
+    then
+        suffix="<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<"
+    else
+        suffix=""
+    fi
+
+    echo "${A} ${suffix}"
+    echo "${B} ${suffix}"
+
+    echo
+done
+
+exit $EXITCODE

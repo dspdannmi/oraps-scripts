@@ -1,0 +1,42 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:          	findtext
+#
+# Description:          
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#	13-Jun-2003	1.0	oracle	Original version
+#
+#+++___________________________________________________________________________________
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="user"
+
+searchstring=""
+
+if [ $# -eq 0 ]
+then
+    usage
+fi
+
+user=${1}
+
+echo [Searching for files owned by: ${user}]
+searchstring=$(echo $searchstring | cut -c2-)
+
+find . -type f -user ${user}
+
+exit $EXITCODE
+
