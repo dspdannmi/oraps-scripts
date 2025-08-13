@@ -1,0 +1,1 @@
+CATEGORY/logminer/logmnr_startscn.sql

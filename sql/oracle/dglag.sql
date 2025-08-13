@@ -1,0 +1,1 @@
+CATEGORY/dataguard/dglag.sql

@@ -1,0 +1,1 @@
+CATEGORY/rman/rmanstatus2.sql

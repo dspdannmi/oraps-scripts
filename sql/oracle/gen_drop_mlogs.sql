@@ -1,0 +1,1 @@
+CATEGORY/snapshots/gen_drop_mlogs.sql

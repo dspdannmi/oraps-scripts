@@ -23,7 +23,9 @@ CS_TOP=/opt/dsp
 . ${CS_TOP}/env/dsp.env
 . ${CS_TOP}/env/funcs.sh
 
-cd ${CS_TOP}/sql/oracle
+#dont change to directory - assuming we are running in the correct directory
+#and that will be confirmed by the check of existance of CATEGORY directory below
+#cd ${CS_TOP}/sql/oracle
 
 if [ ! -d CATEGORY ]
 then
@@ -33,7 +35,7 @@ then
 else
     NOSYMLINK_FILES_FOUND=NO
 
-    for file in [a-z]*.sql
+    for file in $(ls -1 [a-z]*.sql)
     do
         if [ ! -h ${file} ]
         then

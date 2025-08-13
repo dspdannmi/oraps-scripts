@@ -1,0 +1,1 @@
+CATEGORY/dbobjects/genrecdirectories.sql

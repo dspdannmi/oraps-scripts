@@ -1,0 +1,1 @@
+CATEGORY/sga/vsgastat.sql

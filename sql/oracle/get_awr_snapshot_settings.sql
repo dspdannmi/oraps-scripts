@@ -1,0 +1,1 @@
+CATEGORY/PENDING/get_awr_snapshot_settings.sql

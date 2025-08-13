@@ -1,0 +1,1 @@
+CATEGORY/statistics/flushmoninfo.sql

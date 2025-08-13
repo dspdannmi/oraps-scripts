@@ -1,0 +1,1 @@
+CATEGORY/statistics/monitortable.sql

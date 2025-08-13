@@ -1,0 +1,1 @@
+CATEGORY/PENDING/set_awr_snapshot_interval.sql

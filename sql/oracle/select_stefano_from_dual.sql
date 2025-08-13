@@ -1,0 +1,1 @@
+CATEGORY/misc/select_stefano_from_dual.sql

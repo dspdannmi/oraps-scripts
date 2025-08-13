@@ -1,0 +1,1 @@
+CATEGORY/misc/gentrunctabs.sql

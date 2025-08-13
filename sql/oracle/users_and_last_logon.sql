@@ -1,0 +1,1 @@
+CATEGORY/audit/users_and_last_logon.sql

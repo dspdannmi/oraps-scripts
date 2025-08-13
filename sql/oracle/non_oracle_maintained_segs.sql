@@ -1,0 +1,1 @@
+CATEGORY/segments/non_oracle_maintained_segs.sql

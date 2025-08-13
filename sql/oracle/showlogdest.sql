@@ -1,0 +1,1 @@
+CATEGORY/params/showlogdest.sql

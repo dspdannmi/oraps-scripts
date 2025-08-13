@@ -1,0 +1,1 @@
+CATEGORY/users_roles/genrectabprivs.sql

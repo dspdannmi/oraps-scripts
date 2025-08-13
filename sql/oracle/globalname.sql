@@ -1,0 +1,1 @@
+CATEGORY/misc/globalname.sql

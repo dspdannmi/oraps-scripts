@@ -1,0 +1,1 @@
+CATEGORY/asm/vasmfileinfo.sql

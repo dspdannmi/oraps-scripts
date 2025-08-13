@@ -1,0 +1,1 @@
+CATEGORY/rman/rman_backup_by_outputdevicetype_by_object_type.sql

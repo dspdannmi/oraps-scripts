@@ -1,0 +1,1 @@
+CATEGORY/tables/nologging.sql

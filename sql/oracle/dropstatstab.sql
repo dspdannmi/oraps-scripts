@@ -1,0 +1,1 @@
+CATEGORY/statistics/dropstatstab.sql

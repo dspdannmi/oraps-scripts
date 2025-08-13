@@ -1,0 +1,1 @@
+CATEGORY/locks/lockshowall.sql

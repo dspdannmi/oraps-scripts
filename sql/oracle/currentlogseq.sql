@@ -1,0 +1,1 @@
+CATEGORY/backup_recovery/currentlogseq.sql

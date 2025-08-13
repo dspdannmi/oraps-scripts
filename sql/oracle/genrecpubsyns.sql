@@ -1,0 +1,1 @@
+CATEGORY/synonyms/genrecpubsyns.sql

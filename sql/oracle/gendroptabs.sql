@@ -1,0 +1,1 @@
+CATEGORY/tables/gendroptabs.sql
