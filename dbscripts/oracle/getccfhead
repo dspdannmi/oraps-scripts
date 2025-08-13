@@ -19,8 +19,9 @@
 #
 #+++___________________________________________________________________________________
 
-. /opt/dsp/env/dsp.env
-. /opt/dsp/env/funcs.env
+CS_TOP=${CS_TOP:-/opt/dsp}
+. ${CS_TOP}/env/dsp.env
+. ${CS_TOP}/env/funcs.env
 
 EXITCODE=0
 

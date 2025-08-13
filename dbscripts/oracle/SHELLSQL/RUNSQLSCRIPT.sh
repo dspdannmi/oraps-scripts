@@ -20,8 +20,9 @@
 #+++___________________________________________________________________________________
 
 
-. /opt/dsp/env/dsp.env
-. /opt/dsp/env/funcs.sh
+CS_TOP=/opt/dsp
+. ${CS_TOP}/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
 
 USAGE_STRING="[-d DB[:pdb] [-h host] [-z]"
 

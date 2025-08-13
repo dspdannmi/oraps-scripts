@@ -22,7 +22,8 @@
 
 EXITCODE=0
 
-. /opt/dsp/env/dsp.env
+CS_TOP=${CS_TOP:-/opt/dsp}
+. ${CS_TOP}/env/dsp.env
 . ${CS_TOP}/env/funcs.sh
 
 if [ $# -ne 0 ]

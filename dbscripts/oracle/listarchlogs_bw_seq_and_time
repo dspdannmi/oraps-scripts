@@ -19,7 +19,8 @@
 #
 #+++___________________________________________________________________________________
 
-. /opt/dsp/env/dsp.env
+CS_TOP=${CS_TOP:-/opt/dsp}
+. ${CS_TOP}/env/dsp.env
 . ${CS_TOP}/env/funcs.sh
 
 USAGE_STRING="[-d SID] sequence_begin end_time"

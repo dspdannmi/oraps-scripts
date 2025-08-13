@@ -19,8 +19,9 @@
 #
 #+++___________________________________________________________________________________
 
-. /opt/dsp/env/dsp.env
-. /opt/dsp/env/funcs.sh
+CS_TOP=${CS_TOP:-/opt/dsp}
+. ${CS_TOP}/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
 
 
 < /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32};echo;
