@@ -6,6 +6,19 @@
 # Scripts should source env/dsp.env
 # -----------------------------------------------------------------------------------------------------
 #
+if [ "${SHELL}" != "" ]
+then
+    current_shell=$(basename ${SHELL})
+
+    if [ "${current_shell}" != "bash" ]
+    then
+        echo "ERROR: current shell is [${SHELL}] - expecting bash shell - doing nothing and returning"
+        return 1
+    fi
+else
+    echo "ERROR: environment variable SHELL is empty - expecting bash shall - doing nothing and returning"
+    return 1
+fi
 
 #
 # only display server check etc.
@@ -316,7 +329,7 @@ export ALERTLOG=""
 # for each session with timestamp and also configure such that
 # history is written after each command
 #
-HISTDIR=${HOME}/.history
+HISTDIR=${HOME}/.bash_history_dsp
 if [ ! -d ${HISTDIR} ]
 then
     mkdir ${HISTDIR}
@@ -331,7 +344,7 @@ fi
 # this gives an error with history -a so set HISTFILE
 # first such that we have more confidence that directory
 # and path exist
-HISTFILE=${HISTDIR}/.bash_history.${todayfull}.${$}
+HISTFILE=${HISTDIR}/history.${todayfull}.${$}
 history -a
 PROMPT_COMMAND="history -a"
     
