@@ -137,7 +137,7 @@ machine_type=${selected_choice}
 echo machine_type=${machine_type}
 
 case "${machine_type}" in
-    "physical server" ) prefix="0[0-9][0-0]" ;;
+    "physical server" ) prefix="0[0-9][0-9]" ;;
     "virtual machine (on-prem)" ) prefix="1[0-9][0-9]" ;;
     "virtual machine (cloud)" ) prefix="2[0-9][0-9]" ;;
     *) ;;
@@ -223,6 +223,8 @@ echo "Press [ENTER] to proceed or <ctrl-C> to cancel"
 read userinput
 echo
 
+NOW=$(date +%Y%m%d%H%M%S)
+
 (
     echo "hostname: ${thishost}"
     echo "dspserverid: ${newid}"
@@ -233,6 +235,12 @@ echo
     echo "machine-id: ${machine_id}"
     echo "hostid:     ${hostid}"
     echo
+    echo "<ip_addrs:${NOW}>"
+    showipaddrs
+    echo "</ip_addrs:${NOW}>"
+    echo "<mac_addrs:${NOW}>"
+    showmacaddrs
+    echo "</mac_addrs:${NOW}>"
 ) > ${DSP_IDENTITY_FILE}
 status=$?
 
