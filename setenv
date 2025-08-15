@@ -6,6 +6,15 @@
 # Scripts should source env/dsp.env
 # -----------------------------------------------------------------------------------------------------
 #
+
+#
+# make sure we are using bash shell
+# if use is not using bash shell but another
+# shell then will get unpredictable/wrong
+# experience when sourcing this file and others
+# if default for user is non-bash shell then
+# first invoke bash (/bin/bash) and then 
+# source setenv
 if [ "${SHELL}" != "" ]
 then
     current_shell=$(basename ${SHELL})
