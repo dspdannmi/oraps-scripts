@@ -32,7 +32,7 @@ CS_TOP=${CS_TOP:-/opt/dsp}
 #
 #
 
-D=${1:-`pwd`}
+D=${1:-$(pwd)}
 (cd $D; pwd)
 find $D -type d -print | sort |
 sed -e "s,^$D,,"\

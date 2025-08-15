@@ -61,6 +61,9 @@ PRIORITY:  MEDIUM
 
 - funky validate /etc/oratab... are DBs in there that are not running?  Are there DBs running not in /etc/oratab?  Do all $O_H dirs exist and is there a $OH/bin/oracle executable
 
+- add to capturer server identity.txt file a timestamp etc. to chuck in any ip addresses / mac addresses etc.  These might be useful if we do have a conflict/mistmatch at some point -
+	maybe simply we remove a NIC but the VM is the same.  It would be useful to have _all_ of the ips and macs available as at stamping point so we can crosscheck
+
 PRIORITY:  LOW
 ==============
 
