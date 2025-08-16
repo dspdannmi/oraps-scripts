@@ -7,7 +7,7 @@
 
 function setalertlogvar
     {
-    ALERTLOG=$(showalertlogloc)
+    export ALERTLOG=$(showalertlogloc)
 
     if [ "${ALERTLOG}" != "" ] && [ -r ${ALERTLOG} ]
     then

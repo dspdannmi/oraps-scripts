@@ -20,8 +20,7 @@
 #+++___________________________________________________________________________________
 
 
-CS_TOP=${CS_TOP:-/opt/dsp}
-. ${CS_TOP}/env/dsp.env
+. /opt/dsp/env/dsp.env
 . ${CS_TOP}/env/funcs.sh
 
 
@@ -52,12 +51,22 @@ done
 #
 # the square brackets around smon to prevent
 # the grep showing up in the list
+# 
+# oracle documemntation suggests _$# are valid characters
+# in a SID.  Why anyone would choose these is beyond me
+# however lets grep for them anyway.  Would be interesting
+# to see how a sid starting with a # would be depicted
+# in /etc/oratab without it being interpreted as a comment
+# Without testing it I have doubts whether a SID starting
+# with a character that isn't alphanumer (ie. a-zA-Z0-9) 
+# would be allowed
 #
+# ignore any with leading + as likely ASM
 if [ "${LONG}" = "NO" ]
 then
-    ps -ef | grep [s]mon | cut -d_ -f3 | sort
+    ps -ef | grep 'ora_smon_[a-zA-Z0-9_$#]' | cut -d_ -f3 | sort
 else
-    ps -ef | grep [s]mon 
+    ps -ef | grep 'ora_smon_[a-zA-Z0-9_$#]' 
 fi
 
 

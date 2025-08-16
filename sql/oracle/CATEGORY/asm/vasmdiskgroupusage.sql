@@ -1,6 +1,10 @@
 
 --DESCRIBE: Show current disk group usage
 
+col total_mb format 999999999999
+col free_mb format 999999999999
+col used format 999.99
+
 select name, 
        total_mb, 
        free_mb, 

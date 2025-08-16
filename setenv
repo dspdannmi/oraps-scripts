@@ -210,7 +210,7 @@ export ALERTLOG=""
     then
         # not all servers would have an oratab file, only ones hosting Oracle Database
         ${CS_TOP}/dbscripts/oracle/gendbaliases > ${HOME}/.oradb_aliases ; . ${HOME}/.oradb_aliases
-        alias g='${CS_TOP}/dbascripts/gendbaliases > ${HOME}/.oradb_aliases ; . ${HOME}/.oradb_aliases'
+        alias g='${CS_TOP}/dbscripts/oracle/gendbaliases > ${HOME}/.oradb_aliases ; . ${HOME}/.oradb_aliases'
     fi
 
 

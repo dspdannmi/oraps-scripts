@@ -2,6 +2,16 @@
 PRIORITY:  HIGH
 ===============
 
+- dbscripts/oracle/chkoradbopen needs renaming as it just checks that the instance is running.  select user form dual returns SYS even if instance is mounted
+- which is fine as long as we know that when we are using it to check.  Rename to chkorainstanceup perhaps
+
+- had a really good example whereby login.sql sets a whole heap of columns but then call script1 and it sets columns for itself and then I call script2 and columns are screwy
+- was for column defined as "USED (%)" and was inappropriate as script1 used was in fact a percentage so set heading to "USED(%)" but in script2 used was an actual amount
+- so because I didn't specifically set USED column in script two it was displayed as "USED(%)" which is misleading.  Moral is make sure individual SQL scripts set column
+- headers themselves.  Dont assume anything other than the column may be poorly defined - or alternatively reset column headers for every sql script
+
+- fix LISTSQL.sql so it works from sql*plus
+
 - when I stamped EDW server selp2db01 it did not handle the double IP address well, prompted me with both on same line
 
 - need to fix serverstamp so it reads config better and I have also renumbered categories so have introduced a bug
@@ -9,6 +19,12 @@ PRIORITY:  HIGH
 - not cleaning up tmpfiles ... important one
 
 - make sure when interrogating/querying /etc/oratab that we only take entries that have characters/numbers in particular not *
+
+- runalldbs could do somem better error checking and checking whether a database is in $ORATAB before setting the environment
+
+- needing to export ALERTLOG.  Maybe don't export it and change tailalert etc. to be functions not scripts
+
+- make it clear that on stamping the server to make sure to choose the most appropriate IP address, not any old one, make sure it's the pprimary IP address of the node and not floating ip address for exmaple
 
 PRIORITY:  MEDIUM
 ===============
