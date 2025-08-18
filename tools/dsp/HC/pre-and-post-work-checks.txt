@@ -1,0 +1,108 @@
+
+This is just a placeholder text file to maintain and add to a list of "things" to check before and after planned works or incident resolution:
+
+
+BEFORE
+======
+
+Check:
+	- time on the server is corrected/expected including timezone
+	- monitoring blackouts are in place and confirmed
+	- change control approved
+	- comms to MS teams etc.
+	- backups have completed
+	- robust rollback and recovery plans in place
+
+
+
+Capture:
+	- invalid objects (including PDBs)
+	- running databases
+		- state of PDBs
+		- DataGuard status
+	- running listeners
+		lsnrctl status for all
+	- processes
+	- iptabnles / firewalld config
+	- mounted filesystems
+	- /etc/hosts
+	- /etc/passwd
+	- /etc/group
+	- sudoers config
+	- sshd config
+	- ASM disk usage
+	- recovery file dest usage
+	- More than (>) 4Gb on / for updates
+	- More than (>) 250Mb on /boot for updates
+        - cron/crontabs
+	- /etc/cron.allow
+	- /etc/cron.deny
+  	- db
+		- CDB or PDB
+		-alert logs
+		- *.ora files
+		- spfiles / orapw
+                - RMAN configuration
+		- recovery related config
+			- flashback on/off?	--> important for Data Guard
+			- forced logging?	--> important for Data Guard
+			- some of those checksum settings?
+	- grid
+		-alert logs
+		- *.ora files
+		- spfiles 
+
+Do:
+	- create in maintenance flagfile on server
+	- update changelog with intended changes for today
+	- capture:  dspcli serverinfo -basic
+
+
+
+
+
+AFTER
+=====
+
+Check:
+	- filesystem space
+	- users exist
+	- groups exist
+	- invalid objects
+	- mounted filesystems including NFS
+		- if CIFS dont mokunt could be because FIPS is enabled
+	- sshd config
+	- ASM disk usage
+	- recovery file dest usage
+	- PDBs are in same staate
+	- dataguard status
+	- charactersets
+	- alert log errors
+	- /var/log/messages errors
+	- cron / crontabs / cron.allow <---- new VM such as DB system OL7->OL8 upgrade
+	- check /etc/oracle-release / uname -a is expected
+	- check version and patch-levels of database as expected
+	- check version and patch-levels of GI/ASM are as expected
+
+
+Do:
+	- post-work checks of backups etc.
+	- check monitoring is re-established and no alerts
+	- sanity reboot performed
+	- update changelog with confirmation of changes and any deviation
+	- capture: dspcli serverinfo -basic
+	- confirm works are complete
+	- check backups have run successfully
+
+Do some days after:
+	- check backups
+	- remove temproary objects
+	
+
+Need the ability to save off start after finished works to be able to answer questiions 6 months from now "Look, when I left, backups were running"
+
+
+
+
+
+

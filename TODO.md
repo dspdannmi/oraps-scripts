@@ -5,6 +5,7 @@ PRIORITY:  HIGH
 - I see Oracle cloud VMs SQL output using "|" as seperator (eg.  DSP19C|PHYSICAL STANDBY
 
 - oratabxref should do a check that we are running as the correct user (eg. when running as root should give error that should run as oracle or whatever is deemed as correct user)
+- oratabxref for each entry that it cant connect to the database based on entry should check if the sid is running.  Maybe means it is being started correctly just outside using $ORATAB file
 
 - dbscripts/oracle/chkoradbopen needs renaming as it just checks that the instance is running.  select user form dual returns SYS even if instance is mounted
 - which is fine as long as we know that when we are using it to check.  Rename to chkorainstanceup perhaps

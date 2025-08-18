@@ -1,0 +1,91 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  oratabxref
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       26-Mar-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+
+CS_TOP=${CS_TOP:-/opt/dsp}
+. ${CS_TOP}/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+
+#
+# Script starts here
+#
+#
+#set_error_trap
+
+
+#
+# check if ORATAB file exists
+#
+
+
+
+#
+# for every non-comment entry in oratab is the database running
+#
+echo
+echo "===================================================="
+echo "Checking ${ORATAB} as to which instances are running"
+echo "===================================================="
+echo
+grep '^[a-zA-Z0-9_$].*:' ${ORATAB} | sort | while read LINE
+do
+    sid=$(echo $LINE | cut -d: -f1)
+    ohome=$(echo $LINE | cut -d: -f2)
+    flag=$(echo $LINE | cut -d: -f3 | sed -e 's/^\(.*\)#.*/\1/')	# remove anything after a hash in the third column
+
+    X=$(sql -d ${sid} "select 'oradb_info' || ':dbname=' ||  name || ':dbrole=' ||  database_role from v\$database" | grep ^oradb_info | cut -d: -f2-)
+
+    if [ "${X}" != "" ]
+    then
+        echo "sid=${sid}:$X"
+    else
+        echo "sid=${sid}: <down or inaccessible via oratab file config>"
+        EXITCODE=1
+    fi
+done
+
+
+#
+#for every database running is there an entry in ORATAB
+#
+echo
+echo
+echo "=================================================="
+echo "Checking running instances have entry in ${ORATAB}"
+echo "=================================================="
+echo
+for sid in $(runningdbs)
+do
+    if grep ^${sid}: ${ORATAB} 2>&1 > /dev/null
+    then
+        echo "${sid}: yes"
+    else
+        echo "${sid}: NO - running but could not find reference in ${ORATAB}"
+        EXITCODE=1
+    fi
+done
+
+echo
+
+
+exit $EXITCODE
+
