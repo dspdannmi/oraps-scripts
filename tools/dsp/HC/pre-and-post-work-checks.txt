@@ -58,7 +58,12 @@ Do:
 	- capture:  dspcli serverinfo -basic
 
 
+DURING
+======
+	- make a note of any temporary changes or anything temporary created to be removed
+	- afterwards
 
+	- update NOTAMs and change log as you go
 
 
 AFTER
@@ -83,6 +88,8 @@ Check:
 	- check /etc/oracle-release / uname -a is expected
 	- check version and patch-levels of database as expected
 	- check version and patch-levels of GI/ASM are as expected
+	- check UIM monitoring is now showing any alerts
+	- send comms that works are complete
 
 
 Do:
@@ -93,6 +100,8 @@ Do:
 	- capture: dspcli serverinfo -basic
 	- confirm works are complete
 	- check backups have run successfully
+	- remove maintenance on servers if finish early
+        - cycle the alert log prior to monitoring resuming
 
 Do some days after:
 	- check backups
