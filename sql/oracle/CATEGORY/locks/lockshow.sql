@@ -11,8 +11,6 @@ rem -----------------------------------------------------------------------
 set verify off
 
 clear breaks
-clear columns
-clear computes
 
 set pause on
 set pause 'Hit any key...'

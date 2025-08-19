@@ -6,7 +6,6 @@ set verify off
 
 clear breaks
 clear computes
-clear columns
 
 col sid format 99999
 col sorts format 999999

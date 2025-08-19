@@ -4,7 +4,6 @@
 set verify off
 
 clear breaks
-clear columns
 clear computes
 
 alter tablespace &1 add tempfile '&2' reuse;

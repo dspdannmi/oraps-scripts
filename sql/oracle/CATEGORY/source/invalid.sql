@@ -5,8 +5,6 @@
 set verify off
 
 clear breaks
-clear columns
-clear computes
 
 col owner format a15
 col object_name format a45

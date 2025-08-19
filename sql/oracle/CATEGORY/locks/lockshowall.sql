@@ -18,13 +18,9 @@
 -- jks 02/24/1999 - join to dba_waiters to show waiters and blockers
 
 clear breaks
-clear columns
-clear computes
 
 set trimspool on 
 ttitle off
-set linesize 155
-set pagesize 60
 column osuser heading 'OS|Username' format a7 truncate
 column process heading 'OS|Process' format a7 truncate
 column machine heading 'OS|Machine' format a10 truncate

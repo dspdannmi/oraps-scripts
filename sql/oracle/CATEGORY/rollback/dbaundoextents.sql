@@ -4,7 +4,6 @@
 set verify off
 
 clear breaks
-clear columns
 clear computes
 
 select owner, tablespace_name, status, sum(bytes)/(1024*1024)

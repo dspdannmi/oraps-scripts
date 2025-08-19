@@ -12,8 +12,6 @@ set verify off
 set serveroutput on
 
 clear breaks
-clear columns
-clear computes
 
 DECLARE
       libcac number(10,2);

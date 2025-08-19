@@ -4,8 +4,6 @@
 set verify off
 
 clear breaks
-clear columns
-clear computes
 
 col database_role format a18
 col name format a14

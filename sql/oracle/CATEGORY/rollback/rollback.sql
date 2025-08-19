@@ -4,7 +4,6 @@
 set verify off
 
 clear breaks
-clear columns
 clear computes
 
 column rr heading 'SEGMENT' format a16

@@ -5,7 +5,6 @@
 set verify off
 
 clear breaks
-clear columns
 clear computes
 
 col table_name format a30

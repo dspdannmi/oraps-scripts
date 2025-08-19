@@ -4,7 +4,6 @@
 set verify off
 
 clear breaks
-clear columns
 clear computes
 
 col sql_text format a100 wrap

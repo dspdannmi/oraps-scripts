@@ -5,7 +5,6 @@
 set verify off
 
 clear breaks
-clear columns
 clear computes
 
 col used_urec format 9999999999999

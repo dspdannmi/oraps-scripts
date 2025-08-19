@@ -5,8 +5,6 @@ set verify off
 set serveroutput on
 
 clear breaks
-clear columns
-clear computes
 
 rem
 rem This script generates a CTAS (create table as select)

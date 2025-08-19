@@ -11,7 +11,6 @@ rem -----------------------------------------------------------------------
 set verify off
 
 clear breaks
-clear columns
 clear computes
 
 

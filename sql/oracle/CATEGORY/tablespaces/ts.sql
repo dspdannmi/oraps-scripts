@@ -5,7 +5,6 @@ REM
 REM Acknowledge Essence
 REM
 
-SET lines 120 pages 66 feedback off
 COLUMN tablespace_name             format a20        heading 'Tablespace|(TBS)|Name'
 COLUMN autoextensible              format a6         heading 'TBS|Can|Auto|Extend'
 COLUMN files_in_tablespace         format 999        heading 'TBS|Num|Of|Files'
@@ -69,7 +68,3 @@ SELECT a.tablespace_name,
    AND a.tablespace_name = tbs_auto.tablespace_name(+)
 order by tablespace_name;
 
-SET PAGES 22 LINES 80 FEEDBACK ON
-CLEAR BREAKS
-CLEAR COLUMNS
-TTITLE OFF

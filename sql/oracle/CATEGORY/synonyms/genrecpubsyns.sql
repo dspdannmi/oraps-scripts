@@ -3,9 +3,7 @@
 
 set verify off
 
-clear columns
 clear breaks
-clear computes
 
 col owner format a15
 col synonym format a45

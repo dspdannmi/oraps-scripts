@@ -4,8 +4,6 @@
 set verify off
 
 clear breaks
-clear columns
-clear computes
 
 
 select 'alter index ' || owner || '.' || index_name || ' rebuild tablespace &new_tspace ;'

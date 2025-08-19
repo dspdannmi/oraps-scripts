@@ -5,7 +5,6 @@ set verify off
 
 clear breaks
 clear computes
-clear columns
 
 col sid format 999999
 col username format a18

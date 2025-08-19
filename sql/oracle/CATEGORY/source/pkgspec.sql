@@ -6,7 +6,6 @@ set trimout off
 set pages 0
 
 clear breaks
-clear columns
 clear computes
 
 select text

@@ -4,7 +4,6 @@
 set verify off
 
 clear breaks
-clear columns
 clear computes
 
 compute sum of "Size (Mb)" on tablespace_name

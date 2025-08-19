@@ -13,7 +13,6 @@ set serveroutput on
 set verify off
 
 rem clear breaks
-rem clear columns
 rem clear computes
 
 declare

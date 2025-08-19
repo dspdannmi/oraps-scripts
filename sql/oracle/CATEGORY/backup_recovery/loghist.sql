@@ -3,9 +3,7 @@
 
 set verify off
 
-clear columns
 clear breaks
-clear computes
 
 ACCEPT startDate PROMPT 'Enter start date (DD-MON-YYYY): '
 ACCEPT endDate   PROMPT 'Enter end date   (DD-MON-YYYY): '

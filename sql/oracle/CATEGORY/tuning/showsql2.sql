@@ -2,8 +2,6 @@
 --DESCRIBE: show detailed info about currently running sql
 
 clear breaks
-clear columns
-clear computes
 
 col "Sid" format 9999
 col "Username" format a15

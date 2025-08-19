@@ -16,8 +16,6 @@ REM #######################################################################
 set verify   off
 
 clear breaks
-clear columns
-clear computes
 
 break on owner on table_name on constraint_name on r_constraint_name
 

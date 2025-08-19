@@ -4,8 +4,6 @@
 set verify off
 
 clear breaks
-clear columns
-clear computes
 
 col sql_text heading "SQL_TEXT" format a120
 

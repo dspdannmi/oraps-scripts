@@ -3,7 +3,7 @@
 
 rem set arraysize 1
 set pages 80 
-set lines 140
+set lines window
 set long 50000
 set numformat 999999999999
 

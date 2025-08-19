@@ -4,8 +4,6 @@
 set verify off
 
 clear breaks
-clear columns
-clear computes
 
 ACCEPT startDate PROMPT 'Enter start date (DD-MON-YYYY): '
 ACCEPT endDate   PROMPT 'Enter end date   (DD-MON-YYYY): '
@@ -81,4 +79,3 @@ GROUP BY SUBSTR(time,1,5)
 
 clear breaks
 clear computes
-clear columns

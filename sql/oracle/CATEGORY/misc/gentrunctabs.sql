@@ -4,8 +4,6 @@
 set verify off
 
 clear breaks
-clear columns
-clear computes
 
 select 'truncate table ' || owner || '.' || table_name || ';'
 from dba_tables

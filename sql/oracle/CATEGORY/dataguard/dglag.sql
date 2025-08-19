@@ -1,7 +1,6 @@
 
 --DESCRIBE: show data guard lag to standby
 
-set lines 200 pages 9999
 SELECT
         l.dest_id,
 	s.db_unique_name,

@@ -3,9 +3,7 @@
 
 set verify off
 
-clear columns
 clear breaks
-clear computes
 
 
 alter system disconnect session '&sid, &serial' post_transaction;

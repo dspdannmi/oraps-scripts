@@ -13,7 +13,6 @@ rem
 
 set verify off
 
-clear columns
 clear breaks
 clear computes
 

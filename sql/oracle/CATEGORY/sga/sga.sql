@@ -3,9 +3,7 @@
 
 set verify off
 
-clear columns
 clear breaks
-clear computes
 
 column owner format a14
 column name format a30

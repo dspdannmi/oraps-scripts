@@ -5,7 +5,6 @@ set verify off
 
 clear breaks
 clear computes
-clear columns
 
 select 'drop ' || object_type || ' ' || owner || '.' || object_name || ';'
 from dba_objects

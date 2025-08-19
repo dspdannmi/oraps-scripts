@@ -4,8 +4,6 @@
 set verify off
 
 clear breaks
-clear columns
-clear computes
 
 select 'create public synonym ' || object_name || ' for ' || owner || '.' || object_name || ';'
 from dba_objects

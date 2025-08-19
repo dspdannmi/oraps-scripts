@@ -4,7 +4,6 @@
 set verify off
 
 clear breaks
-clear columns
 clear computes
 
 alter table &owner..&table_name add constraint doobey_pk primary key (&columns)

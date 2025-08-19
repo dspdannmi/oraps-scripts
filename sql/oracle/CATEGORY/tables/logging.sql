@@ -5,8 +5,6 @@
 set verify off
 
 clear breaks
-clear columns
-clear computes
 
 select owner, table_name, logging
 from dba_tables

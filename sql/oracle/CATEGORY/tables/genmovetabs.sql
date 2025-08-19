@@ -4,8 +4,6 @@
 set verify off
 
 clear breaks
-clear columns
-clear computes
 
 
 select 'alter table ' || owner || '.' || table_name || ' move tablespace &new_tablespace ;'

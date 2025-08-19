@@ -4,8 +4,6 @@
 set verify off
 
 clear computes
-clear columns
-clear breaks
 
 select 'alter table ' || owner || '.' || table_name || ' drop constraint ' || constraint_name || ';'
 from dba_constraints

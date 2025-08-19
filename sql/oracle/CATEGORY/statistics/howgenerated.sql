@@ -4,8 +4,6 @@
 set verify off
 
 clear breaks
-clear columns
-clear computes
 
 col user_stats format a25  heading "User generated? (USER_STATS)"
 

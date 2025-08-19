@@ -7,7 +7,6 @@
 set verify off
 
 clear breaks
-clear columns
 clear computes
 
 col "FILE/BKUP STATUS" format a120

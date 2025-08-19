@@ -9,9 +9,7 @@ set serveroutput on size 50000
 -- and later, a DBA account may not necessarily have access to the
 -- sys.link$ table
 --
-clear columns
 clear breaks
-clear computes
 
 
 declare

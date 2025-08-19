@@ -4,9 +4,7 @@
 set verify off
 set serveroutput on size 50000
 
-clear columns
 clear breaks
-clear computes
 
 
 declare

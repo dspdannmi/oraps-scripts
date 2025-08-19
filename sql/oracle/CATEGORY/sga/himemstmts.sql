@@ -3,9 +3,7 @@
 
 set verify off
 
-clear columns
 clear breaks
-clear computes
 
 rem 
 rem Metalink DocID 62143.1

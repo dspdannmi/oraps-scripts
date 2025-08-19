@@ -4,8 +4,6 @@
 set verify off
 
 clear breaks
-clear columns
-clear breaks
 
 select a.owner, index_name, table_owner, table_name, a.tablespace_name, bytes/(1024*1024) "MB"
 from dba_indexes a, dba_segments b

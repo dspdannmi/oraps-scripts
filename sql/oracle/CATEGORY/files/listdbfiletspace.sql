@@ -4,8 +4,6 @@
 set verify off
 
 clear breaks
-clear columns
-clear computes
 
 col "TABLESPACE_NAME:FILE_NAME" format a90
 

@@ -13,7 +13,6 @@ REM remove the fancy translation of the human readable K, M and G values in the 
 set verify off
 
 clear breaks
-clear columns
 clear computes
 
 col ksppinm format a40

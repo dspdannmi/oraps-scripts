@@ -8,7 +8,6 @@ rem Author:     Anonymous
 rem -----------------------------------------------------------------------
 
 clear breaks
-clear columns
 clear computes
 
 set verify off

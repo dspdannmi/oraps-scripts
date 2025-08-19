@@ -9,7 +9,6 @@ rem Author:     Frank Naude, Oracle FAQ
 rem -----------------------------------------------------------------------
 
 clear breaks
-clear columns
 clear computes
 
 ttitle "Auditing Initialisation Parameters:"

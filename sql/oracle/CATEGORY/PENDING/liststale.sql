@@ -1,7 +1,6 @@
 
 
 clear breaks
-clear columns
 
 declare
     l_objList  dbms_stats.objectTab;

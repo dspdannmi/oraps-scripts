@@ -12,7 +12,6 @@ rem -----------------------------------------------------------------------
 set verify off
 
 clear breaks
-clear columns
 clear computes
 
 select grantee, privilege, admin_option

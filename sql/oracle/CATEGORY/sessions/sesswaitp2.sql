@@ -5,7 +5,6 @@
 set verify off
 
 clear breaks
-clear columns
 clear computes
 
 break on sid skip 0

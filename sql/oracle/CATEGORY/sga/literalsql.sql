@@ -12,8 +12,6 @@ rem
 set verify off
 
 clear breaks
-clear columns
-clear computes
 
 col "SQL" format a40
 col "COUNT" format 9999999999

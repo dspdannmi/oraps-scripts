@@ -4,8 +4,6 @@
 set verify off
 
 clear breaks
-clear columns
-clear computes
 
 select chr(bitand(p1,-16777216)/16777215)||
        chr(bitand(p1, 16711680)/65535) "Lock",

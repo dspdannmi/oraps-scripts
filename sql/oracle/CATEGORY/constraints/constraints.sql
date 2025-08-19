@@ -5,7 +5,6 @@ set verify off
 
 
 clear breaks
-clear columns
 clear computes
 
 break on parent_owner skip 1 on parent_table skip 1 on parent_con on child_owner on ref_owner on child_con

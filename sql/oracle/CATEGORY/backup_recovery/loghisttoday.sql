@@ -3,9 +3,7 @@
 
 set verify off
 
-clear columns
 clear breaks
-clear computes
 
 COLUMN H00   FORMAT 999     HEADING '00'
 COLUMN H01   FORMAT 999     HEADING '01'

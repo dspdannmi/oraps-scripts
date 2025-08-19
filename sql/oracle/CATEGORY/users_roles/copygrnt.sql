@@ -11,8 +11,6 @@ set verify off
 set termout off
 set feedback off
 set serveroutput on
-set pages 0
-set lines 132
 
 spool copygrnt.tmp
 

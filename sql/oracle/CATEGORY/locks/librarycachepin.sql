@@ -4,8 +4,6 @@
 set verify off
 
 clear breaks
-clear columns
-clear computes
 
 select s.sid, 
        kglpnmod "MODE", 

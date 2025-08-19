@@ -4,8 +4,6 @@
 set verify off
 
 clear breaks
-clear columns
-clear computes
 
 col "SIZE(Mb)" format 999999999999
 col "TEMP SIZE(Mb)" format 999999999999

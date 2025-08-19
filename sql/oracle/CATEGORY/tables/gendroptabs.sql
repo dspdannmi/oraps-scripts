@@ -4,8 +4,6 @@
 set verify off
 
 clear breaks
-clear columns
-clear computes
 
 select 'drop table ' || owner || '.' || table_name || ' cascade constraints;'
 from dba_tables

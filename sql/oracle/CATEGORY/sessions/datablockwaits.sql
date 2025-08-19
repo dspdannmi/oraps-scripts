@@ -5,7 +5,6 @@ set verify off
 
 clear breaks
 clear computes
-clear columns
 
 col name format a50
 

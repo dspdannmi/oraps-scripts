@@ -3,7 +3,6 @@
 
 set verify off
 
-clear columns
 clear breaks
 clear computes
 
@@ -15,7 +14,6 @@ order by owner, name, type, line
 /
 
 clear breaks
-clear columns
 
 undefine object
 undefine type

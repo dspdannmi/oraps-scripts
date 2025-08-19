@@ -4,7 +4,6 @@
 set verify off
 
 clear breaks
-clear columns
 clear computes
 
 alter session set events '10046 trace name context forever, level 12';

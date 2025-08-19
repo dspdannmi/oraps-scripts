@@ -1,8 +1,6 @@
 
 --DESCRIBE: old RMAN status output script
 
-set lines 300
-set pages 1000
 col cf for 99
 col df for 99
 col elapsed_seconds heading "ELAPSED|SECONDS"
