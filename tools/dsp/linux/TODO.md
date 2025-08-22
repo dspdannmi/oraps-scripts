@@ -76,6 +76,11 @@ installed:		YES
 grid home:		/u01/app/19.0.0
 grid base:		/u01/app/grid
 
+- disk groups
+	- usage
+- devices
+- errors in alert log
+
 
 -----------------------
 oracle database home(s)
@@ -85,6 +90,8 @@ oracle database home(s)
     owner:     oracle
     version:   19.3
     edition:   standard edition
+
+- capture network/admin/*.ora files
 
 /u01/app/oracle/product/12.1.0.2/dbhome_1
     owner: 	oracle
@@ -119,6 +126,14 @@ DSP19C:
         flashback_on:   YES
         forced_logging: YES
         arch. lag tgt:  900
+
+- capture non-default parameters
+- where is spfile?
+- where is password file?
+- RMAN configuration
+- last rman backups?
+- archivelog generation
+- errors in alert log
 
 MIKE12C:
 	oracle_home:	/u01/app/oracle/product/12.1.0.2/dbhome_1
