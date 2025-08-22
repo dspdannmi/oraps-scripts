@@ -114,7 +114,7 @@ echo "------------------"
 echo
 
 unset selections
-showmacaddrs | awk '{print $NF}' | grep -v '00:00:00:00:00:00' > ${tmpfile}.array
+showmacaddrs | grep -v '00:00:00:00:00:00' > ${tmpfile}.array
 readarray -t selections < ${tmpfile}.array
 choose_from_menu "Please select a MAC address to use to stamp this server" selected_choice "${selections[@]}"
 macaddr=${selected_choice}

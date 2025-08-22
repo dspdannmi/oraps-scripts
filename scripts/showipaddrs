@@ -34,9 +34,25 @@ USAGE_STRING=""
 # Script starts here
 #
 #
-set_error_trap
+ip_addrs=$(hostname -I 2>/dev/null)
+status=$?
 
-hostname -I | xargs -n 1
+if [ $status -ne 0 ]
+then
+    ip_addrs=$(hostname -i 2>/dev/null)
+    status=$?
+
+    if [ $status -ne 0 ]
+    then
+        EXITCODE=1
+    fi
+fi
+
+if [ "${ip_addrs}" != "" ]
+then
+    echo ${ip_addrs} | xargs -n 1
+fi
+
 
 exit $EXITCODE
 

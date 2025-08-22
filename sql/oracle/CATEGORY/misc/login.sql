@@ -3,7 +3,8 @@
 
 rem set arraysize 1
 set pages 80 
-set lines window
+REM set lines window --set lines window is ignored in scripts so let us set it to 200
+set lines 200
 set long 50000
 set numformat 999999999999
 

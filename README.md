@@ -27,7 +27,7 @@ Primary contributors/maintainers:
 	George Dickson		(george.dickson@dsp.co.uk)
 	Mike Dann		(mike.dann@dsp.co.uk)
 	Rizwan Baza		(rizwan.baza@dsp.co.uk)
-	Stefano Angossini	(stefano.angossini)
+	Stefano Angossini	(stefano.angossini@dsp.co.uk)
 	Tim Miller		(tim.miller@dsp.co.uk)
 
 

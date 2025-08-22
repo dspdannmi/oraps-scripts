@@ -7,7 +7,7 @@ function mcd
     then
 	echo "warn: ${dir} already exists"
     else
-	mkdir ${dir} || echo "mcd: mkdir error"
+	mkdir -p ${dir} || echo "mcd: mkdir error"
     fi
 
     if [ -d ${dir} ]

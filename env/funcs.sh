@@ -31,6 +31,7 @@ for func in catdebug \
             scriptout3 \
             scriptout4 \
             setalertlogvar \
+            setoradbenv \
             set_error_trap \
             usage 
 do

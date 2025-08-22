@@ -34,7 +34,13 @@ fi
 #
 # get IP addresses
 #
-ip_addrs=$(hostname -I)
+ip_addrs=$(hostname -I 2>/dev/null)
+status=$?
+
+if [ $status -eq 4 ] # -I option not exist
+then
+    ip_addrs=$(hostname -i 2>/dev/null)
+fi
 
 #
 # get uptime
@@ -46,12 +52,61 @@ hours=$((${upSeconds}/3600%24))
 days=$((${upSeconds}/86400))
 uptime=`printf "%d days, %02dh %02dm %02ds" "$days" "$hours" "$mins" "$secs"`
 
-lastboot=$(uptime -s)
+lastboot=$(uptime -s 2>/dev/null)
+status=$?
+
+if [ $status != 0 ]
+then
+    #uptime -s likely not available
+    lastboot=$(who -b | sed -e 's/.*system boot[ ]*\([0-9].*$\)/\1/')	# eg. system boot  2025-08-06 09:08
+
+fi
+
+if [ -f /etc/system-release ]
+then
+    systemrelease=$(cat /etc/system-release)
+elif [ -f /etc/oracle-release ]
+then
+    systemrelease=$(cat /etc/oracle-release)
+elif [ -f /etc/redhat-release ]
+then
+    systemrelease=$(cat /etc/reddhat-release)
+elif [ -f /etc/enterprise-release ]
+then
+    systemrelease=$(cat /etc/enterprise-release)
+elif [ -f /etc/os-release ]
+then
+    systemrelease=$(grep -i ^PRETTY_NAME= /etc/os-release | cut -d\" -f2)
+else
+    systemrelease="<unknown>"
+fi
 
 #
 # get load averages
 read one five fifteen rest < /proc/loadavg
 #
+
+
+#
+# Get memory stats
+#
+mem_free=$(free -h 2>/dev/null | grep ^Mem: | awk '{print $4}')
+status=$?
+
+if [ "${mem_free}" != "" ]
+then
+    mem_total=$(free -h | grep ^Mem: | awk '{print $2}')
+
+    swap_free=$(free -h | grep ^Swap: | awk '{print $4}')
+    swap_total=$(free -h | grep ^Swap: | awk '{print $2}')
+else
+    mem_free="$(free -m | grep ^Mem: | awk '{print $4}')Mb"
+    mem_total="$(free -m | grep ^Mem: | awk '{print $2}')Mb"
+
+    swap_free="$(free -m | grep ^Swap: | awk '{print $4}')Mb"
+    swap_total="$(free -m | grep ^Swap: | awk '{print $2}')Mb"
+fi
+
 
 # echo -e needed to get colours displaying
 #echo "-------------------------------------------------------------------------"
@@ -66,13 +121,14 @@ echo ""
 echo -e "server type   :  ${BYellow}${server_type:-<null>}${White}"
 echo -e "db hosting    :  ${BYellow}${dbhostingstatus:-<null>}${White}"
 echo ""
-echo -e "release       :  ${BYellow}$(cat /etc/system-release)${White}"
+echo -e "release       :  ${BYellow}${systemrelease}${White}"
 echo -e "kernel release:  ${BYellow}$(uname -r)${White}"
 echo -e "kernel version:  ${BYellow}$(uname -v)${White}"
 echo -e "uptime        :  ${BYellow}${uptime}${White}"
 echo -e "last boot     :  ${BYellow}${lastboot}${White}"
 echo -e "load avgs     :  ${BYellow}${one} (1 min) ${five} (5 mins) ${fifteen} (15 mins)${White}"
-echo -e "memory        :  ${BYellow}$(free -h | awk 'NR==2 {print $4}') (free) /  $(free -h | awk 'NR==2 {print $2}') (total)${White}"
+echo -e "memory        :  ${BYellow}${mem_free} (free) /  ${mem_total} (total)${White}"
+echo -e "swap          :  ${BYellow}${swap_free} (free) /  ${swap_total} (total)${White}"
 
 #
 # display IP addresses
@@ -89,8 +145,10 @@ echo -e "server time   :  ${BYellow}$(date)${White}"
 echo ""
 
 echo ""
-echo -e "         /    :  ${BYellow}$(df -h / | awk 'NR==2 {print $5 " (" $3 "/" $2 ") used on " $1 }')${White}"
-echo -e "     /home    :  ${BYellow}$(df -h /home | awk 'NR==2 {print $5 " (" $3 "/" $2 ") used on " $1 }')${White}"
+# -P used as on Oracle Linux 5 formatting can go over more than one line and suspect
+# its not just an OL5 thing
+echo -e "         /    :  ${BYellow}$(df -h -P / | awk 'NR==2 {print $5 " (" $3 "/" $2 ") used on " $1 }')${White}"
+echo -e "     /home    :  ${BYellow}$(df -h -P /home | awk 'NR==2 {print $5 " (" $3 "/" $2 ") used on " $1 }')${White}"
 
 echo "_________________________________________________________________________"
 #echo "-------------------------------------------------------------------------"

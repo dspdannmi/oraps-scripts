@@ -43,6 +43,29 @@ CS_TOP=${CS_TOP:-/opt/dsp}
 #
 echo
 echo "===================================================="
+echo "ORACLE_HOME(s) in [ ${ORATAB} ]"
+echo "===================================================="
+echo
+for ohome in $(grep '^[a-zA-Z0-9_$].*:' ${ORATAB} | awk -F: '{print $2}' | sort -u)
+do
+    echo "${ohome}:"
+
+    oracle_binary=${ohome}/bin/oracle
+
+    echo "    sid(s):"
+    if [ -x ${oracle_binary} ]
+    then
+        #ls -ald ${oracle_binary} | sed -e 's/^/        /'
+        awk -F: -v v_ohome=${ohome} '$2==v_ohome {print $1}' ${ORATAB} | grep ^[a-zA-Z0-9_$] | sort | sed -e 's/^/        /'
+    else
+        echo "WARNING: oracle binary [${oracle_binary}] does not exist or not executable"
+        EXITCODE=1
+    fi
+    echo
+done
+
+echo
+echo "===================================================="
 echo "Checking ${ORATAB} as to which instances are running"
 echo "===================================================="
 echo
@@ -50,15 +73,15 @@ grep '^[a-zA-Z0-9_$].*:' ${ORATAB} | sort | while read LINE
 do
     sid=$(echo $LINE | cut -d: -f1)
     ohome=$(echo $LINE | cut -d: -f2)
-    flag=$(echo $LINE | cut -d: -f3 | sed -e 's/^\(.*\)#.*/\1/')	# remove anything after a hash in the third column
+    flag=$(echo $LINE | cut -d: -f3 | sed -e 's/^\(.*\)#.*/\1/')        # remove anything after a hash in the third column
 
     X=$(sql -d ${sid} "select 'oradb_info' || ':dbname=' ||  name || ':dbrole=' ||  database_role from v\$database" | grep ^oradb_info | cut -d: -f2-)
 
     if [ "${X}" != "" ]
     then
-        echo "sid=${sid}:$X"
+        echo "${sid}: $X"
     else
-        echo "sid=${sid}: <down or inaccessible via oratab file config>"
+        echo "${sid}: <down or inaccessible via oratab file config>"
         EXITCODE=1
     fi
 done
@@ -86,6 +109,4 @@ done
 
 echo
 
-
 exit $EXITCODE
-

@@ -207,7 +207,7 @@ echo -e "Checking MAC addresses:"
 echo    "----------------------"
 echo -e "        expecting: ${BYellow}${registered_macaddr}${White}"
 prefix="actual: "
-for macaddr in $(showmacaddrs | awk '{print $2}')
+for macaddr in $(showmacaddrs)
 do
     if [ "${macaddr}" = "${registered_macaddr}" ]
     then

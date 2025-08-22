@@ -1,0 +1,180 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  oradbinfo
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       22-Aug-2025     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+. ${CS_TOP}/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="[SID]"
+
+if [ $# -gt 1 ]
+then
+    usage
+fi
+
+DEBUG=YES
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+if [ "${ORACLE_SID}" = "" ] && [ "${1}" != "" ]
+then
+    export ORACLE_SID=${1}
+else
+    echo "ERROR: ORACLE_SID not set and SID not passed as parameter - exiting"
+    EXITCODE=1
+    exit $EXITCODE
+fi
+
+setoradbenv $ORACLE_SID 2>&1 > /dev/null
+status=$?
+
+if [ $status -ne 0 ]
+then echo "ERROR: encountered error setting environment for [$ORACLE_SID] - exiting" EXITCODE=1 exit $EXITCODE
+fi
+
+echo "ORACLE_SID:   $ORACLE_SID"
+echo "ORACLE_HOME:  $ORACLE_HOME"
+echo "OPEN MODE:    $(openmode -z)"
+
+sqlplus / as sysdba << *EOF*
+
+select
+PROTECTION_MODE,
+PROTECTION_LEVEL,
+REMOTE_ARCHIVE,
+DATABASE_ROLE,
+DATAGUARD_BROKER,
+SUPPLEMENTAL_LOG_DATA_MIN, 
+SUPPLEMENTAL_LOG_DATA_PK,
+SUPPLEMENTAL_LOG_DATA_UI,
+DB_UNIQUE_NAME,
+PRIMARY_DB_UNIQUE_NAME
+from v\$database;
+
+prompt
+prompt PL/SQL time
+prompt
+set serveroutput on
+declare
+    v_dbid	v\$database.DBID%TYPE;
+    v_name	v\$database.NAME%TYPE;
+    v_created	v\$database.CREATED%TYPE;
+    v_current_scn	v\$database.CURRENT_SCN%TYPE;
+    v_log_mode	v\$database.LOG_MODE%TYPE;
+    v_open_mode	v\$database.OPEN_MODE%TYPE;
+    v_force_logging	v\$database.FORCE_LOGGING%TYPE;
+    v_flashback_on	v\$database.FLASHBACK_ON%TYPE;
+    v_db_unique_name	v\$database.DB_UNIQUE_NAME%TYPE;
+    v_cdb	v\$database.CDB%TYPE;
+
+    v_num_standbys number;
+
+    --
+    --v$instance
+    v_instance_name	v\$instance.instance_name%TYPE;
+    v_version	v\$instance.version%TYPE;
+    v_startup_time	v\$instance.startup_time%TYPE;
+    v_status	v\$instance.status%TYPE;
+    v_archiver	v\$instance.archiver%TYPE;
+    v_shutdown_pending	v\$instance.shutdown_pending%TYPE;
+    v_instance_role	v\$instance.instance_role%TYPE;
+    v_database_status	v\$instance.database_status%TYPE;
+    v_instance_mode	v\$instance.instance_mode%TYPE;
+    v_edition	v\$instance.edition%TYPE;
+    v_database_type	v\$instance.database_type%TYPE;
+    v_logins	v\$instance.logins%TYPE;
+
+    cursor c_containers is select con_id, dbid, name, open_mode
+                     from v\$containers;
+
+begin
+    select dbid, name, created, current_scn, log_mode, open_mode, force_logging, flashback_on, db_unique_name, cdb
+    into   v_dbid, v_name, v_created, v_current_scn, v_log_mode, v_open_mode, v_force_logging, v_flashback_on, v_db_unique_name, v_cdb
+    from v\$database;
+
+    select instance_name, version, startup_time, status, archiver, shutdown_pending, instance_role, database_status, instance_mode, edition, database_type, logins
+    into v_instance_name, v_version, v_startup_time, v_status, v_archiver, v_shutdown_pending, v_instance_role, v_database_status, v_instance_mode, v_edition, v_database_type, v_logins
+    from v\$instance;
+
+    --
+    -- check how many standby databases
+    --
+    select count(*)
+    into v_num_standbys
+    from v\$archive_dest
+    where status = 'VALID'
+      and target = 'STANDBY'; 
+
+    dbms_output.put_line('DBID: ' || v_dbid);
+    dbms_output.put_line('NAME: ' || v_name);
+    dbms_output.put_line('CREATED: ' || v_created);
+    dbms_output.put_line('CURRENT_SCN: ' || v_current_scn);
+    dbms_output.put_line('LOG_MODE: ' || v_log_mode);
+    dbms_output.put_line('OPEN_MODE: ' || v_open_mode);
+    dbms_output.put_line('FORCE_LOGGING: ' || v_force_logging);
+    dbms_output.put_line('FLASHBACK_ON: ' || v_flashback_on);
+    dbms_output.put_line('DB_UNIQUE_NAME: ' || v_db_unique_name);
+    dbms_output.put_line('CDB: ' || v_cdb);
+    dbms_output.new_line;
+    dbms_output.new_line;
+
+    if v_cdb = 'YES'
+    then
+         for v_containers in c_containers
+         loop
+             dbms_output.put_line('pdb: con_id('||v_containers.con_id||') name('||v_containers.name||') open_mode('||v_containers.open_mode||') dbid('||v_containers.dbid||')');
+         end loop;    
+    end if;
+
+    dbms_output.put_line('NUM STANDBYS: ' || v_num_standbys);
+    dbms_output.new_line;
+    dbms_output.new_line;
+
+    dbms_output.put_line('INSTANCE_NAME: ' || v_instance_name);
+    dbms_output.put_line('VERSION: ' || v_version);
+    dbms_output.put_line('STARTUP_TIME: ' || v_startup_time);
+    dbms_output.put_line('STATUS: ' || v_status);
+    dbms_output.put_line('ARCHIVER: ' || v_archiver);
+    dbms_output.put_line('SHUTDOWN_PENDING: ' || v_shutdown_pending);
+    dbms_output.put_line('INSTANCE_ROLE: ' || v_instance_role);
+    dbms_output.put_line('DATABASE_STATUS: ' || v_database_status);
+    dbms_output.put_line('INSTANCE_MODE: ' || v_instance_mode);
+    dbms_output.put_line('EDITION: ' || v_edition);
+    dbms_output.put_line('DATABASE_TYPE: ' || v_database_type);
+    dbms_output.put_line('LOGINS: ' || v_logins);
+    
+end;
+/
+
+
+*EOF*
+
+
+
+exit $EXITCODE
+

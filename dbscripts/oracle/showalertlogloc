@@ -1,4 +1,4 @@
-#!/usr/bin/sh
+#!/bin/bash
 
 #+++___________________________________________________________________________________
 #
@@ -124,10 +124,14 @@ then
     then
         alert_log_location=${bdump_dest}/${alert_log_filename}
     else
-        :
+        echo "ERROR - bdump_dest set and directory exist but could not find alert log - refer to maintainers - exiting"
+        EXITCODE=1
+        exit $EXITCODE
     fi
   else
-     :
+     echo "ERROR - bdump_dest is set but directory does not exist - refer to maintainers - exiting"
+     EXITCODE=1
+     exit $EXITCODE
   fi 
 
 elif [ "${diag_dest}" != "" ] 
@@ -146,15 +150,17 @@ then
         FOUND=YES
     done
   else
-     :
+     echo "ERROR - diag_dest set but is not a directory - refer to maintainers - exiting"
+        EXITCODE=1
+        exit $EXITCODE
   fi
 else
-    :
+    echo "ERROR - none of [diag_trace, bdump_dest, diag_dest] set - refer to maintainers - exiting"
+        EXITCODE=1
+        exit $EXITCODE
 fi
 
 echo ${alert_log_location}
-
-
 
 
 exit $EXITCODE

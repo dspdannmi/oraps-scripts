@@ -36,9 +36,10 @@ USAGE_STRING=""
 #
 set_error_trap
 
-ip link | awk '$1~/^[0-9]*:/{printf "%s ", $2} /^ /{print $2}'
-
-
+#ip link | awk '$1~/^[0-9]*:/{printf "%s ", $2} /^ /{print $2}'
+#no technical reason to sort - aesthetic reasons only
+cat /sys/class/net/*/address | sort
+status=$?
 
 
 exit $EXITCODE
