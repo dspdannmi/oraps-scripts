@@ -1,6 +1,35 @@
 
+PACKAGING
+========
+
+.tar file for Linux/Solaris/UNIX
+
+.zip file for Windows
+
+Scenarios:
+* no root access
+
+* no root access but client can run on our behalf
+        install
+		/opt/dsp	
+		c:\dsp
+
+* root access
+	install
+		/opt/dsp
+		c:\dsp
+
+
+* Direct or indirect connectivity to server
+	* copy install files on to server
+
+* No direct/indirect connectivity to server
+
+
 PRIORITY:  HIGH
 ===============
+
+- if i use setpdb at command line at prompt, when going in to SQL it lands me there but prompt doesn't initially show me
 
 - I see Oracle cloud VMs SQL output using "|" as seperator (eg.  DSP19C|PHYSICAL STANDBY
 

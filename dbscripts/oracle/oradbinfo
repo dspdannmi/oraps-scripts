@@ -59,26 +59,9 @@ fi
 
 echo "ORACLE_SID:   $ORACLE_SID"
 echo "ORACLE_HOME:  $ORACLE_HOME"
-echo "OPEN MODE:    $(openmode -z)"
 
 sqlplus / as sysdba << *EOF*
 
-select
-PROTECTION_MODE,
-PROTECTION_LEVEL,
-REMOTE_ARCHIVE,
-DATABASE_ROLE,
-DATAGUARD_BROKER,
-SUPPLEMENTAL_LOG_DATA_MIN, 
-SUPPLEMENTAL_LOG_DATA_PK,
-SUPPLEMENTAL_LOG_DATA_UI,
-DB_UNIQUE_NAME,
-PRIMARY_DB_UNIQUE_NAME
-from v\$database;
-
-prompt
-prompt PL/SQL time
-prompt
 set serveroutput on
 declare
     v_dbid	v\$database.DBID%TYPE;
@@ -132,13 +115,13 @@ begin
 
     dbms_output.put_line('DBID: ' || v_dbid);
     dbms_output.put_line('NAME: ' || v_name);
+    dbms_output.put_line('DB_UNIQUE_NAME: ' || v_db_unique_name);
     dbms_output.put_line('CREATED: ' || v_created);
     dbms_output.put_line('CURRENT_SCN: ' || v_current_scn);
-    dbms_output.put_line('LOG_MODE: ' || v_log_mode);
     dbms_output.put_line('OPEN_MODE: ' || v_open_mode);
+    dbms_output.put_line('LOG_MODE: ' || v_log_mode);
     dbms_output.put_line('FORCE_LOGGING: ' || v_force_logging);
     dbms_output.put_line('FLASHBACK_ON: ' || v_flashback_on);
-    dbms_output.put_line('DB_UNIQUE_NAME: ' || v_db_unique_name);
     dbms_output.put_line('CDB: ' || v_cdb);
     dbms_output.new_line;
     dbms_output.new_line;

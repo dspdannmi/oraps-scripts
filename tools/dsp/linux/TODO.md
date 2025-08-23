@@ -134,6 +134,12 @@ DSP19C:
 - last rman backups?
 - archivelog generation
 - errors in alert log
+- invalid objects
+- features usage
+	vpd
+	active dataguard
+- fra
+- characterset / nls info
 
 MIKE12C:
 	oracle_home:	/u01/app/oracle/product/12.1.0.2/dbhome_1
