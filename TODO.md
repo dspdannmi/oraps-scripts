@@ -2,6 +2,10 @@
 PACKAGING
 ========
 
+* build process encrypts files:
+	openssl
+	gpg
+
 .tar file for Linux/Solaris/UNIX
 
 .zip file for Windows
