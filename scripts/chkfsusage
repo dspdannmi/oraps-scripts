@@ -62,12 +62,12 @@ then
    exit $EXITCODE
 fi
 
-currentusage=$(bdf ${filesystem} | grep -v ^Filesystem | awk '{print $5}' | sed -e 's/%//g')
+currentusage=$(df -P ${filesystem} | grep -v ^Filesystem | awk '{print $5}' | sed -e 's/%//g')
 status=$?
 
 if [ $status -ne 0 ]
 then
-    echo "ERROR: bdf returned non-zero exit code $status"
+    echo "ERROR: df returned non-zero exit code $status"
     EXITCODE=$status
 else
     if [ ${currentusage} -gt ${threshold} ]
