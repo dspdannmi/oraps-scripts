@@ -9,7 +9,7 @@ clear computes
 break on tablespace_name skip 1
 compute sum of "Size (Mb)" on tablespace_name
 
-col name format a60
+col name format a80
 col file_id format 999999
 col "Size (Mb)" format 999999999.99
 col "Create Size (Mb)" format 999999999.99

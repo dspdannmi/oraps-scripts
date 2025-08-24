@@ -1,0 +1,14 @@
+
+net statistics server
+
+systeminfo
+
+(get-date) – (gcim Win32_OperatingSystem).LastBootUpTime
+
+Get-Uptime
+
+Get-WmiObject Win32_OperatingSystem |					<----- Wmi deprecated
+  ForEach-Object { $_.ConvertToDateTime($_.LastBootUpTime) }
+
+Get-CimInstance CIM_OperatingSystem | Select-Object -ExpandProperty LastBootUpTime
+
