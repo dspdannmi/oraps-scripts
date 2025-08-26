@@ -33,6 +33,18 @@ Scenarios:
 PRIORITY:  HIGH
 ===============
 
+- $ORACLE_HOHE/bin/sql ---> SQLcl tool, which can interfere with our "sql" when $ORACLE_HOME/bin is earlier in the path
+
+- using local /etc/oratab not as easy as it sounds
+	- firstly, it is set in dsp.env therefore if it is updated hardcoded in there it will
+	- get overwritten with new release of scripts
+	- maybe need to check [ -f $CS_TOP/local/config/oratab ----> then use this]
+	- also setting ORATAB in dsp.env is done twice... once at top and once when we check the OS (ie. solaris is in /var/opt/oratab)
+
+- harbour energy had whitespace at beginning of /etc/oratab lines ... yuk
+
+- create iscdb.sql script
+
 - if i use setpdb at command line at prompt, when going in to SQL it lands me there but prompt doesn't initially show me
 
 - I see Oracle cloud VMs SQL output using "|" as seperator (eg.  DSP19C|PHYSICAL STANDBY

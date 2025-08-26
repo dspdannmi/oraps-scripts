@@ -7,6 +7,7 @@
 
 function sid
     {
-    echo "   osid=[${ORACLE_SID:-}]"
-    echo "twotask=[${TWO_TASK:-}]"
+    echo "   oracle_sid=[${ORACLE_SID:-}]"
+    echo "  oracle_home=[${ORACLE_HOME:-}]"
+    echo "     two_task=[${TWO_TASK:-}]"
     }

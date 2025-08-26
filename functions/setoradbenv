@@ -22,7 +22,7 @@ function setoradbenv
 
         if [ ${status} -eq 0 ]
         then
-            export ORAADMIN=$ORACLE_BASE/admin/ORCL 
+            export ORAADMIN=$ORACLE_BASE/admin/${ORACLE_SID} 
             export ORAENV_ASK=$ORAENV_ASK_SAVE
 
             echo ""

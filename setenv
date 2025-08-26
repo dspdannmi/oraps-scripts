@@ -257,7 +257,7 @@ export ALERTLOG=""
     #   -- aliases for cd shortcuts
     #
     alias cs='cd ${CS_TOP}'
-    alias dbascripts='cd ${CS_TOP}/dbascripts'
+    alias dbscripts='cd ${CS_TOP}/dbscripts'
     alias scripts='cd ${CS_TOP}/scripts'
     alias tools='cd ${CS_TOP}/tools'
     alias sqldir='cd ${CS_TOP}/sql'
@@ -265,7 +265,7 @@ export ALERTLOG=""
     #
     # -- aliases for su shortcuts
     #
-    alias oracle='su oracle -c "export ENV=$CS_TOP/setenv ; /usr/bin/sh"'
+    alias oracle='su oracle -c "export ENV=$CS_TOP/setenv ; /bin/bash'
     alias suoracle='su - oracle'
 
     # /bin/bash/sh is legacy and uses ENV for interactive shell, no real equivalent

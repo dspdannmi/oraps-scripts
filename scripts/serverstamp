@@ -233,7 +233,14 @@ echo "Press [ENTER] to proceed or <ctrl-C> to cancel"
 read userinput
 echo
 
-NOW=$(date +%Y%m%d%H%M%S)
+now_epoch=$(date +%s)	# time since epoch, we capture this as we store date/time below a couple
+		        # of times with/without TZ for example and want to make sure they are
+        		# identical
+
+now_local=$(date -d@${now_epoch} +%Y%m%d_%H%M%S)
+now_utc=$(date -u -d@${now_epoch} +%Y%m%d_%H%M%S)
+now_tz=$(date -d@${now_epoch} +%Z)
+now_tz_offset=$(date -d@${now_epoch} +%:z)
 
 (
     echo "hostname: ${thishost}"
@@ -244,13 +251,17 @@ NOW=$(date +%Y%m%d%H%M%S)
     echo "dbhostingstatus: ${dbhosting_status_code}"
     echo "machine-id: ${machine_id}"
     echo "hostid:     ${hostid}"
+    echo "time_local: ${now_local}"
+    echo "time_tz:    ${now_tz}"
+    echo "time_tz_offset:${now_tz_offset}"
+    echo "time_utc:   ${now_utc}"
     echo
-    echo "<ip_addrs:${NOW}>"
+    echo "<ip_addrs:${now_local}>"
     showipaddrs
-    echo "</ip_addrs:${NOW}>"
-    echo "<mac_addrs:${NOW}>"
+    echo "</ip_addrs:${now_local}>"
+    echo "<mac_addrs:${now_local}>"
     showmacaddrs
-    echo "</mac_addrs:${NOW}>"
+    echo "</mac_addrs:${now_local}>"
 ) > ${DSP_IDENTITY_FILE}
 status=$?
 
