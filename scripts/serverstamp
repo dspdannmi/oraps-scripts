@@ -87,7 +87,7 @@ echo
 if [ "${newid}" != "" ] && [ $status -eq 0 ]	# uuidgen exists and we could generate our own uuid
 then
   unset selections
-  selections=("Generate a server ID" "Provide a UUID to use for server ID" "Keep existing")
+  selections=("Keep existing" "Generate a server ID" "Provide a UUID to use for server ID")
   choose_from_menu "Please select a MAC address to use to stamp this server" selected_choice "${selections[@]}"
   echo "Selected choice: $selected_choice"
 
@@ -241,6 +241,12 @@ now_local=$(date -d@${now_epoch} +%Y%m%d_%H%M%S)
 now_utc=$(date -u -d@${now_epoch} +%Y%m%d_%H%M%S)
 now_tz=$(date -d@${now_epoch} +%Z)
 now_tz_offset=$(date -d@${now_epoch} +%:z)
+
+if [ -f ${DSP_IDENTITY_FILE} ]
+then
+    cp ${DSP_IDENTITY_FILE} ${DSP_IDENTITY_FILE}.${now_local}
+    status=$?
+fi
 
 (
     echo "hostname: ${thishost}"

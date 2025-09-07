@@ -33,6 +33,14 @@ Scenarios:
 PRIORITY:  HIGH
 ===============
 
+- capture formsweb.cfg
+- capture webutil.cfg
+
+- if server = productin then put warning on db shutdown etc. commands
+	- have a way to record config as to which databases are prod etc.
+		- if server = prod then DB assumed prod unless config says otherwise
+
+
 - $ORACLE_HOHE/bin/sql ---> SQLcl tool, which can interfere with our "sql" when $ORACLE_HOME/bin is earlier in the path
 
 - using local /etc/oratab not as easy as it sounds
