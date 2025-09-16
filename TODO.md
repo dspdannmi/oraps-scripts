@@ -33,6 +33,8 @@ Scenarios:
 PRIORITY:  HIGH
 ===============
 
+- have a changelog for servers
+
 - capture formsweb.cfg
 - capture webutil.cfg
 

@@ -141,6 +141,7 @@ DSP19C:
         forced_logging: YES
         arch. lag tgt:  900
 
+- DBID
 - capture non-default parameters
 - where is spfile?
 - where is password file?

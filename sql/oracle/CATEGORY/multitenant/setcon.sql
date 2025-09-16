@@ -38,10 +38,14 @@ begin
                 when 0 then v_con_name := 'cdb$root';	 -- some may 'think' CDB$ROOT is 0 - in two minds to leave this in or not
                 when 1 then v_con_name := 'cdb$root';
                 else
+                  begin 
                      select name
                      into v_con_name
                      from v$containers
                      where con_id = v_con_id;
+                  exception
+                      when no_data_found then v_con_name := 'with_con_id_' || v_con_id;
+                  end;
             end case;
             
         end if;
@@ -55,6 +59,7 @@ set termout off
 column col_newcontainer NEW_VALUE newcontainer noprint
 select :new_container as col_newcontainer from dual;
 
+set termout on
 alter session set container = &&newcontainer;
 
 set verify on

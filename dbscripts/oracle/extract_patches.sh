@@ -1,0 +1,86 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  runsql
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       01-Oct-2003     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+CS_TOP=${CS_TOP:-/opt/dsp}
+. ${CS_TOP}/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="[-c] [-d SID] [-h host] [-p pdb] [-z] script param(s)"
+
+#
+# Script starts here
+#
+#
+#set_error_trap
+
+if [ $# -ne 0 ]
+then
+    usage
+fi
+
+EXITCODE=0
+
+TOP_DIR=${PWD}
+
+for zipfile in *.zip
+do
+   echo "Patch: ${zipfile}..."
+
+   patch=$(basename $zipfile .zip)
+
+   patchdir=${TOP_DIR}/${patch}
+
+   mkdir ${patchdir}
+   status=$?
+
+   if [ $status -eq 0 ]
+   then
+       cd ${patchdir}
+       status=$?
+
+       if [ $status -eq 0 ]
+       then
+           unzip -oq ${TOP_DIR}/${zipfile}
+           status=$?
+
+           if [ $status -ne 0 ]
+           then
+               echo "ERROR: encountered error unzipping ${zipfile}"
+               EXITCODE=1
+           fi
+       else
+           echo "ERROR: could not cd ${patchdir}"
+           EXITCODE=1
+       fi
+   else
+             echo "ERROR: on mkdir ${patchdir}"
+             EXITCODE=1
+   fi
+done
+
+
+if [ $EXITCODE -ne 0 ]
+then
+           echo "ERROR: EXITCODE not zero"
+fi
+
+exit $EXITCODE
+
