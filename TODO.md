@@ -33,6 +33,15 @@ Scenarios:
 PRIORITY:  HIGH
 ===============
 
+- pre-checks on server should inform if versionolock is installed
+
+- DSP server checks:
+	- following packages installed
+		screen
+		tmux
+		rsync
+		nc
+
 - have a changelog for servers
 
 - capture formsweb.cfg

@@ -1,0 +1,25 @@
+#!/bin/bash
+
+TAG=$1
+
+#<CAPTURE:DATABASE_NAME>
+#M2MPRD
+#</CAPTURE:DATABASE_NAME>
+
+BEGIN_TAG="<$TAG>"
+END_TAG="<\/$TAG>"
+
+
+awk  "/${BEGIN_TAG}/ {
+  process=\"true\"
+  next
+  }
+ /${END_TAG}/ {
+  process=\"\"
+  next
+  }
+  process==\"true\" {
+  print
+  }"
+
+

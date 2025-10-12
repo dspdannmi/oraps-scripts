@@ -1,0 +1,43 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  rmhyphen
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       09-Oct-2003     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+CS_TOP=${CS_TOP:-/opt/dsp}
+. ${CS_TOP}/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="[-t HH:MM|-s waitseconds|-d YYYYMMDDHH] command"
+DEL_TEMPFILES="NO"
+
+
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+echo "rm -- -file:   the -- stops rm parsing command line after that"
+echo
+echo "or try..."
+echo
+echo "rm ./--file"
+
+
