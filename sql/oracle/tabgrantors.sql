@@ -1,1 +1,1 @@
-CATEGORY/users_roles/tabgrantors.sql
+CATEGORY/tables/tabgrantors.sql

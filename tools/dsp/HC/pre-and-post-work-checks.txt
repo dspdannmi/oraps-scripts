@@ -43,6 +43,8 @@ Capture:
 		- *.ora files
 		- spfiles / orapw
                 - RMAN configuration
+                - character sets
+			- pdb with different charsets to cdb
 		- recovery related config
 			- flashback on/off?	--> important for Data Guard
 			- forced logging?	--> important for Data Guard

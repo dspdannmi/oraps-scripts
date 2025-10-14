@@ -7,6 +7,12 @@
 
 function setalertlogvar
     {
+    if [ "${ORACLE_SID}" = "" ]
+    then
+        echo "ORACLE_SID not set - nothing to do"
+        return
+    fi
+
     export ALERTLOG=$(showalertlogloc)
 
     if [ "${ALERTLOG}" != "" ] && [ -r ${ALERTLOG} ]

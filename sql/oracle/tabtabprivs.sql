@@ -1,1 +1,1 @@
-CATEGORY/users_roles/tabtabprivs.sql
+CATEGORY/tables/tabtabprivs.sql
