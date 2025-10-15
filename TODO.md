@@ -5,6 +5,15 @@ PACKAGING
 * build process encrypts files:
 	openssl
 	gpg
+		export GNUPGHOME=/tmp/oragpg
+                gpg --import /tmp/dsp-gpg.pub
+                gpg --list-public-keys
+                cat > /tmp/testfile
+                gpg --encrypt --recipient support@dsp.co.uk /tmp/testfile
+                ls -ald /tmp/testfile*
+                file /tmp/testfile.gpg
+                view /tmp/testfile.gpg
+
 
 .tar file for Linux/Solaris/UNIX
 
