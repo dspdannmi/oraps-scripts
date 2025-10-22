@@ -265,7 +265,7 @@ export ALERTLOG=""
     #
     # -- aliases for su shortcuts
     #
-    alias oracle='su oracle -c "export ENV=$CS_TOP/setenv ; /bin/bash'
+    alias oracle='su oracle -c "export ENV=$CS_TOP/setenv ; /bin/bash"'
     alias suoracle='su - oracle'
 
     # /bin/bash/sh is legacy and uses ENV for interactive shell, no real equivalent

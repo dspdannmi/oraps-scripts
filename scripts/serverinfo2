@@ -25,6 +25,20 @@ CS_TOP=${CS_TOP:-/opt/dsp}
 
 USAGE_STRING=""
 
+# server info
+# Oracle Grid
+# Oracle Database
+	# Oracle Homes
+        # Oracle DB#1
+#		CDB$ROOT
+#		PDB01
+#		PDB02
+        # Oracle DB#2
+#                CDB$ROOT
+#                PDB01
+#                PDB02
+		
+
 
 # hostnamme
 # dspserverid

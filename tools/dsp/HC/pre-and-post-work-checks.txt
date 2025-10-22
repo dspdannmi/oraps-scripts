@@ -16,6 +16,8 @@ Check:
 
 
 Capture:
+        - lsnrctl show parameters
+
 	- invalid objects (including PDBs)
 	- running databases
 		- state of PDBs

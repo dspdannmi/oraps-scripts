@@ -42,6 +42,12 @@ Scenarios:
 PRIORITY:  HIGH
 ===============
 
+- create "dspmaint" script to:
+	- set a self-removing flag for maintenance
+	- prompt to ensure comms have been sent
+	- prompt to ensure blackouts have been set
+	- capture "before" state of server etc.
+
 - pre-checks on server should inform if versionolock is installed
 
 - DSP server checks:
