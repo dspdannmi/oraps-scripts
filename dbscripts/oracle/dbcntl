@@ -58,7 +58,7 @@ fi
 
 function shutdown_db
     {
-    if isrunning ${ORACLE_SID}
+    if isinstup ${ORACLE_SID} 2>&1 > /dev/null
     then
 	: #do nothing
     else
@@ -93,7 +93,7 @@ exit
 
     sleep 2
 
-    if isrunning ${ORACLE_SID}
+    if isinstup ${ORACLE_SID}
     then
 	scriptout "WARNING: $ORACLE_SID appears to still to be up"
 	EXITCODE=2
@@ -102,7 +102,7 @@ exit
 
 function startup_db
     {
-    if isrunning ${ORACLE_SID}
+    if isinstup ${ORACLE_SID}
     then
 	scriptout "WARNING: $ORACLE_SID appears to already be up"
 	EXITCODE=2
@@ -116,7 +116,7 @@ function startup_db
     fi
 
     case $startup_mode in 
-		"" | restrict )	ACTION="Startup:"
+		"" | restrict | mount | nomount )	ACTION="Startup:"
 				#timestamp
 				;;
 
@@ -132,7 +132,7 @@ startup $startup_mode
 exit
 *EOF*
 
-    if isrunning ${ORACLE_SID}
+    if isinstup ${ORACLE_SID}
     then
 	: # do nothing
     else

@@ -45,7 +45,7 @@ fi
 
 while true
 do
-    sql execute statspack.snap
+    sqlx execute statspack.snap
     sleep $sleep_time_seconds
 done
 

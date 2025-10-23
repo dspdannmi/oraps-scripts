@@ -42,6 +42,11 @@ Scenarios:
 PRIORITY:  HIGH
 ===============
 
+- add to HCs and miniHCs and getinfos to check for guaranteed restore points
+
+- when modifying getinfo-ohome I found that scriptdir was not being set so set it again in funcs.sh ---> check this
+- and also when modifying getinfo-chown I had to force ${scriptdir}/sql rather than just sql to avoid the $ORACLE_HOME/bin/sql being run
+
 - create "dspmaint" script to:
 	- set a self-removing flag for maintenance
 	- prompt to ensure comms have been sent
@@ -110,6 +115,8 @@ PRIORITY:  HIGH
 - needing to export ALERTLOG.  Maybe don't export it and change tailalert etc. to be functions not scripts
 
 - make it clear that on stamping the server to make sure to choose the most appropriate IP address, not any old one, make sure it's the pprimary IP address of the node and not floating ip address for exmaple
+
+- serverstamp does not work properly on Oracle Linux 5
 
 PRIORITY:  MEDIUM
 ===============

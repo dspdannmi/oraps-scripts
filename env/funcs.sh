@@ -12,6 +12,11 @@ fi
 trap "graceful_exit" 0
 trap "graceful_exit terminated" 1 2 3 15
 
+scriptname=$(basename ${0})
+scriptdir=$(dirname ${0})
+tmpfile=$(mktemp -t ${scriptname}_${$}.XXXXXXXX)
+
+
 DEL_TEMPFILES=YES
 
 for func in catdebug \

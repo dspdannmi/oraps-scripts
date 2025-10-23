@@ -3,10 +3,9 @@
 #+++___________________________________________________________________________________
 #
 #
-# Script name:          	isrunning
+# Script name:          	isinstup
 #
-# Description:			Determines if database appears to be running based on 
-#                               ps output
+# Description:			Does instance appear to be up based only on ps output
 #
 # Parameters:
 #
@@ -38,8 +37,10 @@ fi
 
 if ps -ef | grep -c ora_lgwr_${ORACLE_SID}\$ 2>&1 > /dev/null
 then
+    echo "UP"
     EXITCODE=0
 else
+    echo "DOWN"
     EXITCODE=1
 fi
 

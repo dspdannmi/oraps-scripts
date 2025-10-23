@@ -1,0 +1,285 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  getinfo-oradb
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       22-Oct-2025     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+CS_TOP=/opt/dsp
+. ${CS_TOP}/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="[-d ORACLE_SID] [-m lite|basic|comp] [-s human|machine]"
+
+mode="lite"
+style="human"
+
+while getopts 'd:m:s:' OPTION
+do
+    case "$OPTION" in
+        d) ORACLE_SID=$OPTARG ;;
+        m) mode=$OPTARG ;;
+        s) style=$OPTARG ;;
+        ?) usage ;;
+    esac
+done
+
+case "${mode}" in
+    [lL][iI][tT][eE] ) mode=lite ;;
+    [bB][aA][sS][iI][cC] ) mode=basic ;;
+    [cC][oO][mM][pP] ) mode=comp ;;
+    *) echo "ERROR: invalid mode [${mode}] - exiting" ; exit 1 ;;
+esac
+
+case "${style}" in
+    [hH][uU][mM][aA][nN]) style=human;;
+    [mM][aA][cC][hH][iI][nN][eE]) style=machine;;
+    *) echo "ERROR: invalid style [${style}] - exiting" ; exit 1 ;;
+esac
+
+if [ "${ORACLE_SID}" = "" ]
+then
+    echo "ERROR: ORACLE_SID not set and not passed via command line - exiting"
+    exit 1
+else
+    . ${ORAENV} 2>&1 > /dev/null
+    status=$?
+fi
+
+
+if [ ! -d ${ORACLE_HOME} ]
+then
+   echo "ERROR: ${ORACLE_HOME} does not exist - exiting"
+   exit 1
+fi
+
+typeset -i lvl
+typeset -i level
+
+
+export PATH=${ORACLE_HOME}/OPatch:${ORACLE_HOME}/bin:${PATH}
+
+function print_begin
+    {
+    padding=""
+    lvl=1
+    while [ ${lvl} -lt ${level} ]
+    do
+        padding="    ${padding}"
+        let lvl=${lvl}+1
+    done
+
+    if [ "${style}" = "human" ]
+    then
+        echo "${padding}${1}"
+        echo "${padding}---------------------------------------------------"
+    else
+        echo "${padding}<BEGIN_${1}>"
+    fi
+    }
+
+
+function print_end
+    {
+    padding=""
+    lvl=1
+    while [ ${lvl} -lt ${level} ]
+    do
+        padding="    ${padding}"
+        let lvl=${lvl}+1
+    done
+
+    if [ "${style}" = "human" ]
+    then
+        echo ""
+    else
+        echo "${padding}<END_${1}>"
+    fi
+    }
+
+
+function show_opatch_version
+    {
+    level=$1
+    TAG=OPATCH_VERSION
+
+    print_begin ${TAG}
+
+    padding="    ${padding}"
+    ${ORACLE_HOME}/OPatch/opatch version | sed -e s"/^/${padding}/"
+    status=$?
+
+    print_end ${TAG}
+    }
+
+
+
+#
+# Define local script variables
+#
+
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+level=1
+TAG=ORACLE_SID
+
+print_begin ${TAG}
+
+padding="    ${padding}"
+echo "${padding}ORACLE_SID:        ${ORACLE_SID}"
+echo ""
+echo "${padding}ORACLE_HOME:       ${ORACLE_HOME}"
+
+#
+# Determine version
+#
+version=$(getdbversion -d ${ORACLE_SID})
+
+echo "${padding}VERSION:           ${version}"
+
+#
+# Determine alert log
+#
+ALERTLOG=$(showalertlogloc)
+
+echo "${padding}ALERT LOG:         ${ALERTLOG}"
+
+#
+# Password file
+#
+ORAPW_FILE=${ORACLE_HOME}/dbs/orapw${ORACLE_SID}
+
+if [ -r ${ORAPW_FILE} ]
+then
+    ORAPW_FILE_EXISTS=true
+else
+    ORAPW_FILE_EXISTS=false
+fi
+
+echo "${padding}PASSWORD FILE:     ${ORAPW_FILE}"
+
+runsql -d ${ORACLE_SID} getinfo.sql > ${tmpfile}
+
+
+awk '/<V_INSTANCE>/ {
+                                     process="true"
+                                     next
+                                     }
+                                     /<\/V_INSTANCE>/ {
+                                     process=""
+                                     next
+                                     }
+                                     process=="true" {
+                                     print
+                                     }' ${tmpfile} > ${tmpfile}.v_instance
+
+awk '/<V_DATABASE>/ {
+                                     process="true"
+                                     next
+                                     }
+                                     /<\/V_DATABASE>/ {
+                                     process=""
+                                     next
+                                     }
+                                     process=="true" {
+                                     print
+                                     }' ${tmpfile} > ${tmpfile}.v_database
+
+
+INSTANCE_NAME=$(grep '^INSTANCE_NAME[ ]*:' ${tmpfile}.v_instance | cut -d: -f2- | xargs)
+VERSION=$(grep '^VERSION[ ]*:' ${tmpfile}.v_instance | cut -d: -f2- | xargs)
+VERSION_LEGACY=$(grep '^VERSION_LEGACY[ ]*:' ${tmpfile}.v_instance | cut -d: -f2- | xargs)
+VERSION_FULL=$(grep '^VERSION_FULL[ ]*:' ${tmpfile}.v_instance | cut -d: -f2- | xargs)
+STARTUP_TIME=$(grep '^STARTUP_TIME[ ]*:' ${tmpfile}.v_instance | cut -d: -f2- | xargs)
+DATABASE_STATUS=$(grep '^DATABASE_STATUS[ ]*:' ${tmpfile}.v_instance | cut -d: -f2- | xargs)
+INSTANCE_ROLE=$(grep '^INSTANCE_ROLE[ ]*:' ${tmpfile}.v_instance | cut -d: -f2- | xargs)
+ACTIVE_STATE=$(grep '^ACTIVE_STATE[ ]*:' ${tmpfile}.v_instance | cut -d: -f2- | xargs)
+INSTANCE_MODE=$(grep '^INSTANCE_MODE[ ]*:' ${tmpfile}.v_instance | cut -d: -f2- | xargs)
+EDITION=$(grep '^EDITION[ ]*:' ${tmpfile}.v_instance | cut -d: -f2- | xargs)
+FAMILY=$(grep '^FAMILY[ ]*:' ${tmpfile}.v_instance | cut -d: -f2- | xargs)
+DATABASE_TYPE=$(grep '^DATABASE_TYPE[ ]*:' ${tmpfile}.v_instance | cut -d: -f2- | xargs)
+
+
+DBID=$(grep '^DBID[ ]*:' ${tmpfile}.v_database | cut -d: -f2- | xargs)
+NAME=$(grep '^NAME[ ]*:' ${tmpfile}.v_database | cut -d: -f2- | xargs)
+CREATED=$(grep '^CREATED[ ]*:' ${tmpfile}.v_database | cut -d: -f2- | xargs)
+LOG_MODE=$(grep '^LOG_MODE[ ]*:' ${tmpfile}.v_database | cut -d: -f2- | xargs)
+OPEN_MODE=$(grep '^OPEN_MODE[ ]*:' ${tmpfile}.v_database | cut -d: -f2- | xargs)
+PROTECTION_MODE=$(grep '^PROTECTION_MODE[ ]*:' ${tmpfile}.v_database | cut -d: -f2- | xargs)
+PROTECTION_LEVEL=$(grep '^PROTECTION_LEVEL[ ]*:' ${tmpfile}.v_database | cut -d: -f2- | xargs)
+DATABASE_ROLE=$(grep '^DATABASE_ROLE[ ]*:' ${tmpfile}.v_database | cut -d: -f2- | xargs)
+SUPPLEMENTAL_LOG_DATA_MIN=$(grep '^SUPPLEMENTAL_LOG_DATA_MIN[ ]*:' ${tmpfile}.v_database | cut -d: -f2- | xargs)
+FORCE_LOGGING=$(grep '^FORCE_LOGGING[ ]*:' ${tmpfile}.v_database | cut -d: -f2- | xargs)
+CURRENT_SCN=$(grep '^CURRENT_SCN[ ]*:' ${tmpfile}.v_database | cut -d: -f2- | xargs)
+FLASHBACK_ON=$(grep '^FLASHBACK_ON[ ]*:' ${tmpfile}.v_database | cut -d: -f2- | xargs)
+DB_UNIQUE_NAME=$(grep '^DB_UNIQUE_NAME[ ]*:' ${tmpfile}.v_database | cut -d: -f2- | xargs)
+CDB=$(grep '^CDB[ ]*:' ${tmpfile}.v_database | cut -d: -f2- | xargs)
+
+padding="    ${padding}"
+
+echo ""
+echo "${padding}DBID:                      ${DBID}"
+echo "${padding}DB NAME:                   ${NAME}"
+echo "${padding}DB UNIQUE NAME:            ${DB_UNIQUE_NAME}"
+echo "${padding}INSTANCE NAME:             ${INSTANCE_NAME}"
+echo "${padding}STARTUP_TIME:              ${STARTUP_TIME}"
+echo "${padding}CDB:                       ${CDB}"
+echo "${padding}EDITION:                   ${EDITION}"
+echo "${padding}DATABASE_STATUS:           ${DATABASE_STATUS}"
+
+if [ "${VERSION_FULL}" != "" ]
+then
+    VERSION=${VERSION_FULL}
+fi
+echo "${padding}VERSION:                   ${VERSION}"
+
+echo "${padding}OPEN_MODE:                 ${OPEN_MODE}"
+
+echo "${padding}CURRENT_SCN:               ${CURRENT_SCN}"
+echo "${padding}LOG_MODE:                  ${LOG_MODE}"
+echo "${padding}FLASHBACK_ON:              ${FLASHBACK_ON}"
+echo "${padding}FORCE_LOGGING:             ${FORCE_LOGGING}"
+echo "${padding}SUPPLEMENTAL_LOG_DATA_MIN: ${SUPPLEMENTAL_LOG_DATA_MIN}"
+
+echo ""
+
+echo "${padding}INSTANCE_ROLE:             ${INSTANCE_ROLE}"
+echo "${padding}DATABASE_ROLE:             ${DATABASE_ROLE}"
+echo "${padding}PROTECTION_MODE:           ${PROTECTION_MODE}"
+echo "${padding}PROTECTION_LEVEL:          ${PROTECTION_LEVEL}"
+
+echo ""
+
+echo "${padding}ACTIVE_STATUS:             ${ACTIVE_STATE}"
+echo "${padding}INSTANCE_MODE:             ${INSTANCE_MODE}"
+echo "${padding}FAMILY:                    ${FAMILY}"
+echo "${padding}DATABASE_TYPE:             ${DATABASE_TYPE}"
+
+
+echo ${CREATED}
+
+
+
+print_end ${TAG}
+
+exit $EXITCODE
+

@@ -4,7 +4,7 @@ set +x
 #+++___________________________________________________________________________________
 #
 #
-# Script name:                  getdbversion
+# Script name:                  iscdb
 #
 # Description:
 #
@@ -105,35 +105,17 @@ else
         sqlplus_set_cmd="set pagesize 0 linesize 140 echo off feedback off verify off"
     fi
 
-VERSION=$(sqlplus -s ${SQLPLUS_DBA_LOGON} << *EOF* 2>&1 | grep ^VERSION: | cut -d: -f2 
+IS_CDB=$(sqlplus -s ${SQLPLUS_DBA_LOGON} << *EOF* 2>&1 | grep ^CDB: | cut -d: -f2 
 whenever sqlerror ${SQL_WHENERROR}
 ${sqlplus_set_cmd}
-select 'VERSION:' || product || ' ' ||version_full
-from PRODUCT_COMPONENT_VERSION
-where lower(product) like 'oracle database%';
+select 'CDB:' || cdb
+from v\$database;
 exit
 *EOF*
 )
 
-if [ "${VERSION}" = "" ]
-then
-VERSION=$(sqlplus -s ${SQLPLUS_DBA_LOGON} << *EOF* 2>&1 | grep ^VERSION: | cut -d: -f2 
-whenever sqlerror ${SQL_WHENERROR}
-${sqlplus_set_cmd}
-select 'VERSION:' || product || ' ' ||version
-from PRODUCT_COMPONENT_VERSION
-where lower(product) like 'oracle database%';
-exit
-*EOF*
-)
-fi
-echo ${VERSION}
+echo ${IS_CDB}
 status=$?
-
-# if MAJOR_VERSION <= 12.1.0.2 (inclusive) then just VERSION from PRODUCT_COMPONENT_VERSION
-# https://christian-gohmann.de/2020/02/27/different-ways-to-get-the-current-database-version/#PRODUCT_COMPONENT_VERSION
-
-
 
 fi	#dbhost
     

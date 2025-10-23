@@ -8,6 +8,8 @@ set lines 200
 set long 50000
 set numformat 999999999999
 
+set tab off
+
 set termout off
 set echo off
 alter session set nls_date_format='YYYY-MM-DD:HH24:MI:SS';
@@ -44,7 +46,7 @@ col INDEX_OWNER format a15
 col INITIAL_EXTENT format 99999999
 col MAX_EXTENTS format 9999
 col MIN_EXTENTS format 9999
-col NAME format a15
+col NAME format a40
 col NEW_NAME format a15
 col NEW_OWNER format a15
 col NEXT_EXTENT format 9999999999

@@ -58,7 +58,7 @@ else
     CMDLINE="@${*}"
 fi
 
-sql ${PARAMS} ${CMDLINE}
+sqlx ${PARAMS} ${CMDLINE}
 status=$?
 
 if [ $status -ne 0 ]

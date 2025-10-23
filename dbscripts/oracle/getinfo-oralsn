@@ -1,0 +1,222 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  getinfo-orahome
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       22-Oct-2025     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+CS_TOP=/opt/dsp
+. ${CS_TOP}/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="[-o ORACLE_HOME] [-m lite|basic|comp] [-s human|machine]"
+
+mode="lite"
+style="human"
+
+while getopts 'o:m:s:' OPTION
+do
+    case "$OPTION" in
+        o) ORACLE_HOME=$OPTARG ;;
+        m) mode=$OPTARG ;;
+        s) style=$OPTARG ;;
+        ?) usage ;;
+    esac
+done
+
+case "${mode}" in
+    [lL][iI][tT][eE] ) mode=lite ;;
+    [bB][aA][sS][iI][cC] ) mode=basic ;;
+    [cC][oO][mM][pP] ) mode=comp ;;
+    *) echo "ERROR: invalid mode [${mode}] - exiting" ; exit 1 ;;
+esac
+
+case "${style}" in
+    [hH][uU][mM][aA][nN]) style=human;;
+    [mM][aA][cC][hH][iI][nN][eE]) style=machine;;
+    *) echo "ERROR: invalid style [${style}] - exiting" ; exit 1 ;;
+esac
+
+if [ "${ORACLE_HOME}" = "" ]
+then
+    echo "ERROR: ORACLE_HOME not set and not passed via command line - exiting"
+    exit 1
+fi
+
+
+if [ ! -d ${ORACLE_HOME} ]
+then
+   echo "ERROR: ${ORACLE_HOME} does not exist - exiting"
+   exit 1
+fi
+
+typeset -i lvl
+typeset -i level
+
+
+export PATH=${ORACLE_HOME}/OPatch:${ORACLE_HOME}/bin:${PATH}
+
+function print_begin
+    {
+    padding=""
+    lvl=1
+    while [ ${lvl} -lt ${level} ]
+    do
+        padding="    ${padding}"
+        let lvl=${lvl}+1
+    done
+
+    if [ "${style}" = "human" ]
+    then
+        echo "${padding}${1}"
+        echo "${padding}---------------------------------------------------"
+    else
+        echo "${padding}<BEGIN_${1}>"
+    fi
+    }
+
+
+function print_end
+    {
+    padding=""
+    lvl=1
+    while [ ${lvl} -lt ${level} ]
+    do
+        padding="    ${padding}"
+        let lvl=${lvl}+1
+    done
+
+    if [ "${style}" = "human" ]
+    then
+        echo ""
+    else
+        echo "${padding}<END_${1}>"
+    fi
+    }
+
+
+function show_databases
+    {
+    level=$1
+    TAG=DATABASES
+
+    print_begin ${TAG}
+
+    padding="    ${padding}"
+
+    for DB in $(awk -F: -v v_ohome=${ORACLE_HOME} '$2==v_ohome {print $1}' ${ORATAB} | grep ^[a-zA-Z0-9_$] | sort)
+    do
+        echo -n "${padding}${DB}:"
+
+        if isinstup ${DB} 2>&1 > /dev/null
+        then
+            instance_status=$(${scriptdir}/sqlx -d ${DB} select \'STATUS=\' \|\| status from v\$instance 2>/dev/null | grep ^STATUS= | cut -d= -f2)
+
+            [ "${instance_status}" = "STARTED" ] && instance_status="NOMOUNT"
+        else
+            instance_status="DOWN"
+        fi
+
+        echo "instance:${instance_status}"
+    done
+
+    print_end ${TAG}
+    }
+
+function show_opatch_version
+    {
+    level=$1
+    TAG=OPATCH_VERSION
+
+    print_begin ${TAG}
+
+    padding="    ${padding}"
+    ${ORACLE_HOME}/OPatch/opatch version | sed -e s"/^/${padding}/"
+    status=$?
+
+    print_end ${TAG}
+    }
+
+
+function show_opatch_lspatches
+    {
+    level=$1
+    TAG=OPATCH_LSPATCHES
+
+    print_begin ${TAG}
+
+    padding="    ${padding}"
+    ${ORACLE_HOME}/OPatch/opatch lspatches | sed -e s"/^/${padding}/"
+    status=$?
+
+    print_end ${TAG}
+    }
+
+
+function show_opatch_lsinventory
+    {
+    level=$1
+    TAG=OPATCH_LSINVENTORY
+
+    print_begin ${TAG}
+
+    padding="    ${padding}"
+    ${ORACLE_HOME}/OPatch/opatch lsinventory | sed -e s"/^/${padding}/"
+    status=$?
+
+    print_end ${TAG}
+    }
+
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+level=1
+TAG=ORACLE_HOME-DATABASE
+
+print_begin ${TAG}
+
+padding="    ${padding}"
+echo "${padding}LOC: ${ORACLE_HOME}"
+echo 
+
+(
+#
+# run in subshell so as not to interfere with
+# TAG setting as each of the functions below
+# set TAG and without subshell
+show_databases 2
+show_opatch_version 2
+show_opatch_lspatches 2
+
+if [ "${mode}" = "comp" ]
+then
+    show_opatch_lsinventory 2
+fi
+)
+
+print_end ${TAG}
+
+exit $EXITCODE
+

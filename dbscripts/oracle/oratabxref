@@ -75,7 +75,7 @@ do
     ohome=$(echo $LINE | cut -d: -f2)
     flag=$(echo $LINE | cut -d: -f3 | sed -e 's/^\(.*\)#.*/\1/')        # remove anything after a hash in the third column
 
-    X=$(sql -d ${sid} "select 'oradb_info' || ':dbname=' ||  name || ':dbrole=' ||  database_role from v\$database" | grep ^oradb_info | cut -d: -f2-)
+    X=$(sqlx -d ${sid} "select 'oradb_info' || ':dbname=' ||  name || ':dbrole=' ||  database_role from v\$database" | grep ^oradb_info | cut -d: -f2-)
 
     if [ "${X}" != "" ]
     then

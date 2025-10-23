@@ -52,7 +52,7 @@ CheckPwd()
 #
 # Generate list of users
 #
-sql select username from dba_users order by username > $tmpfile
+sqlx select username from dba_users order by username > $tmpfile
 status=$?
 
 

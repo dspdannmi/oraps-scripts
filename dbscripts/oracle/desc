@@ -50,12 +50,7 @@ then
     usage
 fi
 
-sql ${PARAM} desc ${*}
+sqlx ${PARAM} desc ${*}
     
-
-
-
-
-
 exit $EXITCODE
 

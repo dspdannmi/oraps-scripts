@@ -6,6 +6,8 @@ set verify off
 clear breaks
 clear computes
 
+col name format a120
+
 select name || '=' ||  value name
 from v$parameter
 where isdefault != 'TRUE'
