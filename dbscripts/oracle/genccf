@@ -159,7 +159,7 @@ TRACEFILE_IDENTIFIER=genccf$(date +%Y%m%d%H%M%S_${$})
 
 if [ "$whichhost" = "$thishost" ]
 then
-    if chkoradbopen $ORACLE_SID
+    if chkorainstsysdba $ORACLE_SID
     then
         :
     else

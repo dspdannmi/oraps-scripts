@@ -43,7 +43,7 @@ fi
 
 DB=${1}
 
-if chkoradbopen ${DB} 2>&1 > /dev/null
+if chkorainstsysdba ${DB} 2>&1 > /dev/null
 then
     echo "ERROR: database is already UP"
     EXITCODE=1

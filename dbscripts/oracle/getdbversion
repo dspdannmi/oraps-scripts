@@ -81,7 +81,7 @@ else
 
    . /usr/local/bin/oraenv 2>&1 > /dev/null
 
-   if chkoradbopen $ORACLE_SID 
+   if chkorainstsysdba $ORACLE_SID 
    then
        :
    else

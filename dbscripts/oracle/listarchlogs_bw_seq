@@ -77,7 +77,7 @@ fi
 
 if [ "$whichhost" = "$thishost" ]
 then
-    if chkoradbopen $ORACLE_SID
+    if chkorainstsysdba $ORACLE_SID
     then
         :
     else

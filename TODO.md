@@ -92,8 +92,8 @@ PRIORITY:  HIGH
 - oratabxref for each entry that it cant connect to the database based on entry should check if the sid is running.  Maybe means it is being started correctly just outside using $ORATAB file
 - oratabxref check if there are any SIDs that are identical just different case (eg. mike vs MIKE)
 
-- dbscripts/oracle/chkoradbopen needs renaming as it just checks that the instance is running.  select user form dual returns SYS even if instance is mounted
-- which is fine as long as we know that when we are using it to check.  Rename to chkorainstanceup perhaps
+XX_DONE_20251024_XX - dbscripts/oracle/chkoradbopen needs renaming as it just checks that the instance is running.  select user form dual returns SYS even if instance is mounted
+XX_DONE_20251024_XX - which is fine as long as we know that when we are using it to check.  Rename to chkorainstanceup perhaps
 
 - had a really good example whereby login.sql sets a whole heap of columns but then call script1 and it sets columns for itself and then I call script2 and columns are screwy
 - was for column defined as "USED (%)" and was inappropriate as script1 used was in fact a percentage so set heading to "USED(%)" but in script2 used was an actual amount

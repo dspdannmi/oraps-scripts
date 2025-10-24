@@ -85,6 +85,7 @@ function print_begin
 
     if [ "${style}" = "human" ]
     then
+        echo "${padding}---------------------------------------------------"
         echo "${padding}${1}"
         echo "${padding}---------------------------------------------------"
     else
@@ -147,7 +148,6 @@ print_begin ${TAG}
 padding="    ${padding}"
 echo "${padding}ORACLE_SID:        ${ORACLE_SID}"
 echo ""
-echo "${padding}ORACLE_HOME:       ${ORACLE_HOME}"
 
 #
 # Determine version
@@ -155,6 +155,11 @@ echo "${padding}ORACLE_HOME:       ${ORACLE_HOME}"
 version=$(getdbversion -d ${ORACLE_SID})
 
 echo "${padding}VERSION:           ${version}"
+
+#
+# ORACLE_HOME
+#
+echo "${padding}ORACLE_HOME:       ${ORACLE_HOME}"
 
 #
 # Determine alert log
@@ -204,6 +209,18 @@ awk '/<V_DATABASE>/ {
                                      print
                                      }' ${tmpfile} > ${tmpfile}.v_database
 
+awk '/<V_PDBS>/ {
+                                     process="true"
+                                     next
+                                     }
+                                     /<\/V_PDBS>/ {
+                                     process=""
+                                     next
+                                     }
+                                     process=="true" {
+                                     print
+                                     }' ${tmpfile} > ${tmpfile}.pdbs
+
 
 INSTANCE_NAME=$(grep '^INSTANCE_NAME[ ]*:' ${tmpfile}.v_instance | cut -d: -f2- | xargs)
 VERSION=$(grep '^VERSION[ ]*:' ${tmpfile}.v_instance | cut -d: -f2- | xargs)
@@ -234,6 +251,9 @@ FLASHBACK_ON=$(grep '^FLASHBACK_ON[ ]*:' ${tmpfile}.v_database | cut -d: -f2- | 
 DB_UNIQUE_NAME=$(grep '^DB_UNIQUE_NAME[ ]*:' ${tmpfile}.v_database | cut -d: -f2- | xargs)
 CDB=$(grep '^CDB[ ]*:' ${tmpfile}.v_database | cut -d: -f2- | xargs)
 
+NUMBER_OF_STANDBY_DEST=$(grep '^NUMBER_OF_STANDBY_DEST:' ${tmpfile} | cut -d: -f2- | xargs)
+DBSIZE_GB=$(grep '^DBSIZE_GB:' ${tmpfile} | cut -d: -f2- | xargs)
+
 padding="    ${padding}"
 
 echo ""
@@ -241,8 +261,19 @@ echo "${padding}DBID:                      ${DBID}"
 echo "${padding}DB NAME:                   ${NAME}"
 echo "${padding}DB UNIQUE NAME:            ${DB_UNIQUE_NAME}"
 echo "${padding}INSTANCE NAME:             ${INSTANCE_NAME}"
+echo "${padding}CREATED:                   ${CREATED}"
 echo "${padding}STARTUP_TIME:              ${STARTUP_TIME}"
+echo ""
+echo "${padding}DBSIZE-TOTAL:              ${DBSIZE_GB}Gb"
+echo ""
+
+if [ "${CDB}" = "" ]
+then
+    CDB="NO"
+fi
+
 echo "${padding}CDB:                       ${CDB}"
+
 echo "${padding}EDITION:                   ${EDITION}"
 echo "${padding}DATABASE_STATUS:           ${DATABASE_STATUS}"
 
@@ -254,6 +285,8 @@ echo "${padding}VERSION:                   ${VERSION}"
 
 echo "${padding}OPEN_MODE:                 ${OPEN_MODE}"
 
+echo ""
+
 echo "${padding}CURRENT_SCN:               ${CURRENT_SCN}"
 echo "${padding}LOG_MODE:                  ${LOG_MODE}"
 echo "${padding}FLASHBACK_ON:              ${FLASHBACK_ON}"
@@ -262,10 +295,23 @@ echo "${padding}SUPPLEMENTAL_LOG_DATA_MIN: ${SUPPLEMENTAL_LOG_DATA_MIN}"
 
 echo ""
 
-echo "${padding}INSTANCE_ROLE:             ${INSTANCE_ROLE}"
-echo "${padding}DATABASE_ROLE:             ${DATABASE_ROLE}"
-echo "${padding}PROTECTION_MODE:           ${PROTECTION_MODE}"
-echo "${padding}PROTECTION_LEVEL:          ${PROTECTION_LEVEL}"
+
+if [ "${NUMBER_OF_STANDBY_DEST}" != "" ] && [ "${NUMBER_OF_STANDBY_DEST}" != "0" ]
+then
+    echo "${padding}STANDBY ARCHLOG DESTS:     ${NUMBER_OF_STANDBY_DEST}"
+    echo "${padding}NUMBER_OF_STANDBY_DEST:    ${NUMBER_OF_STANDBY_DEST}"
+    echo "${padding}INSTANCE_ROLE:             ${INSTANCE_ROLE}"
+    echo "${padding}DATABASE_ROLE:             ${DATABASE_ROLE}"
+    echo "${padding}PROTECTION_MODE:           ${PROTECTION_MODE}"
+    echo "${padding}PROTECTION_LEVEL:          ${PROTECTION_LEVEL}"
+else
+    if [ "${NUMBER_OF_STANDBY_DEST}" = "" ]
+    then
+        NUMBER_OF_STANDBY_DEST=0
+    fi
+
+    echo "${padding}STANDBY ARCHLOG DESTS:     ${NUMBER_OF_STANDBY_DEST}"
+fi
 
 echo ""
 
@@ -274,8 +320,30 @@ echo "${padding}INSTANCE_MODE:             ${INSTANCE_MODE}"
 echo "${padding}FAMILY:                    ${FAMILY}"
 echo "${padding}DATABASE_TYPE:             ${DATABASE_TYPE}"
 
+echo ""
 
-echo ${CREATED}
+if [ "${CDB}" = "YES" ]
+then
+  if [ "${style}" = "human" ]
+  then
+    echo "${padding}PDBS:"
+  else
+    echo "${padding}<PDBS>"
+  fi
+
+  padding_save=${padding}
+  padding="    ${padding}"
+  sed -e "s/^/${padding}/" -e "s/^$//" ${tmpfile}.pdbs
+
+  if [ "${style}" = "human" ]
+  then
+    :
+  else
+    echo "${padding_save}</PDBS>"
+  fi
+fi
+
+
 
 
 

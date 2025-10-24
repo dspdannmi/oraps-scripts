@@ -59,7 +59,7 @@ Filesystems       :
 UIM monitoring
 =================================================================
 
-/opt/nimbus exists:	NO
+/opt/nimsoft exists:	NO
 nimbus service running: YES
 
 

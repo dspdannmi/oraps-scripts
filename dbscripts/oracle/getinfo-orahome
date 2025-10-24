@@ -82,6 +82,7 @@ function print_begin
 
     if [ "${style}" = "human" ]
     then
+        echo "${padding}---------------------------------------------------"
         echo "${padding}${1}"
         echo "${padding}---------------------------------------------------"
     else

@@ -74,10 +74,10 @@ fi
 
 if [ "$whichhost" = "$thishost" ]
 then
-    # REMOVE chkoradbopen CHECK
+    # REMOVE chkorainstsysdba CHECK
     #   - database is likely in recovery mode
     #   - so therefore would not be up
-    #if chkoradbopen $ORACLE_SID
+    #if chkorainstsysdba $ORACLE_SID
     #then
     #    :
     #else
