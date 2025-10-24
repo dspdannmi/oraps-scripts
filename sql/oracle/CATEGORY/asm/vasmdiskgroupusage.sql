@@ -1,5 +1,5 @@
 
---DESCRIBE: Show current disk group usage
+--DESCRIBE: Show ASM disk group usage
 
 col total_mb format 999999999999
 col free_mb format 999999999999

@@ -38,6 +38,15 @@ Scenarios:
 
 * No direct/indirect connectivity to server
 
+INSTALL
+=======
+
+- when running serverstamp if there isn't already a serveridentity.txt file then dont give option of KEEP EXISTING id
+
+- when not installing in to /opt/dsp we need to update lots of files for CS_TOP / DSP_TOP
+
+- install.sh script looping when filesystem full
+
 
 PRIORITY:  HIGH
 ===============
@@ -121,6 +130,8 @@ XX_DONE_20251024_XX - which is fine as long as we know that when we are using it
 PRIORITY:  MEDIUM
 ===============
 
+- make sure all func/* scripts have actually called the function name correctly as there have been occurrences where I have copied a function to a new file but didn't change function name
+
 - change serverstamp to give an UKNOWN option and save that and then have ability to update unknown or indeed any config later:  serverstamp -update
 
 - dbdown etc. might not be dispalying output of echoing commands to screen
@@ -154,6 +165,7 @@ PRIORITY:  MEDIUM
 	- scripts
 
 - seems to be an issue when you run setenv -u dannmi it sets the profile but then run it again it almost seems to reverse stuff out such as profile specific dirs in PATH
+- and need to consider forcing an "unsetenv" script to reverse things set
 
 - add to oracle health check to check when dba_sequences > 95% and set with nocycle
 
@@ -171,6 +183,8 @@ PRIORITY:  MEDIUM
 
 - add to capturer server identity.txt file a timestamp etc. to chuck in any ip addresses / mac addresses etc.  These might be useful if we do have a conflict/mistmatch at some point -
 	maybe simply we remove a NIC but the VM is the same.  It would be useful to have _all_ of the ips and macs available as at stamping point so we can crosscheck
+
+- add in templates for starting servers for oracle database and dbvisit
 
 PRIORITY:  LOW
 ==============

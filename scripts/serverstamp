@@ -87,7 +87,13 @@ echo
 if [ "${newid}" != "" ] && [ $status -eq 0 ]	# uuidgen exists and we could generate our own uuid
 then
   unset selections
-  selections=("Keep existing" "Generate a server ID" "Provide a UUID to use for server ID")
+
+  if [ -f ${DSP_IDENTITY_FILE} ]
+  then
+      selections=("Keep existing" "Generate a server ID" "Provide a UUID to use for server ID")
+  else
+      selections=("Generate a server ID" "Provide a UUID to use for server ID")
+  fi
   choose_from_menu "Please select a MAC address to use to stamp this server" selected_choice "${selections[@]}"
   echo "Selected choice: $selected_choice"
 

@@ -32,7 +32,13 @@ USAGE_STRING=""
 #
 set_error_trap
 
-INDEXFILE=${CS_TOP}/sql/INDEX.txt
+INDEXFILE=${CS_TOP}/sql/oracle/INDEX.txt
+
+if [ ! -r ${INDEXFILE} ]
+then
+    echo "ERROR: index file [${INDEXFILE}] does not exist or is not readable - exiting"
+    exit 1
+fi
 
 if [ $# -ne 0 ]
 then
@@ -48,9 +54,10 @@ printf "%-40s%-19s%s\n" SCRIPT CATEGORY DESCRIPTION
 echo "--------------------------------------- ------------------ -----------------------------------------------------------------------"
 for param in "${PARAM}"
 do
-    param=$(echo $param | sed -e 's/\*/.*/g')	# wildcard star modified to suit pattern matching
+    param=$(echo $param | sed -e 's/*/.*/g')	# wildcard star modified to suit pattern matching change * to .*
 
-    awk "\$2 == /\[${param}\]/ {print \$0}" ${INDEXFILE} | while read LINE
+    #awk "\$2 ~ /\[${param}\]/ {print \$0}" ${INDEXFILE} | while read LINE
+    awk "\$2 ~ /${param}/ {print \$0}" ${INDEXFILE} | while read LINE
     do
 	script=$(echo $LINE | awk '{print $1}')
 	category=$(echo $LINE | awk '{print $2}')

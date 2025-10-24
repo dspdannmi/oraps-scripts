@@ -32,7 +32,7 @@ USAGE_STRING=""
 #
 set_error_trap
 
-INDEXFILE=${CS_TOP}/sql/INDEX.txt
+INDEXFILE=${CS_TOP}/sql/oracle/INDEX.txt
 
 if [ $# -ne 0 ]
 then

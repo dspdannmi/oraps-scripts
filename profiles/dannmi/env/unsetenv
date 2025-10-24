@@ -1,0 +1,8 @@
+
+echo "Hey!  This coming to you from /opt/dsp/profiles/dannmi/env/setenv"
+echo "You can add in any environment settings that you might think are great"
+echo "but everyone else thinks are too rubbish to be included in the main"
+echo "bundle!  :(  Don't give up!!"
+
+unalias vi='vi -u ${MY_PROFILE_DIR}/config/vim.rc'
+
