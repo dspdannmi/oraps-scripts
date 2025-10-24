@@ -1,0 +1,345 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  install.sh
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       15-Oct-2025     1.0     root    Original version
+#
+#+++___________________________________________________________________________________
+
+DSP_TOP=/opt/dsp
+
+USAGE_STRING=""
+
+
+#
+# Define local script variables
+#
+
+function install_root_default_dir_exists
+    {
+    echo "Yeeha!"
+    }
+
+function install_root_default_dir_does_not_exist
+    {
+    echo "Yay! Fresh install"
+    }
+
+#
+# Script starts here
+#
+#
+OS=$(uname)
+user=$(whoami)
+
+
+#---------------------------------------------------------------
+# initial checks
+#---------------------------------------------------------------
+#
+if [ "${OS}" != "Linux" ]
+then
+    echo "ERROR: Expecting OS [Linux] but found [${OS}] - exiting"
+    exit 1
+fi
+
+
+FRESH_INSTALL=yes	# assume fresh install until determined otherwise
+
+NEW_INSTALL_FILE=dsp.tar
+NEW_INSTALL_VERSION_FILE=version.txt
+BANNER_FILE=banner.txt
+
+if [ ! -r ${NEW_INSTALL_FILE} ]
+then
+    echo "ERROR: install file [${NEW_INSTALL_FILE}] does not exist or is not readable in current directory - exiting"
+    exit 1
+fi
+
+if [ -r ${NEW_INSTALL_VERSION_FILE} ]
+then
+    NEW_VERSION=$(cat ${NEW_INSTALL_VERSION_FILE})
+else
+    echo "ERROR: install file [${NEW_INSTALL_VERSION_FILE}] does not exist or is not readable in current directory - exiting"
+    exit 1
+fi
+
+
+#
+#---------------------------------------------------------------
+#set and check default location and associated files
+#---------------------------------------------------------------
+#
+DEFAULT_INSTALL_DIR=/opt/dsp
+DEFAULT_INSTALL_DIR_VERSION_FILE=${DEFAULT_INSTALL_DIR}/config/dsp/version.txt
+DEFAULT_INSTALL_DIR_OWNER_FILE=${DEFAULT_INSTALL_DIR}/config/dsp/owner.txt
+
+if [ -d ${DEFAULT_INSTALL_DIR} ]
+then
+    DEFAULT_INSTALL_DIR_EXISTS=yes
+else
+    DEFAULT_INSTALL_DIR_EXISTS=no
+fi
+
+if [ -r ${DEFAULT_INSTALL_DIR_VERSION_FILE} ]
+then
+    DEFAULT_INSTALL_DIR_VERSION_FILE_EXISTS=yes
+else
+    DEFAULT_INSTALL_DIR_VERSION_FILE_EXISTS=no
+fi
+
+if [ -r ${DEFAULT_INSTALL_DIR_OWNER_FILE} ]
+then
+    DEFAULT_INSTALL_DIR_OWNER_FILE_EXISTS=yes
+else
+    DEFAULT_INSTALL_DIR_OWNER_FILE_EXISTS=no
+fi
+
+
+INSTALL_OWNER=""
+INSTALL_GROUP=""
+
+function get_current_version
+    {
+    if [ -r ${VERSION_FILE} ]
+    then
+        CURRENT_VERSION=$(cat ${VERSION_FILE})
+    else
+        CURRENT_VERSION=""
+    fi
+    }
+
+
+function fresh_install_post_steps
+    {
+    echo "Wooohoo! Freshy! :)"
+    }
+
+
+function do_install
+    {
+    if [ "${NEW_VERSION}" = "${CURRENT_VERSION}" ] 
+    then
+        version_suffix="<<< same as current <<<"
+    fi
+    
+    echo
+    echo "--------------------------------"
+    echo "Installation:"
+    echo "--------------------------------"
+    echo
+    echo "Install directory:    [${INSTALL_DIR}]"
+    echo
+    echo "New version:          [${NEW_VERSION}] ${version_suffix}"
+    echo
+    echo "Install owner:        [${INSTALL_OWNER}]"
+    echo "Install group:        [${INSTALL_GROUP}]"
+    echo
+    
+    if [ "${NEW_VERSION}" = "${CURRENT_VERSION}" ]
+    then
+        echo  "*************************************************"
+        echo  "*  WARNING: version already installed           *"
+        echo  "*************************************************"
+    elif [[ "${NEW_VERSION}" < "${CURRENT_VERSION}" ]]
+    then
+        echo  "*************************************************"
+        echo  "*  WARNING: installed version is later          *"
+        echo  "*************************************************"
+    fi
+
+    echo -n "Do you wish to proceed with installation?  (<ENTER> to continue <ctrl-C> to abort)"
+    echo
+    read userinput
+
+    #continuing with install
+
+    if [ ! -w ${INSTALL_DIR} ] || [ ! -d ${INSTALL_DIR} ]
+    then
+         echo "ERROR: unexpected error at this stage - install directory [${INSTALL_DIR}] does not exist or is not writeable - exiting"
+         exit 1
+    fi
+
+    if [ ! -r ${NEW_INSTALL_FILE} ]
+    then
+         echo "ERROR: unexpected error at this stage - install file [${NEW_INSTALL_FILE}] does not exist or is not writeable - exiting"
+         exit 1
+    fi
+
+    CURRENT_VERSION_SAVE=${CURRENT_VERSION}
+
+    echo "Extracting [${NEW_INSTALL_FILE}] into [${INSTALL_DIR}]..."
+
+    # add a sleep otherwise the silent extract is quite quick it may feel to some
+    # that nothing has happened - would prefer not to run tar with v (verbose) option
+    # as that generates a lot of output
+    sleep 2
+
+    tar -C ${INSTALL_DIR} -xf ${NEW_INSTALL_FILE}
+    status=$?
+    
+    if [ $status -eq 0 ]
+    then
+        get_current_version
+
+        echo
+        echo "----------"
+        echo "SUCCESS!!!"
+        echo "----------"
+        echo
+
+        echo "Previous version:       [${CURRENT_VERSION_SAVE}]"
+        echo "Current version:        [${CURRENT_VERSION}]"
+        echo
+
+        [ ! -f ${IDENTITY_FILE} ] && fresh_install_post_steps
+
+    else
+        echo "ERROR: an error occurred extracting - exiting"
+        status=$?
+    fi
+    }
+
+function existing_installation_found_prologue
+    {
+    echo
+    echo "--------------------------------"
+    echo "Pre-existing installation found:"
+    echo "--------------------------------"
+    echo
+    echo "Directory:            [${INSTALL_DIR}]"
+    echo
+    echo "Version:              [${CURRENT_VERSION}]"
+    echo
+    echo "Configured owner:     [${INSTALL_OWNER}]"
+    echo "Configured group:     [${INSTALL_GROUP}]"
+    echo
+    }
+
+function set_install_vars
+    {
+    CONFIG_DIR=${INSTALL_DIR}/config/dsp
+
+    VERSION_FILE=${CONFIG_DIR}/version.txt
+    OWNER_FILE=${CONFIG_DIR}/owner.txt
+    IDENTITY_FILE=${CONFIG_DIR}/identity.txt
+
+    if [ -r ${OWNER_FILE} ]
+    then
+        INSTALL_OWNER=$(cat ${OWNER_FILE} | cut -d: -f1)
+        INSTALL_GROUP=$(cat ${OWNER_FILE} | cut -d: -f2)
+    else
+        INSTALL_OWNER=""
+        INSTALL_GROUP=""
+    fi
+
+    INSTALL_DIR_EXISTS=no	#failsafe approach - assume install dir does not exist
+				#until determined otherwise later
+
+    get_current_version
+    }
+
+function confirm_run_as_nonroot
+    {
+    echo "You are running as non-root user [${user}]"
+    echo "It is recommended to run this install script as [root] - press <ENTER> to continue or <ctrl-C> to abort"
+    read userinput
+    }
+
+
+# if id=root + NO EXIST /opt/dsp then = suggest installilng /opt/dsp
+# if id=root + /opt/dsp does not exist then install and create it (optionally ask for a different location)
+# if id=root + /opt/dsp exists + version.txt file exists where expected then install there using owner.txt to change ownership
+# if id != root + /opt/dsp exists + version.txt file exists where expected + id = owner.txt then install in /opt/dsp
+# if id != root + $HOME/dsp exists + version.txt file exists where expected + id = owner.txt then install in $HOME/dsp
+# all options exhausted
+
+if [ -r ${BANNER_FILE} ]
+then
+    sed -e "s/%%VERSION%%/${NEW_VERSION}/" ${BANNER_FILE}
+fi
+
+
+if [ "${user}" = "root" ]
+then
+    if [ "${DEFAULT_INSTALL_DIR_EXISTS}" = "yes" ]
+    then
+        if [ "${DEFAULT_INSTALL_DIR_VERSION_FILE_EXISTS}" = "yes" ] && [ "${DEFAULT_INSTALL_DIR_OWNER_FILE_EXISTS}" = "yes" ]
+        then
+            # default install dir exists and expected files also
+            INSTALL_DIR=${DEFAULT_INSTALL_DIR}
+            set_install_vars
+
+            existing_installation_found_prologue
+
+            count_of_files_not_owned_by_intended_owner=$(find ${INSTALL_DIR} ! -user ${INSTALL_OWNER} 2>/dev/null | wc -l)	#not interested in error output hence 2 redierct to /dev/null
+            status=$?
+
+	    do_install
+        else
+            : # default install dir exists but expected files dont
+        fi
+    else
+        # default install dir does not exist
+        install_root_default_dir_does_not_exist
+    fi
+else
+    if [ "${DEFAULT_INSTALL_DIR_EXISTS}" = "yes" ]
+    then
+        if [ "${DEFAULT_INSTALL_DIR_VERSION_FILE_EXISTS}" = "yes" ] && [ "${DEFAULT_INSTALL_DIR_OWNER_FILE_EXISTS}" = "yes" ]
+        then
+            INSTALL_DIR=${DEFAULT_INSTALL_DIR}
+            set_install_vars
+
+            if [ "${user}" = "${INSTALL_OWNER}" ]	# are we running as the user that the code has previously been installed as
+            then
+                if [ -w ${INSTALL_DIR} ]
+                then
+                    existing_installation_found_prologue
+
+                    count_of_files_not_owned_by_intended_owner=$(find ${INSTALL_DIR} ! -user ${INSTALL_OWNER} 2>/dev/null | wc -l)	#not interested in error output hence 2 redierct to /dev/null
+                    status=$?
+
+                    if [ $status -eq 0 ] && [ "${count_of_files_not_owned_by_intended_owner}" = "0" ]	# find gave no error and number of unexpected owner files is zero then all good
+                    then
+			do_install
+                    else
+                         echo "ERROR:  there are files under ${INSTALL_DIR} that are not owned by [${INSTALL_OWNER}] - exiting"
+                         exit 1
+                    fi
+                else
+                    : # doh, not root, directory exists but is not writeable
+                    echo "ERROR: the default install dir [${DEFAULT_INSTALL_DIR}] exists but is not writeable - exiting"
+                    exit 1
+                fi
+            else
+                echo "ERROR: current install owner [${INSTALL_OWNER}] does not match current user [${user}] - exiting"
+                exit 1
+            fi
+        else
+            : # uh-oh, default install dir exists but perhaps does not contain an install as expected
+            echo
+            echo "ERROR: the default install dir [${DEFAULT_INSTALL_DIR}] exists but does not contain some/all expected files - exiting"
+            exit 1
+        fi
+    else
+        confirm_run_as_nonroot
+    fi
+fi
+
+
+exit $EXITCODE
+
