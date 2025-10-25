@@ -61,9 +61,12 @@ do
 
     if [ "$VERBOSE" = "NO" ]
     then
-        ${*}
+        PARAMS=$(echo ${*} | sed -e "s/%%SID%%/${ORACLE_SID}/g")
+        #echo "vanilla=[${*}]"
+        #echo " params=[${PARAMS}]"
+        ${PARAMS}
     else
-	${*} | sed -e "s/^/${ORACLE_SID}:${thishost}>> /"
+	eval ${*} | sed -e "s/^/${ORACLE_SID}:${thishost}>> /"
     fi
 
   if [ "$VERBOSE" = "NO" ]

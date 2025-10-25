@@ -1,4 +1,6 @@
-
+#
+#
+# DESCRIPTION: 	Check UEFI Boot	
 #How to check if Oracle Linux /Oracle VM server is booted using UEFI (Doc ID 2318501.1)
 #
 #1. First Method

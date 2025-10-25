@@ -5,7 +5,7 @@
 #
 # Script name:                  runlater
 #
-# Description:
+# Description:			Generate some random text for passwords
 #
 # Parameters:
 #

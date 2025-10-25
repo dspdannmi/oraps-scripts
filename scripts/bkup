@@ -5,7 +5,7 @@
 #
 # Script name:          	bkup
 #
-# Description:         	 	Backup file/directory with timestamp
+# Description:         	 	Backup file/directory with .YYYYMMDD suffix
 #
 # Parameters:
 #

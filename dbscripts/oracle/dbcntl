@@ -23,7 +23,6 @@ CS_TOP=${CS_TOP:-/opt/dsp}
 . ${CS_TOP}/env/dsp.env
 . ${CS_TOP}/env/funcs.sh
 
-
 USAGE_STRING="SID [mode]"
 
 umask 022
@@ -37,8 +36,16 @@ else
     mode=$(echo $2 | tr [:upper:] [:lower:])
 fi
 
-. /usr/local/bin/oraenv 2>&1 > /dev/null
+if chkoradbinoratab ${ORACLE_SID}
+then
+    :
+else
+    echo "ERROR: $ORACLE_SID not in [${ORATAB}]"
+    EXITCODE=1
+    exit ${EXITCODE}
+fi
 
+. /usr/local/bin/oraenv 2>&1 > /dev/null
 
 
 #
@@ -93,7 +100,7 @@ exit
 
     sleep 2
 
-    if isinstup ${ORACLE_SID}
+    if isinstup ${ORACLE_SID} 2>&1 > /dev/null
     then
 	scriptout "WARNING: $ORACLE_SID appears to still to be up"
 	EXITCODE=2
@@ -102,7 +109,7 @@ exit
 
 function startup_db
     {
-    if isinstup ${ORACLE_SID}
+    if isinstup ${ORACLE_SID} 2>&1 > /dev/null
     then
 	scriptout "WARNING: $ORACLE_SID appears to already be up"
 	EXITCODE=2
@@ -132,7 +139,7 @@ startup $startup_mode
 exit
 *EOF*
 
-    if isinstup ${ORACLE_SID}
+    if isinstup ${ORACLE_SID} 2>&1 > /dev/null
     then
 	: # do nothing
     else

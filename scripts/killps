@@ -5,7 +5,7 @@
 #
 # Script name:                  killps
 #
-# Description:
+# Description:			Kill processes using ps -ef output
 #
 # Parameters:
 #
@@ -52,7 +52,7 @@ fi
 awk '$2 ~ /[0-9]*/' | while read LINE
 do
   pid=$(echo $LINE | awk '{print $2}')
-  PSOUT=$(ps -fp $pid | tail +2)	
+  PSOUT=$(ps -fp $pid | tail -n +2)	
 
   if [ "$pid" != "1" ]
   then
@@ -61,7 +61,7 @@ do
 
 	if [ "$PSOUT" != "" ]
 	then
-	    echo "would kill: $(ps -fp $pid| tail +2)"
+	    echo "would kill: $(ps -fp $pid| tail -n +2)"
 	fi
     else
 	if [ "$PSOUT" != "" ]

@@ -5,7 +5,7 @@
 #
 # Script name:                  lockfile
 #
-# Description:
+# Description:			File locking implemented in bash shell
 #
 # Parameters:
 #

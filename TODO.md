@@ -50,6 +50,8 @@ INSTALL
 
 PRIORITY:  HIGH
 ===============
+- runlater where does it put its log, should really be $HOME/dsp/runlater/out
+- runlater does not seem to be working
 
 - add to HCs and miniHCs and getinfos to check for guaranteed restore points
 

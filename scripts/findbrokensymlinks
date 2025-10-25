@@ -3,9 +3,9 @@
 #+++___________________________________________________________________________________
 #
 #
-# Script name:                  ../../findbrokensymlinks
+# Script name:                  findbrokensymlinks
 #
-# Description:
+# Description:			Find symbolic links that are broken	
 #
 # Parameters:
 #

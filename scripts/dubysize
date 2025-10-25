@@ -3,9 +3,9 @@
 #+++___________________________________________________________________________________
 #
 #
-# Script name:                  XXSCRIPT_NAMEXX
+# Script name:                  dubysize
 #
-# Description:
+# Description:			Run du and sort by size
 #
 # Parameters:
 #

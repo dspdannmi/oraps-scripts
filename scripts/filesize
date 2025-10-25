@@ -5,7 +5,7 @@
 #
 # Script name:                  filesize
 #
-# Description:
+# Description:			Perform du on file to get size
 #
 # Parameters:
 #
@@ -46,7 +46,7 @@ do
        exit $EXITCODE
     fi
 
-    du -k ${file}
+    du -h ${file}
 done
 
 

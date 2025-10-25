@@ -45,6 +45,12 @@ fi
 seconds=$1
 file=$2
 
+if [ ! -f ${file} ]
+then
+    echo "ERROR: file [${file}] does not exist - exiting"
+    exit 1
+fi
+
 sleep $seconds
 
 [ -f $file ] && rm -f $file

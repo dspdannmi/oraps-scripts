@@ -5,7 +5,9 @@
 #
 # Script name:                  chkfsusage
 #
-# Description:
+# Description:			Check filesystem against threshold for alerting/monitoring
+#
+#                               Does not return output unless filesystem is above threshold
 #
 # Parameters:
 #
@@ -41,7 +43,7 @@ set_error_trap
 typeset -i threshold
 typeset -i currentusage
 
-if [ $# -lt 1 ] && [ $# -gt 2 ]
+if [ $# -lt 1 ] || [ $# -gt 2 ]
 then
     usage
 fi
@@ -50,7 +52,7 @@ if [ $# -eq 2 ]
 then
     threshold=$2
 else
-    threshold=99
+    threshold=85
 fi
 
 filesystem=${1}

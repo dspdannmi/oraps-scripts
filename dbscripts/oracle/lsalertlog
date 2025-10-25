@@ -84,14 +84,6 @@ then
       if [ "$(basename ${ALERTLOG})" = "${expected_alertlog_name}" ]
       then
         # ALERTLOG is set and file exists
-        echo ""
-        echo "==================================================================================="
-        echo "ALERT LOG: ${ALERTLOG}" 
-        echo "==================================================================================="
-        echo ". . ."
-        echo ". . ."
-        echo ". . ."
-
         ls -ald ${ALERTLOG}	
       else
           echo "ERROR: ALERTLOG is set but filename [$(basename ${ALERTLOG})] does not match expected [${expected_alertlog_name}] - exiting"

@@ -5,7 +5,7 @@
 #
 # Script name:                  monitor_process.sh
 #
-# Description:
+# Description:			Monitor a process and alert when not running
 #
 # Parameters:
 #

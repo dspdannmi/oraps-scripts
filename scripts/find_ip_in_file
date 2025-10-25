@@ -3,9 +3,9 @@
 #+++___________________________________________________________________________________
 #
 #
-# Script name:                  extractip
+# Script name:                  find_ip_in_file
 #
-# Description:
+# Description:			Find IPv4 addresses in a file
 #
 # Parameters:
 #

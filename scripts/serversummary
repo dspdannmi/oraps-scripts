@@ -164,7 +164,7 @@ else
     :
 fi
 
-if [ -z "${dsp_version}" ]
+if [ -z "${dspversion}" ]
 then
     echo "   *** SEVERE WARNING: No version file or information on DSP scripts"
 fi

@@ -31,6 +31,7 @@ for func in become \
             setpdb \
             setpdbroot \
             showpath \
+            showsqlpath \
             ssh-asap \
             sid \
             sleeptrue \

@@ -1,0 +1,10 @@
+
+function psgrepsid
+    {
+    if [ "${ORACLE_SID}" != "" ]
+    then
+        ps -ef | grep ${ORACLE_SID}
+    else
+        echo "ORACLE_SID not set - nothing to do"
+    fi
+    }

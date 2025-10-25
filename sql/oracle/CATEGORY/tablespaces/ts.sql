@@ -5,8 +5,8 @@ REM
 REM Acknowledge Essence
 REM
 
-SET lines 120 pages 66 feedback off
-SET PAGES 22 LINES 80 FEEDBACK ON
+REM SET lines 120 pages 66 feedback off
+REM SET PAGES 22 LINES 80 FEEDBACK ON
 SET TTITLE OFF
 
 

@@ -3,9 +3,9 @@
 #+++___________________________________________________________________________________
 #
 #
-# Script name:          	findtext
+# Script name:          	finduser
 #
-# Description:          
+# Description:          	Find files owned by specific user
 #
 # Parameters:
 #

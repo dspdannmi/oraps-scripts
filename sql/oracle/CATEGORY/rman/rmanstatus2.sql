@@ -14,7 +14,6 @@ col l for 99
 col output_mbytes for 9,999,999 heading "OUTPUT|MBYTES"
 col session_recid for 9999999 heading "SESSION|RECID"
 col session_stamp for 99999999999 heading "SESSION|STAMP"
---MTDcol status for a10 trunc
 col status for a15
 col time_taken_display for a10 heading "TIME|TAKEN"
 col output_instance for 9999 heading "OUT|INST"

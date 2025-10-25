@@ -5,7 +5,7 @@
 #
 # Script name:                  monitorfs
 #
-# Description:
+# Description:			Monitor a filesystem and alert when above threshold
 #
 # Parameters:
 #

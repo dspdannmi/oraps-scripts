@@ -5,7 +5,7 @@
 #
 # Script name:          	findtext
 #
-# Description:          
+# Description:          	Find files with matching file extension(s)
 #
 # Parameters:
 #
@@ -23,7 +23,7 @@ CS_TOP=${CS_TOP:-/opt/dsp}
 . ${CS_TOP}/env/dsp.env
 . ${CS_TOP}/env/funcs.sh
 
-
+USAGE_STRING="extensions(s)"
 searchstring=""
 
 if [ $# -eq 0 ]

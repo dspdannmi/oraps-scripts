@@ -5,8 +5,7 @@
 #
 # Script name:                  cpiodir.sh
 #
-# Description:                  cpio directory and compress to file and optionally
-#                                exclude files
+# Description:                  Extract from cpio archive
 #
 # Parameters:                    1  =  dest directory
 #                                2  =  cpio file [fully qualified]
@@ -24,6 +23,8 @@
 CS_TOP=${CS_TOP:-/opt/dsp}
 . ${CS_TOP}/env/dsp.env
 . ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="destdir cpiofile"
 
 
 if [ $# -ne 2 ]
@@ -77,8 +78,6 @@ echo "cpio file:   ${CPIO_FILE}"
 echo
 echo "Startime:    ${start_time}"
 echo
-
-
 
 
 gzip -d -c ${CPIO_FILE} | cpio -icdm

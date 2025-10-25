@@ -5,7 +5,7 @@
 #
 # Script name:                  dumpcore
 #
-# Description:
+# Description:			Generate core dump of a process
 #
 # Parameters:
 #

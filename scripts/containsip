@@ -5,7 +5,7 @@
 #
 # Script name:                  containsip
 #
-# Description:
+# Description:			Check whether a file (potentially) contains an IPv4 address
 #
 # Parameters:
 #

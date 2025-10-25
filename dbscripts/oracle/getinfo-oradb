@@ -1,4 +1,5 @@
 #!/bin/bash
+set +x
 
 #+++___________________________________________________________________________________
 #
@@ -55,9 +56,9 @@ if [ "${ORACLE_SID}" = "" ]
 then
     echo "ERROR: ORACLE_SID not set and not passed via command line - exiting"
     exit 1
-else
-    . ${ORAENV} 2>&1 > /dev/null
-    status=$?
+#else
+#    . ${ORAENV} 2>&1 > /dev/null
+#    status=$?
 fi
 
 
@@ -148,6 +149,24 @@ print_begin ${TAG}
 padding="    ${padding}"
 echo "${padding}ORACLE_SID:        ${ORACLE_SID}"
 echo ""
+
+if chkoradbinoratab ${ORACLE_SID}
+then
+    :
+else
+    echo "ERROR: $ORACLE_SID not in [${ORATAB}]"
+    EXITCODE=1
+    exit ${EXITCODE}
+fi
+
+if chkorainstsysdba $ORACLE_SID
+then
+    :
+else
+    echo "ERROR: $ORACLE_SID is not up"
+    EXITCODE=1
+    exit ${EXITCODE}
+fi
 
 #
 # Determine version

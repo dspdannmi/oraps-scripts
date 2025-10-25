@@ -3,9 +3,9 @@
 #+++___________________________________________________________________________________
 #
 #
-# Script name:                  runlater
+# Script name:          timertest
 #
-# Description:
+# Description:		A simple benchmark test
 #
 # Parameters:
 #
@@ -26,17 +26,22 @@ CS_TOP=${CS_TOP:-/opt/dsp}
 typeset -i x
 typeset -i y
 
-x=0
-y=0
+x=1
+y=1
+
+MAX=10
 
 echo "Starting test..."
 
-while [ $y -lt 10 ]
+time (
+while [ $y -lt ${MAX} ]
 do
-    while [ $x -lt 100000 ]
+    echo "Loop ${y} of ${MAX}..."
+    while [ $x -lt 200000 ]
     do
         let x=x+1
     done
     x=0
     let y=y+1
 done
+)

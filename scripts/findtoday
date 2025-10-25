@@ -5,7 +5,7 @@
 #
 # Script name:                  findtoday
 #
-# Description:
+# Description:			Find files modified in last 24hrs
 #
 # Parameters:
 #
@@ -22,6 +22,8 @@
 CS_TOP=${CS_TOP:-/opt/dsp}
 . ${CS_TOP}/env/dsp.env
 . ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="[dir(s)]"
 
 
 #

@@ -5,7 +5,7 @@
 #
 # Script name:                  checkmounts
 #
-# Description:
+# Description:			Compare currently mounted filesystems to saved df-h.out
 #
 # Parameters:
 #

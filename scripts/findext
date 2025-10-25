@@ -5,7 +5,11 @@
 #
 # Script name:                  findext
 #
-# Description:
+# Description:			Find the different types of file extensions in tree
+#
+#                               Linux does not have the notion of actual file
+#                               extensions however convention is that text after 
+#                               the last . is typically treated as an extension
 #
 # Parameters:
 #

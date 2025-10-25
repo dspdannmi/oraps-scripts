@@ -1,11 +1,10 @@
-#!/bin/bash
-
+#!/bin/bash 
 #+++___________________________________________________________________________________
 #
 #
-# Script name:          	XXSCRIPT_NAMEXX
+# Script name:          	listeningports
 #
-# Description:          
+# Description:          	Show output of netstat -aln
 #
 # Parameters:
 #

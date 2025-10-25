@@ -6,9 +6,9 @@ trap "graceful_exit terminated" 1 2 3 15
 #+++___________________________________________________________________________________
 #
 #
-# Script name:                  runlater
+# Script name:                  filename2lower
 #
-# Description:
+# Description:			Rename file to lowercase characters
 #
 # Parameters:
 #

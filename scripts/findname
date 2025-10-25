@@ -5,7 +5,7 @@
 #
 # Script name:                  findname
 #
-# Description:
+# Description:			Find a file in directory tree based on name
 #
 # Parameters:
 #
@@ -23,7 +23,7 @@ CS_TOP=${CS_TOP:-/opt/dsp}
 . ${CS_TOP}/env/dsp.env
 . ${CS_TOP}/env/funcs.sh
 
-USAGE_STRING=""
+USAGE_STRING="searchstring"
 
 
 #

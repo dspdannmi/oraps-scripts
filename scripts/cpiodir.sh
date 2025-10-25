@@ -5,8 +5,7 @@
 #
 # Script name:                  cpiodir.sh
 #
-# Description:                  cpio directory and compress to file and optionally
-#                               exclude files
+# Description:                  cpio directory and compress to file and optionally exclude files
 #
 # Parameters:                   1  =  source directory
 #                               2  =  destination file
@@ -26,9 +25,11 @@ CS_TOP=${CS_TOP:-/opt/dsp}
 . ${CS_TOP}/env/dsp.env
 . ${CS_TOP}/env/funcs.sh
 
+USAGE_STRING="sourcedir destfile [exclusion_file]"
+
 SOURCE_DIR=${1}
 DEST_FILE=${2}
-EXCEPTION_FILE=${3}
+EXCLUSION_FILE=${3}
 
 STAGE_FILE=${DEST_FILE}.stage.gz
 TARGET_FILE=${DEST_FILE}.gz
@@ -47,13 +48,13 @@ fi
 # if no exceptions file given then default
 # to /dev/null as exceptions file
 #
-if [ "${EXCEPTION_FILE}" = "" ]
+if [ "${EXCLUSION_FILE}" = "" ]
 then
-    EXCEPTION_FILE=/dev/null
+    EXCLUSION_FILE=/dev/null
 else
-    if [ ! -f ${EXCEPTION_FILE} ]
+    if [ ! -f ${EXCLUSION_FILE} ]
     then
-        echo "ERROR: could not find file $EXCEPTIONS_FILE"
+        echo "ERROR: could not find file $EXCLUSIONS_FILE"
         EXITCODE=1
         exit $EXITCODE
     fi
@@ -108,7 +109,7 @@ echo
 
 echo "Source dir:  ${SOURCE_DIR}"
 echo "Dest file:   ${TARGET_FILE}"
-echo "Exceptions:  ${EXCEPTION_FILE}"
+echo "Exceptions:  ${EXCLUSION_FILE}"
 echo
 echo "Startime:    ${start_time}"
 echo
@@ -126,7 +127,7 @@ echo
 cd ${SOURCE_DIR}
   (
   find . -type d ;
-  find . | grep -v -f ${EXCEPTION_FILE}
+  find . | grep -v -f ${EXCLUSION_FILE}
   ) | cpio -ocB | gzip -c > ${STAGE_FILE}
   status=$?
 )

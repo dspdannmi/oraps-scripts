@@ -5,7 +5,7 @@
 #
 # Script name:                  finddays
 #
-# Description:
+# Description:			Find files modified in the last X days
 #
 # Parameters:
 #
@@ -23,7 +23,7 @@ CS_TOP=${CS_TOP:-/opt/dsp}
 . ${CS_TOP}/env/dsp.env
 . ${CS_TOP}/env/funcs.sh
 
-USAGE_STRING=""
+USAGE_STRING="days"
 
 
 #
