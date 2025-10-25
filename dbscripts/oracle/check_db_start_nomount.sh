@@ -5,7 +5,7 @@
 #
 # Script name:                  check_db_start_nomount.sh
 #
-# Description:
+# Description:			Check if instance can start nomount and then shutdown
 #
 # Parameters:
 #

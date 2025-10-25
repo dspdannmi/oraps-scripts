@@ -5,7 +5,7 @@
 #
 # Script name:          	pstree
 #
-# Description:          
+# Description:          	Show process tree (ie. parent and child processes)
 #
 # Parameters:
 #

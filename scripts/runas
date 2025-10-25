@@ -5,7 +5,7 @@
 #
 # Script name:                  runas
 #
-# Description:
+# Description:			Run a script as a different non-root user
 #
 # Parameters:
 #

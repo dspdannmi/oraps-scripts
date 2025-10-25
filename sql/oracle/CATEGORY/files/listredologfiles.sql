@@ -5,7 +5,7 @@ set verify off
 
 clear breaks
 
-col member format a60
+col member format a100
 
 select member
 from v$logfile

@@ -5,7 +5,7 @@
 #
 # Script name:                  RESYNC
 #
-# Description:
+# Description:			Re-synchronise database shell scripts for SQL scripts
 #
 # Parameters:
 #
@@ -37,8 +37,6 @@ cd $CS_TOP/sql
 
 cd $CS_TOP/dbscripts/oracle/SHELLSQL
 ./RESYNC_SHELLSQL.sh
-
-
 
 exit $EXITCODE
 

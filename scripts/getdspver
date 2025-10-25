@@ -3,9 +3,9 @@
 #+++___________________________________________________________________________________
 #
 #
-# Script name:                  getcsver
+# Script name:                  getdspver
 #
-# Description:			Get the build/version number for CS
+# Description:			Get the build/version number for DSP bundle
 #
 # Parameters:			Show version of DSP bundle
 #

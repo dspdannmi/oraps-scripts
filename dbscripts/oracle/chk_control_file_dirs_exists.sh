@@ -3,9 +3,9 @@
 #+++___________________________________________________________________________________
 #
 #
-# Script name:                  genccf
+# Script name:                  chk_control_file_dirs_exist.sh
 #
-# Description:			Generate a CREATE CONTROFILE script to standard output
+# Description:			Check if controlfile directories exist
 #
 # Parameters:			1	(optional)	SID
 #

@@ -5,7 +5,7 @@
 #
 # Script name:                  preshutdown_capture.sh
 #
-# Description:
+# Description:			Capture server and system info prior to planned works
 #
 # Parameters:
 #

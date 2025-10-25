@@ -5,7 +5,7 @@
 #
 # Script name:                  runlater
 #
-# Description:
+# Description:			Run a command at some time later with nohup
 #
 # Parameters:
 #

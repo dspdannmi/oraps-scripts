@@ -5,7 +5,7 @@
 #
 # Script name:                  run_and_wait
 #
-# Description:			
+# Description:			Run a process and monitor it and wait until complete
 #
 # Parameters:
 #

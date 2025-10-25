@@ -15,7 +15,7 @@
 #
 # Modification history:
 #
-#       20-Jul-2025     1.0     oracle    Original version
+#       02-Aug-2025     1.0     oracle    Original version
 #
 #+++___________________________________________________________________________________
 
@@ -25,6 +25,53 @@ CS_TOP=${CS_TOP:-/opt/dsp}
 
 USAGE_STRING=""
 
+# server info
+# Oracle Grid
+# Oracle Database
+	# Oracle Homes
+        # Oracle DB#1
+#		CDB$ROOT
+#		PDB01
+#		PDB02
+        # Oracle DB#2
+#                CDB$ROOT
+#                PDB01
+#                PDB02
+		
+
+
+# hostnamme
+# dspserverid
+# machine-id
+# host-id
+# server type
+# db hosting
+# os release
+# os kernel
+# uptime
+# last boot
+# load avgs
+# memory
+# ip addresses
+# mac addresses
+# server time
+
+# #vCPUs
+# memory
+# 
+
+# oracle database homes
+	location
+	version
+	patch-levels
+	edition
+# oracle databases
+	SID
+	name
+	oracle_home
+	version
+	edition
+#
 
 #
 # Define local script variables
@@ -36,35 +83,7 @@ USAGE_STRING=""
 #
 set_error_trap
 
-#
-# hostname
-#
-HOSTNAME_HOSTNAME=$(hostname)
-HOSTNAME_IP_ADDRESSES=$(hostname -I)
 
-#
-# uname
-#
-UNAME_KERNEL_NAME=$(uname -s)
-UNAME_NODENAME=$(uname -n)
-UNAME_KERNEL_RELEASE=$(uname -r)
-UNAME_KERNEL_VERSION=$(uname -v)
-UNAME_MACHINE=$(uname -m)
-UNAME_PROCESSOR=$(uname -p)
-UNAME_HARDWARE_PLATFORM=$(uname -i)
-UNAME_OPERATING_SYSTEM=$(uname -o)
-
-
-
-
-echo kernel_name:${UNAME_KERNEL_NAME}
-echo nodename:${UNAME_NODENAME}
-echo kernel_release:${UNAME_KERNEL_RELEASE}
-echo kernel_version:${UNAME_KERNEL_VERSION}
-echo machine:${UNAME_MACHINE}
-echo processor:${UNAME_PROCESSOR}
-echo hardware_platform:${UNAME_HARDWARE_PLATFORM}
-echo operating_system:${UNAME_OPERATING_SYSTEM}
 
 exit $EXITCODE
 

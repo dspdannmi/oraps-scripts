@@ -5,7 +5,7 @@
 #
 # Script name:                  checkccf
 #
-# Description:
+# Description:			Perform validation on a create controlfile (ccf) script
 #
 # Parameters:
 #

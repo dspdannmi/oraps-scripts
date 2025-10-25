@@ -5,7 +5,9 @@
 #
 # Script name:          	 chk_port_usage.sh
 #
-# Description:          	 This script will detect ports that are current being listend
+# Description:          	 Attempt to determine what proceses are listening on ports
+#
+#                                This script will detect ports that are current being listend
 #				 on and show the Unix process that is listening on that port
 #
 #				 netstat -an is used to determine ports being listened on

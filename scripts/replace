@@ -3,9 +3,9 @@
 #+++___________________________________________________________________________________
 #
 #
-# Script name:                  bkup
+# Script name:                  replace
 #
-# Description:                  Backup file/directory with timestamp
+# Description:                  Search and replace text string within file(s)
 #
 # Parameters:
 #

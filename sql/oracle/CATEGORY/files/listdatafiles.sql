@@ -5,7 +5,7 @@ set verify off
 
 clear breaks
 
-col file_name format a60
+col file_name format a100
 
 select file_name 
 from dba_data_files

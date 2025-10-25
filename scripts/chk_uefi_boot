@@ -1,0 +1,90 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  chk_uefi_boot
+#
+# Description:			Commands to determine if UEFI boot used
+#
+#                               From Oracle MOS note:
+#                                        How to check if Oracle Linux /Oracle VM server 
+#                                        is booted using UEFI (Doc ID 2318501.1)
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       25-Oct-2025     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+CS_TOP=/opt/dsp
+. ${CS_TOP}/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING=""
+
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+
+
+
+#1. First Method
+#
+## df -h | grep /boot
+#/dev/sdxx 120M 250K 119M 1% /boot/efi  
+#
+#/boot/efi in the output indicates UEFI mode
+#
+#2. Second Method
+#
+#Check if the folder "/sys/firmware/efi" exists
+#
+#3. Third Method
+#
+#Grep for efi in dmesg. In case of Oracle VM server grep for efi in "xm dmesg"
+#
+#4. Fourth Method
+#
+#Run the command "mokutil --sb-state"
+
+echo "METHOD#1"
+echo "   -->if output below lists /boot/efi then indicates UEFI mode"
+echo
+df -h | grep /boot
+
+echo
+echo "METHOD#2"
+echo "   -->if /sys/firmware/efi exists then UEFI mode"
+echo
+ls -ald /sys/firmware/efi
+
+echo
+echo "METHOD#3"
+echo "   -->if efi in dmesg output then UEFI.  For Oracle VM Server (method#3b) xm dmesg"
+echo "method#3:"
+dmesg | grep efi
+echo "method#3b:"
+xm dmesg | grep efi
+echo
+
+echo
+echo "METHOD#4"
+echo "  --> run command mokutil --sb-state"
+mokutil --sb-state
+
+exit $EXITCODE

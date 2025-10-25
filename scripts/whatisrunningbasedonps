@@ -1,0 +1,251 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  whatisrunningbasedonps
+#
+# Description:			Attempt to determine main software running on server based on ps
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       15-Apr-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+CS_TOP=${CS_TOP:-/opt/dsp}
+. ${CS_TOP}/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+DEL_TEMPFILES="NO"
+
+function ps_search
+    {
+    searchstring=""
+
+    for i in ${*}
+    do
+        if [ "${searchstring}" = "" ]
+        then
+            searchstring=${i}
+        else
+            searchstring="${searchstring}|${i}"
+        fi
+    done
+
+    grep -i -E "${searchstring}" ${tmpfile}.ps-aux 2>&1 > /dev/null
+    status=$?
+
+    return $status
+    }
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+ps -aux > ${tmpfile}.ps-aux
+
+FOUND_ONE="NO"
+
+echo ""
+echo "============================================================================"
+echo "Based solely on pattern matching on ps -ef output the following software"
+echo "*MAY* be running on this server.  This script is provided to be helpful"
+echo "but cannot possibly be exhaustive in terms of what it checks.  Please"
+echo "raise with the code maintainer for adding additional software and processes"
+echo "============================================================================"
+echo ""
+
+# Oracle Grid
+
+if ps_search grid ohasd
+then
+    echo "Oracle Grid Infrastructure"
+    FOUND_ONE="YES"
+fi
+
+
+# Oracle Database
+
+if ps_search ora_lgwr_ ora_smon_
+then
+    echo "Oracle Database"
+    FOUND_ONE="YES"
+fi
+
+# Oracle Listener
+
+if ps_search tnslsnr
+then
+    echo "Oracle Listener"
+    FOUND_ONE="YES"
+fi
+
+# Oracle WebLogic
+
+if ps_search weblogic
+then
+    echo "Oracle WebLogic"
+    FOUND_ONE="YES"
+fi
+
+# Oracle forms
+
+if ps_search wls_forms
+then
+    echo "Oracle Forms"
+    FOUND_ONE="YES"
+fi
+
+# Oracle reports
+
+if ps_search wls_reports
+then
+    echo "Oracle Reports"
+    FOUND_ONE="YES"
+fi
+
+# Oracle Application Server
+
+if ps_search opmn
+then
+    echo "Oracle Application Server"
+    FOUND_ONE="YES"
+fi
+
+# Oracle MySQL
+
+if ps_search mysql
+then
+    echo "Oracle MySQL"
+    FOUND_ONE="YES"
+fi
+
+# Oracle ORDS
+
+if ps_search ords
+then
+    echo "Oracle REST Data Services (ORDS)"
+    FOUND_ONE="YES"
+fi
+
+# Oracle E-Business
+
+if ps_search FNDSM FFTM RCVOLTM POXCON INTCM FNDCRM PALIBR MRCLIB FNDLIBR INVLIBR oacore_server ofm_server
+then
+    echo "Oracle E-Business (concurrent managers)"
+    FOUND_ONE="YES"
+fi
+
+
+# Apache/Oracle HTTP Server
+
+if ps_search httpd
+then
+    echo "HTTP Server (Apache/Oracle/RedHat etc.)"
+    FOUND_ONE="YES"
+fi
+
+# NGINX
+
+if ps_search nginx
+then
+    echo "nginx"
+    FOUND_ONE="YES"
+fi
+
+# Apache tomcat
+#
+
+if ps_search tomcat
+then
+    echo "Apache Tomcat"
+    FOUND_ONE="YES"
+fi
+
+
+# postgreSQL
+
+if ps_search postgresql
+then
+    echo "PostgreSQL"
+    FOUND_ONE="YES"
+fi
+
+# RedHat jboss
+
+
+if ps_search jboss
+then
+    echo "Red Hat jBoss"
+    FOUND_ONE="YES"
+fi
+
+# IBM WebSphere
+
+if ps_search websphere
+then
+    echo "IBM WebSphere"
+    FOUND_ONE="YES"
+fi
+
+# IBM db2
+
+if ps_search db2
+then
+    echo "IBM DB2"
+    FOUND_ONE="YES"
+fi
+
+
+# DSP UIM monitoring - nimbus / nimsoft
+
+if ps_search nimsoft nimbus
+then
+    echo "DSP UIM Monitoring"
+    FOUND_ONE="YES"
+fi
+
+
+# splunk
+
+if ps_search splunk
+then
+    echo "Splunk"
+    FOUND_ONE="YES"
+fi
+
+# qualys
+
+if ps_search qualys
+then
+    echo "Qualys"
+    FOUND_ONE="YES"
+fi
+
+# Crowdstrike
+
+if ps_search crowdstrike
+then
+    echo "Crowdstrike"
+    FOUND_ONE="YES"
+fi
+
+
+if [ "${FOUND_ONE}" = "NO" ]
+then
+    echo "<none>"
+fi
+echo
+
+
+exit $EXITCODE
+

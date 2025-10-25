@@ -197,6 +197,7 @@ then
     ORAPW_FILE_EXISTS=true
 else
     ORAPW_FILE_EXISTS=false
+    ORAPW_FILE="${ORAPW_FILE} [***DOES NOT EXIST***]"
 fi
 
 echo "${padding}PASSWORD FILE:     ${ORAPW_FILE}"
@@ -281,9 +282,9 @@ echo "${padding}DB NAME:                   ${NAME}"
 echo "${padding}DB UNIQUE NAME:            ${DB_UNIQUE_NAME}"
 echo "${padding}INSTANCE NAME:             ${INSTANCE_NAME}"
 echo "${padding}CREATED:                   ${CREATED}"
-echo "${padding}STARTUP_TIME:              ${STARTUP_TIME}"
+echo "${padding}STARTUP TIME:              ${STARTUP_TIME}"
 echo ""
-echo "${padding}DBSIZE-TOTAL:              ${DBSIZE_GB}Gb"
+echo "${padding}DBSIZE(TOTAL):             ${DBSIZE_GB}Gb"
 echo ""
 
 if [ "${CDB}" = "" ]
@@ -294,7 +295,7 @@ fi
 echo "${padding}CDB:                       ${CDB}"
 
 echo "${padding}EDITION:                   ${EDITION}"
-echo "${padding}DATABASE_STATUS:           ${DATABASE_STATUS}"
+echo "${padding}DATABASE STATUS:           ${DATABASE_STATUS}"
 
 if [ "${VERSION_FULL}" != "" ]
 then
@@ -302,15 +303,15 @@ then
 fi
 echo "${padding}VERSION:                   ${VERSION}"
 
-echo "${padding}OPEN_MODE:                 ${OPEN_MODE}"
+echo "${padding}OPEN MODE:                 ${OPEN_MODE}"
 
 echo ""
 
-echo "${padding}CURRENT_SCN:               ${CURRENT_SCN}"
-echo "${padding}LOG_MODE:                  ${LOG_MODE}"
-echo "${padding}FLASHBACK_ON:              ${FLASHBACK_ON}"
-echo "${padding}FORCE_LOGGING:             ${FORCE_LOGGING}"
-echo "${padding}SUPPLEMENTAL_LOG_DATA_MIN: ${SUPPLEMENTAL_LOG_DATA_MIN}"
+echo "${padding}CURRENT SCN:               ${CURRENT_SCN}"
+echo "${padding}LOG MODE:                  ${LOG_MODE}"
+echo "${padding}FLASHBACK ON:              ${FLASHBACK_ON}"
+echo "${padding}FORCE LOGGING:             ${FORCE_LOGGING}"
+echo "${padding}SUPPLEMENTAL LOG DATA MIN: ${SUPPLEMENTAL_LOG_DATA_MIN}"
 
 echo ""
 
@@ -318,11 +319,11 @@ echo ""
 if [ "${NUMBER_OF_STANDBY_DEST}" != "" ] && [ "${NUMBER_OF_STANDBY_DEST}" != "0" ]
 then
     echo "${padding}STANDBY ARCHLOG DESTS:     ${NUMBER_OF_STANDBY_DEST}"
-    echo "${padding}NUMBER_OF_STANDBY_DEST:    ${NUMBER_OF_STANDBY_DEST}"
-    echo "${padding}INSTANCE_ROLE:             ${INSTANCE_ROLE}"
-    echo "${padding}DATABASE_ROLE:             ${DATABASE_ROLE}"
-    echo "${padding}PROTECTION_MODE:           ${PROTECTION_MODE}"
-    echo "${padding}PROTECTION_LEVEL:          ${PROTECTION_LEVEL}"
+    echo "${padding}NUMBER OF STANDBY DEST:    ${NUMBER_OF_STANDBY_DEST}"
+    echo "${padding}INSTANCE ROLE:             ${INSTANCE_ROLE}"
+    echo "${padding}DATABASE ROLE:             ${DATABASE_ROLE}"
+    echo "${padding}PROTECTION MODE:           ${PROTECTION_MODE}"
+    echo "${padding}PROTECTION LEVEL:          ${PROTECTION_LEVEL}"
 else
     if [ "${NUMBER_OF_STANDBY_DEST}" = "" ]
     then
@@ -334,10 +335,10 @@ fi
 
 echo ""
 
-echo "${padding}ACTIVE_STATUS:             ${ACTIVE_STATE}"
-echo "${padding}INSTANCE_MODE:             ${INSTANCE_MODE}"
+echo "${padding}ACTIVE STATUS:             ${ACTIVE_STATE}"
+echo "${padding}INSTANCE MODE:             ${INSTANCE_MODE}"
 echo "${padding}FAMILY:                    ${FAMILY}"
-echo "${padding}DATABASE_TYPE:             ${DATABASE_TYPE}"
+echo "${padding}DATABASE TYPE:             ${DATABASE_TYPE}"
 
 echo ""
 

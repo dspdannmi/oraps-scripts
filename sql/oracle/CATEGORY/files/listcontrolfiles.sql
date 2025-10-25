@@ -5,7 +5,7 @@ set verify off
 
 clear breaks
 
-col name format a60
+col name format a100
 
 select name
 from v$controlfile

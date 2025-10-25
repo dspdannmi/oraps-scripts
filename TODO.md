@@ -64,6 +64,8 @@ PRIORITY:  HIGH
 	- prompt to ensure blackouts have been set
 	- capture "before" state of server etc.
 
+- probably should check that tmpfile is set before I start using it
+
 - pre-checks on server should inform if versionolock is installed
 
 - DSP server checks:
@@ -165,6 +167,8 @@ PRIORITY:  MEDIUM
 			Windows
 	- dbascripts
 	- scripts
+
+- what do some of my scripts have DEL_TEMPFILES
 
 - seems to be an issue when you run setenv -u dannmi it sets the profile but then run it again it almost seems to reverse stuff out such as profile specific dirs in PATH
 - and need to consider forcing an "unsetenv" script to reverse things set

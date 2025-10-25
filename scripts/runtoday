@@ -5,9 +5,7 @@
 #
 # Script name:                  runtoday
 #
-# Description:			Run a command, as passed by command line, for the current
-#				day (ie. until midnight) with intervals of 1 minutes 
-#				between executions
+# Description:			Run a command every minute for the current day only
 #
 # Parameters:
 #
