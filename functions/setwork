@@ -1,0 +1,7 @@
+
+function setwork
+    {
+    export CURRENT_WORKDIR=${PWD}
+    }
+
+

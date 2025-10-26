@@ -34,7 +34,7 @@ for newsql in ${*}
 do
  if [ -f ${newsql} ]
  then
-     echo error: $newsql exists
+     echo "ERROR: $newsql exists"
      EXITCODE=1
  else
     cp $CS_TOP/templates/sql.template ${newsql}
@@ -42,7 +42,7 @@ do
 
     if [ $status -ne 0 ]
     then
-	echo error: could not create script ${newsql}
+	echo "ERROR: could not create script ${newsql}"
 	EXITCODE=1
     else
 	chmod ug+x,u+w ${newsql}
@@ -50,17 +50,17 @@ do
 
 	if [ $status -ne 0 ]
 	then
-	    echo error: could not chmod script ${newsql}
+	    echo "ERROR: could not chmod script ${newsql}"
 	    EXITCODE=1
 	else
 	    replace XXSCRIPT_NAMEXX ${newsql} ${newsql}
 	    replace DD-MON-YYYY ${modhist} ${newsql}
-	    replace  xxxuseridxxx ${thisuser} ${newsql}
+	    replace  xxxuseridxxx ${USER} ${newsql}
 	    status=$?
 
 	    if [ $status -ne 0 ]
 	    then
-		echo error: could not replace new script ${newsql}
+		echo "ERROR: could not replace new script ${newsql}"
 		EXITCODE=1
 	    fi
 	fi

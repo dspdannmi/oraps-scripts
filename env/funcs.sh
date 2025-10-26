@@ -2,9 +2,9 @@
 #
 # setting trap and functions for use in scripts
 #
-if [ "${CS_TOP}" = "" ] || [ ! -d ${CS_TOP} ]
+if [ "${DSP_TOP}" = "" ] || [ ! -d ${DSP_TOP} ]
 then
-    echo "WARNING: CS_TOP not set or is not a directory - returning - script may not behave as expected"
+    echo "WARNING: DSP_TOP not set or is not a directory - returning - script may not behave as expected"
     return 1
 
 fi
@@ -40,5 +40,5 @@ for func in catdebug \
             set_error_trap \
             usage 
 do
-    . ${CS_TOP}/functions/${func}
+    . ${DSP_TOP}/functions/${func}
 done

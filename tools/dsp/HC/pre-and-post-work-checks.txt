@@ -12,6 +12,7 @@ Check:
 	- comms to MS teams etc.
 	- backups have completed
 	- robust rollback and recovery plans in place
+        - permissions on /tmp and /var/tmp
 
 
 
@@ -74,6 +75,8 @@ AFTER
 =====
 
 Check:
+        - all the same things as pre-check
+
 	- filesystem space
 	- users exist
 	- groups exist

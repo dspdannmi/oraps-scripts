@@ -31,8 +31,6 @@ scriptdir=$(dirname ${0})
 today=$(date +%Y%m%d)
 todayfull=$(date +%Y%m%d_%H%M)
 tmpfile=/tmp/$scriptname.$$
-thishost=$(hostname)
-thisuser=$(whoami)
 
 #---------------------------------------------------------------------------------------
 #

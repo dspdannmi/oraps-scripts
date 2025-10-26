@@ -50,7 +50,7 @@ do
   if [ "$VERBOSE" = "NO" ]
   then
     echo "-----------------------------------------------------------------------------------------------"
-    echo "sid:${ORACLE_SID} (host=${thishost})"
+    echo "sid:${ORACLE_SID} (host=${HOSTNAME})"
     echo "-----------------------------------------------------------------------------------------------"
     echo
   fi
@@ -66,7 +66,7 @@ do
         #echo " params=[${PARAMS}]"
         ${PARAMS}
     else
-	eval ${*} | sed -e "s/^/${ORACLE_SID}:${thishost}>> /"
+	eval ${*} | sed -e "s/^/${ORACLE_SID}:${HOSTNAME}>> /"
     fi
 
   if [ "$VERBOSE" = "NO" ]

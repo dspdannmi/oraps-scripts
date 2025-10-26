@@ -107,7 +107,7 @@ fi
 
 jobid=$$
 cmdfile=${tmpfile}.cmd.${jobid}
-outdir=${HOME}/dsp/out/runlater
+outdir=${HOME}/DSP/runlater/out
 
 if [ ! -d ${outdir} ]
 then

@@ -3,9 +3,9 @@
 #+++___________________________________________________________________________________
 #
 #
-# Script name:          	suspend
+# Script name:          	pause
 #
-# Description:          	Send process SIGTSTP to process
+# Description:          	Send process SIGSTOP to process
 #
 # Parameters:
 #
@@ -32,7 +32,7 @@ else
     PID=${1}
 fi
 
-kill -SIGTSTP ${PID}
+kill -SIGSTOP ${PID}
 
 exit $EXITCODE
 

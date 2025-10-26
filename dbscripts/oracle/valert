@@ -3,9 +3,9 @@
 #+++___________________________________________________________________________________
 #
 #
-# Script name:                  xxxxx
+# Script name:                  valert
 #
-# Description:
+# Description:			View alert log
 #
 # We base it on setting of ALERTLOG so we can still see / interact with the alert log
 # when database is down.  If we had to rely on DB being up to get location then likely
@@ -51,25 +51,25 @@ then
    then
        :
    else
-       echo "ERROR: $ORACLE_SID not in [${ORATAB}]"
+       echo "ERROR: ${ORACLE_SID} not in [${ORATAB}]"
        EXITCODE=1
        exit ${EXITCODE}
    fi
 
    . /usr/local/bin/oraenv 2>&1 > /dev/null
 
-   if chkorainstsysdba $ORACLE_SID
+   if chkorainstsysdba ${ORACLE_SID}
    then
        :
    else
-       echo "ERROR: $ORACLE_SID is not up"
+       echo "ERROR: ${ORACLE_SID} is not up"
        EXITCODE=1
        exit ${EXITCODE}
    fi
 
 fi
 
-if [ "$ORACLE_SID" = "" ]
+if [ "${ORACLE_SID}" = "" ]
 then
     echo ERROR: ORACLE_SID not set
     exit 1

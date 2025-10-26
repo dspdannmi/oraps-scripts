@@ -43,7 +43,7 @@ do
     then
 	:
     else
- 	echo ERROR: $ORACLE_SID not in /etc/oratab
+ 	echo "ERROR: ${ORACLE_SID} not in ${ORATAB}"
 	EXITCODE=1
     fi
 done

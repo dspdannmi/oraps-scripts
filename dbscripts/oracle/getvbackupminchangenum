@@ -44,9 +44,9 @@ then
 
     if [ "$whichhost" = "" ]
     then
-	whichhost=$thishost
+	whichhost=${HOSTNAME}
     else
-        if [ "$whichhost" != "$thishost" ]
+        if [ "$whichhost" != "${HOSTNAME}" ]
         then
 	    echo ERROR: Remote running of $scriptname not permitted
 	    EXITCODE=1
@@ -58,7 +58,7 @@ then
     then
 	:
     else
-	echo ${ORACLE_SID} not defined in /etc/oratab
+	echo "ERROR: ${ORACLE_SID} not defined in ${ORATAB}"
 	EXITCODE=1
 	exit
     fi

@@ -316,19 +316,19 @@ export ALERTLOG=""
     #
     # Set prompt
     #
-    if [ "${thisuser}" = "root" ]
+    if [ "${USER}" = "root" ]
     then
         #PS1='$PWD:[${ORACLE_SID}]:[ROOT] ## '
         #PS1="${PS1}:[ROOT] ## "
         PS1='[${USER}:$PWD:[${ORACLE_SID:-<*>}{${DSP_PDB_SID}}]: [ROOT] ##> '
         #PATH=${PATH}:${ORACLE_HOME}/bin
-    elif [ "${thisuser}" = "oracle" ]
+    elif [ "${USER}" = "oracle" ]
     then
-        PS1='[${USER}:$PWD:[${ORACLE_SID:-<*>}{${DSP_PDB_SID}}]: ${thisuser}> '
+        PS1='[${USER}:$PWD:[${ORACLE_SID:-<*>}{${DSP_PDB_SID}}]: ${USER}> '
         #export PATH=${PATH}:/usr/local/bin:.
     else
         #PS1='$PWD:[${ORACLE_SID}> '
-        PS1='[${USER}:$PWD:[${ORACLE_SID:-<*>}{${DSP_PDB_SID}}]: ${thisuser}> '
+        PS1='[${USER}:$PWD:[${ORACLE_SID:-<*>}{${DSP_PDB_SID}}]: ${USER}> '
         #export PATH=${PATH}:/usr/local/bin:.
     fi
 

@@ -54,7 +54,7 @@ then
 fi
 
 
-db=${db:-$ORACLE_SID}	# set to ORACLE_SID if not set from command line -d option
+db=${db:-${ORACLE_SID}}	# set to ORACLE_SID if not set from command line -d option
 
 if [ "${dbhost}" != "" ]
 then

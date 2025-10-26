@@ -1,9 +1,6 @@
 
 function showsqlpath
     {
-    for dir in $(echo $SQLPATH | sed -e 's/:/\ /g')
-    do
-        echo $dir
-    done
+    echo $SQLPATH | sed 's/:/ /g' | xargs -n1 echo
     }
 

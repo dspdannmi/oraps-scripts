@@ -1,5 +1,5 @@
 
-function mcdworkdir
+function mcdwork
     {
     notes_template_file=${CS_TOP}/resources/templates/work_notes.txt.template
 
@@ -27,11 +27,11 @@ function mcdworkdir
 	echo "warn: ${dir} already exists"
     else
 	mkdir -p ${dir} || echo "mcd: mkdir error"
-
     fi
 
     if [ -d ${dir} ]
     then
+        export CURRENT_WORKDIR=${dir}
 	cd ${dir}
 
         if [ -f ${notes_templates_file} ]

@@ -1,9 +1,6 @@
 
 function showpath
     {
-    for dir in $(echo $PATH | sed -e 's/:/\ /g')
-    do
-        echo $dir
-    done
+    echo $PATH | sed 's/:/ /g' | xargs -n1 echo
     }
 

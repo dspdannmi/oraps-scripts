@@ -41,5 +41,5 @@ for func in become \
             viewwhich \
             viwhich
 do
-    . ${CS_TOP}/functions/${func}
+    . ${DSP_TOP}/functions/${func}
 done

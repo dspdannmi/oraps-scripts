@@ -1,0 +1,12 @@
+
+function cdwork
+    {
+    if [ "${CURRENT_WORKDIR}" != "" ]
+    then
+        cd ${CURRENT_WORKDIR}
+    else
+        echo "Current workdir not set - nothing to do"
+    fi
+    }
+
+

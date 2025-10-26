@@ -36,7 +36,7 @@ then
     usage
 fi
 
-ls -1trd $CS_TOP/out/runlater/*.out 
+ls -1trd ${HOME}/DSP/runlater/out/*.out 
 
 exit $EXITCODE
 

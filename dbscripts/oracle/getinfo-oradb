@@ -154,16 +154,16 @@ if chkoradbinoratab ${ORACLE_SID}
 then
     :
 else
-    echo "ERROR: $ORACLE_SID not in [${ORATAB}]"
+    echo "ERROR: ${ORACLE_SID} not in [${ORATAB}]"
     EXITCODE=1
     exit ${EXITCODE}
 fi
 
-if chkorainstsysdba $ORACLE_SID
+if chkorainstsysdba ${ORACLE_SID}
 then
     :
 else
-    echo "ERROR: $ORACLE_SID is not up"
+    echo "ERROR: ${ORACLE_SID} is not up"
     EXITCODE=1
     exit ${EXITCODE}
 fi

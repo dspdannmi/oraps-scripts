@@ -1,4 +1,5 @@
 
+ capture dspserverid in work direcotires so you can kinda tell if a VM is cloned and those work directories werenot applicable to this incarnation
 PACKAGING
 ========
 
@@ -43,6 +44,8 @@ INSTALL
 
 - when running serverstamp if there isn't already a serveridentity.txt file then dont give option of KEEP EXISTING id
 
+- when running install if serveridentity.txt file does not exist then populate it with a UUID irrespective and then force/encourage serverstamp
+
 - when not installing in to /opt/dsp we need to update lots of files for CS_TOP / DSP_TOP
 
 - install.sh script looping when filesystem full
@@ -51,7 +54,18 @@ INSTALL
 PRIORITY:  HIGH
 ===============
 - runlater where does it put its log, should really be $HOME/dsp/runlater/out
+
 - runlater does not seem to be working
+
+- create a script to try to workout what kind of server this is
+	- virtual or physical
+	- part of a cluster
+	- oracle engineered system
+		ODA
+		Exadata
+		PCA
+
+- capture dsp bundle installs (including first one) in change log
 
 - add to HCs and miniHCs and getinfos to check for guaranteed restore points
 
@@ -196,6 +210,8 @@ PRIORITY:  LOW
 ==============
 
 - latest datasafe_privileges.sql
+
+- incorporate ahf/tfa etc in these scripts
 
 V$ASM_ACFSAUTORESIZE
 V$ASM_ACFSREPL

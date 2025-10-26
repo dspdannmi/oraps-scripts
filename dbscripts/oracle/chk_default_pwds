@@ -44,7 +44,7 @@ CheckPwd()
     
     if [ $status -eq 0 ]	# 0 return code means successful login
     then
-        echo error: $username password is default or same as username and is NOT LOCKED
+        echo "ERROR: $username password is default or same as username and is NOT LOCKED"
         EXITCODE=1
     fi
     }

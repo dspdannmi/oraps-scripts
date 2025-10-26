@@ -25,8 +25,6 @@ CS_TOP=${CS_TOP:-/opt/dsp}
 
 USAGE_STRING="[-d SID] YYYYMMDDHH24MI"
 
-
-
 if [ $# -gt 3 ]
 then
     usage
@@ -38,15 +36,15 @@ then
 
     whichhost=$(echo ${2} | awk -F: '{print $2}' | tr "[:upper:]" "[:lower:]")
 
-    if [ "${whichhost}" = "" ] || [ "${whichhost}" = "${thishost}" ]
+    if [ "${whichhost}" = "" ] || [ "${whichhost}" = "${HOSTNAME}" ]
     then
-        whichhost=$thishost
+        whichhost=${HOSTNAME}
 
         if chkoradbinoratab ${ORACLE_SID}
         then
             :
         else
-            echo ERROR: $ORACLE_SID not in oratab
+            echo "ERROR: ${ORACLE_SID} not in oratab"
             exit 1
         fi
 
@@ -56,7 +54,7 @@ then
     shift
     shift
 else
-    whichhost=$thishost
+    whichhost=${HOSTNAME}
 fi
 
 if [ $# -ne 1 ]
@@ -65,20 +63,20 @@ then
 fi
 
 
-if [ "$ORACLE_SID" = "" ]
+if [ "${ORACLE_SID}" = "" ]
 then
-    echo ERROR: ORACLE_SID not set
+    echo "ERROR: ORACLE_SID not set"
     exit 1
 fi
 
 
-if [ "$whichhost" = "$thishost" ]
+if [ "$whichhost" = "${HOSTNAME}" ]
 then
-    if chkorainstsysdba $ORACLE_SID
+    if chkorainstsysdba ${ORACLE_SID}
     then
         :
     else
-        echo ERROR: $ORACLE_SID is not up
+        echo ERROR: ${ORACLE_SID} is not up
         exit 1
     fi
 

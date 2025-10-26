@@ -3,7 +3,7 @@
 #+++___________________________________________________________________________________
 #
 #
-# Script name:                  whatisrunningbasedonps
+# Script name:                  whatisrunning
 #
 # Description:			Attempt to determine main software running on server based on ps
 #
@@ -56,17 +56,20 @@ ps -aux > ${tmpfile}.ps-aux
 FOUND_ONE="NO"
 
 echo ""
-echo "============================================================================"
-echo "Based solely on pattern matching on ps -ef output the following software"
-echo "*MAY* be running on this server.  This script is provided to be helpful"
-echo "but cannot possibly be exhaustive in terms of what it checks.  Please"
-echo "raise with the code maintainer for adding additional software and processes"
+echo "=============================WARNING========================================"
+echo "This is not an exact or guaranteed output.  The list (of any) software or"
+echo "components shown is based only on pattern matching against output of the"
+echo "ps command.  Please consider the POSSIBILITY of FALSE POSITIVES and software"
+echo "may be installed and running that this script has not been configured to"
+echo "identity.  This output should be considered with healthy scepticism.  Please"
+echo "help maintain this script by informing the code maintainer of any software"
+echo "you believe it has not correctly detected."
 echo "============================================================================"
 echo ""
 
 # Oracle Grid
 
-if ps_search grid ohasd
+if ps_search grid ohasd +asm
 then
     echo "Oracle Grid Infrastructure"
     FOUND_ONE="YES"
@@ -97,7 +100,7 @@ then
     FOUND_ONE="YES"
 fi
 
-# Oracle forms
+# Oracle Forms
 
 if ps_search wls_forms
 then
@@ -105,7 +108,7 @@ then
     FOUND_ONE="YES"
 fi
 
-# Oracle reports
+# Oracle Reports
 
 if ps_search wls_reports
 then
@@ -145,6 +148,14 @@ then
     FOUND_ONE="YES"
 fi
 
+
+# DBvisit
+
+if ps_search dbv
+then
+    echo "DBvisit"
+    FOUND_ONE="YES"
+fi
 
 # Apache/Oracle HTTP Server
 
@@ -215,6 +226,22 @@ then
 fi
 
 
+# P6 Primavera
+
+if ps_search p6 primavera
+then
+    echo "P6 Primavera"
+    FOUND_ONE="YES"
+fi
+
+# JDE
+
+if ps_search jde
+then
+    echo "JDE"
+    FOUND_ONE="YES"
+fi
+
 # splunk
 
 if ps_search splunk
@@ -239,6 +266,34 @@ then
     FOUND_ONE="YES"
 fi
 
+# clamav
+
+if ps_search clamav
+then
+    echo "Clamav"
+    FOUND_ONE="YES"
+fi
+
+# kubernetes
+
+if ps_search k8 kubectl kube
+then
+    echo "Kubernetes"
+    FOUND_ONE="YES"
+fi
+
+# docker
+
+if ps_search k8 docker
+then
+    echo "Docker"
+    FOUND_ONE="YES"
+fi
+
+
+#
+#------ -------------- end of section performing checks ----------------------
+#
 
 if [ "${FOUND_ONE}" = "NO" ]
 then

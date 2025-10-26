@@ -39,10 +39,11 @@ else
     package=${1}
 fi
 
-if [ "$ORACLE_SID" = "" ]
+if [ "${ORACLE_SID}" = "" ]
 then
-    echo ERROR: \$ORACLE_SID not set
-    exit 1
+    echo "ERROR: ORACLE_SID not set"
+    EXITCODE=1
+    exit ${EXITCODE}
 fi
 
 sqlplus -s ${SQLPLUS_DBA_LOGON} << *EOF* > $tmpfile

@@ -98,13 +98,13 @@ check_status_colour=${Red}
 echo -e "Checking hostname:"
 echo    "-----------------"
 echo -e "        expecting: ${BYellow}${registered_hostname:-<notset>}${White}"
-if [ "${thishost}" = "${registered_hostname}" ]
+if [ "${{HOSTNAME}}" = "${registered_hostname}" ]
 then
     check_status_colour=${Green}
     hostname_check=OK
 fi
 
-echo -e "           actual: ${check_status_colour}${thishost}${White}"
+echo -e "           actual: ${check_status_colour}${{HOSTNAME}}${White}"
 echo -e "Status: ${check_status_colour}${hostname_check}${White}"
 
 

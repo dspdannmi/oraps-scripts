@@ -49,13 +49,13 @@ status=$?
 
 if [ $status -ne 0 ]
 then
-    echo error: could not log on to database
+    echo "ERROR: could not log on to database"
     EXITCODE=1
 fi
 
 if [ "$(grep TEMP_TSPACE:EMPTY $tmpfile)" != "" ]
 then
-    echo error: Empty temporary tablespace\(s\) detected
+    echo "ERROR: Empty temporary tablespace\(s\) detected"
     EXITCODE=1
 fi
 

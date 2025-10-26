@@ -39,9 +39,9 @@ fi
 if [ $# -eq 0 ]
 then
     # no job id specified so assume last job submitted
-    JOBFILE=$(ls -1trd $CS_TOP/out/runlater/*.out | tail -1)
+    JOBFILE=$(ls -1trd ${HOME}/DSP/runlater/out/*.out | tail -1)
 else
-    JOBFILE=${CS_TOP}/out/runlater/${1}.out
+    JOBFILE=${HOME}/DSP/runlater/out/${1}.out
 fi
 
 tail -100f ${JOBFILE}

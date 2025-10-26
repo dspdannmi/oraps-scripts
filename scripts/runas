@@ -39,7 +39,7 @@ fi
 runas=${1}
 shift
 
-if [ "$thisuser" = "root" ]
+if [ "${USER}" = "root" ]
 then
     su - ${runas} -c ${*}
 else

@@ -3,7 +3,7 @@
 #+++___________________________________________________________________________________
 #
 #
-# Script name:                  preshutdown_capture.sh
+# Script name:                  capture.sh
 #
 # Description:			Capture server and system info prior to planned works
 #
@@ -70,13 +70,13 @@ fi
 
 
 
-if [ "${thisuser}" != "root" ]
+if [ "${USER}" != "root" ]
 then
     echo "" 
     echo "**********************************************************"
     echo "WARNING: It is recommended that this script is run as root"
     echo ""
-    echo "current user: ${thisuser}"
+    echo "current user: ${USER}"
     echo "**********************************************************"
     echo ""
     echo "Press <ENTER> to continue to <ctrl-C> to abort!!!"
@@ -207,7 +207,6 @@ for file in /etc/dnf/plugins/versionlock.conf \
             /etc/sysconfig/network-scripts \
             /var/spool/cron
 do
-
   dir=$(dirname ${file})
 
   if [ -d $file ]
@@ -235,7 +234,7 @@ done
 
 #---------------------------------------------------------------
 header grubby
-if [ "${thisuser}" = "root" ]
+if [ "${USER}" = "root" ]
 then
     (
     grubby --default-index
@@ -247,7 +246,7 @@ fi
 
 #---------------------------------------------------------------
 header needs-restarting -r
-if [ "${thisuser}" = "root" ]
+if [ "${USER}" = "root" ]
 then
     needs-restarting -r | tee needs-restarting-r.out > ${output_device}
 else
@@ -257,7 +256,7 @@ fi
 
 #---------------------------------------------------------------
 header needs-restarting -s
-if [ "${thisuser}" = "root" ]
+if [ "${USER}" = "root" ]
 then
     needs-restarting -s | tee needs-restarting-s.out > ${output_device}
 else
@@ -340,7 +339,7 @@ systemctl status 2>&1 | tee systemctl-status.out > ${output_device}
 
 #---------------------------------------------------------------
 header check-update
-if [ "${thisuser}" = "root" ]
+if [ "${USER}" = "root" ]
 then
     dnf check-update 2>&1 | tee dnf-check-update.out > ${output_device}
 else
@@ -357,7 +356,7 @@ rpm -qa --last 2>&1 | tee rpm-qa--last.out > ${output_device}
 
 #---------------------------------------------------------------
 header "vgs (volume groups)"
-if [ "${thisuser}" = "root" ]
+if [ "${USER}" = "root" ]
 then
     vgs 2>&1 | tee vgs.out > ${output_device}
 else
@@ -366,7 +365,7 @@ fi
 
 #---------------------------------------------------------------
 header "lvs (logical volumes)"
-if [ "${thisuser}" = "root" ]
+if [ "${USER}" = "root" ]
 then
     lvs 2>&1 | tee lvs.out > ${output_device}
 else
@@ -375,7 +374,7 @@ fi
 
 #---------------------------------------------------------------
 header "pvs (physical volumes)"
-if [ "${thisuser}" = "root" ]
+if [ "${USER}" = "root" ]
 then
     pvs 2>&1 | tee pvs.out > ${output_device}
 else

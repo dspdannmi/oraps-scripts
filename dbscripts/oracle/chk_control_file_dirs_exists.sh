@@ -38,16 +38,17 @@ then
 
     whichhost=$(echo ${2} | awk -F: '{print $2}' | tr "[:upper:]" "[:lower:]")
 
-    if [ "${whichhost}" = "" ] || [ "${whichhost}" = "${thishost}" ]
+    if [ "${whichhost}" = "" ] || [ "${whichhost}" = "${HOSTNAME}" ]
     then
-        whichhost=$thishost
+        whichhost=${HOSTNAME}
 
         if chkoradbinoratab ${ORACLE_SID}
         then
             :
         else
-            echo ERROR: $ORACLE_SID not in oratab
-            exit 1
+            echo "ERROR: ${ORACLE_SID} not in ${ORATAB}"
+            EXITCODE=1
+            exit ${EXITCODE}
         fi
 
         . /usr/local/bin/oraenv 2>&1 > /dev/null
@@ -56,7 +57,7 @@ then
     shift
     shift
 else
-    whichhost=$thishost
+    whichhost=${HOSTNAME}
 fi
 
 
@@ -66,14 +67,15 @@ then
 fi
 
 
-if [ "$ORACLE_SID" = "" ]
+if [ "${ORACLE_SID}" = "" ]
 then
-    echo ERROR: ORACLE_SID not set
-    exit 1
+    echo "ERROR: ORACLE_SID not set"
+    EXITCODE=1
+    exit ${EXITCODE}
 fi
 
 
-if [ "$whichhost" = "$thishost" ]
+if [ "$whichhost" = "${HOSTNAME}" ]
 then
     pfile=${ORACLE_HOME}/dbs/init${ORACLE_SID}.ora  
     spfile=${ORACLE_HOME}/dbs/spfile${ORACLE_SID}.ora  
@@ -87,7 +89,7 @@ then
     then
 	pfile_to_use=$pfile
     else
-	echo "ERROR: pfile or spfile does not exist for $ORACLE_SID in $ORACLE_HOME"
+	echo "ERROR: pfile or spfile does not exist for ${ORACLE_SID} in ${ORACLE_HOME}"
 	EXITCODE=1
 	exit
     fi

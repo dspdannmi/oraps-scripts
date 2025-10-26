@@ -13,5 +13,24 @@ function get_ohome_from_sid
     else
         sid=${ORACLE_SID}
     fi
+
+    if [ "${ORATAB}" = "" ]
+    then
+        echo "ERROR: ORATAB is not set - returning"
+        return
+    fi
+
+    if [ ! -r ${ORATAB} ]
+    then
+        echo "ERROR: oratab file [${ORATAB}] does not exist or not readable - returning"
+        return
+    fi
+
+    if [ "${sid}" = "" ]
+    then
+        echo "ERROR: sid is not set - returning"
+        return
+    fi
+
     grep ^${sid}: ${ORATAB} | cut -d: -f2
     }

@@ -40,7 +40,7 @@ if chkoradbinoratab ${ORACLE_SID}
 then
     :
 else
-    echo "ERROR: $ORACLE_SID not in [${ORATAB}]"
+    echo "ERROR: ${ORACLE_SID} not in [${ORATAB}]"
     EXITCODE=1
     exit ${EXITCODE}
 fi
@@ -69,7 +69,7 @@ function shutdown_db
     then
 	: #do nothing
     else
-	scriptout "WARNING: $ORACLE_SID appears to be down"
+	scriptout "WARNING: ${ORACLE_SID} appears to be down"
 	EXITCODE=2
     fi
 
@@ -102,7 +102,7 @@ exit
 
     if isinstup ${ORACLE_SID} 2>&1 > /dev/null
     then
-	scriptout "WARNING: $ORACLE_SID appears to still to be up"
+	scriptout "WARNING: ${ORACLE_SID} appears to still to be up"
 	EXITCODE=2
     fi
     }
@@ -111,7 +111,7 @@ function startup_db
     {
     if isinstup ${ORACLE_SID} 2>&1 > /dev/null
     then
-	scriptout "WARNING: $ORACLE_SID appears to already be up"
+	scriptout "WARNING: ${ORACLE_SID} appears to already be up"
 	EXITCODE=2
     fi
 
@@ -143,13 +143,13 @@ exit
     then
 	: # do nothing
     else
-	scriptout "WARNING: $ORACLE_SID appears to have not started"
+	scriptout "WARNING: ${ORACLE_SID} appears to have not started"
 	EXITCODE=2
     fi
 
-    if [ "$thisuser" != "oracle" ]
+    if [ "${USER}" != "oracle" ]
     then
-	scriptout WARNING: $ORACLE_SID started as non-oracle user
+	scriptout WARNING: ${ORACLE_SID} started as non-oracle user
     fi
     }
 
