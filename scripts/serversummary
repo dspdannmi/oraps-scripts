@@ -112,7 +112,7 @@ fi
 #echo "-------------------------------------------------------------------------"
 echo "_________________________________________________________________________"
 echo ""
-echo -e "hostname      :  ${BYellow}${{HOSTNAME}}${White}"
+echo -e "hostname      :  ${BYellow}${HOSTNAME}${White}"
 echo -e "dspserverid:  :  ${BYellow}${dspserverid:-<null>}${White}"
 echo ""
 echo -e "machine-id    :  ${BYellow}${machine_id:-<null>}${White}"
@@ -164,7 +164,7 @@ else
     :
 fi
 
-if [ -z "${dspversion}" ]
+if [ -z "${DSP_VERSION}" ]
 then
     echo "   *** SEVERE WARNING: No version file or information on DSP scripts"
 fi

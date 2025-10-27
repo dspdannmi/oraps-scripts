@@ -174,6 +174,7 @@ fi
 version=$(getdbversion -d ${ORACLE_SID})
 
 echo "${padding}VERSION:           ${version}"
+echo ""
 
 #
 # ORACLE_HOME
@@ -277,14 +278,14 @@ DBSIZE_GB=$(grep '^DBSIZE_GB:' ${tmpfile} | cut -d: -f2- | xargs)
 padding="    ${padding}"
 
 echo ""
-echo "${padding}DBID:                      ${DBID}"
-echo "${padding}DB NAME:                   ${NAME}"
-echo "${padding}DB UNIQUE NAME:            ${DB_UNIQUE_NAME}"
-echo "${padding}INSTANCE NAME:             ${INSTANCE_NAME}"
-echo "${padding}CREATED:                   ${CREATED}"
-echo "${padding}STARTUP TIME:              ${STARTUP_TIME}"
+echo "${padding}dbid                     : ${DBID}"
+echo "${padding}db name                  : ${NAME}"
+echo "${padding}db unique name           : ${DB_UNIQUE_NAME}"
+echo "${padding}instance name            : ${INSTANCE_NAME}"
+echo "${padding}created                  : ${CREATED}"
+echo "${padding}startup time             : ${STARTUP_TIME}"
 echo ""
-echo "${padding}DBSIZE(TOTAL):             ${DBSIZE_GB}Gb"
+echo "${padding}dbsize(total)            : ${DBSIZE_GB}Gb"
 echo ""
 
 if [ "${CDB}" = "" ]
@@ -292,53 +293,53 @@ then
     CDB="NO"
 fi
 
-echo "${padding}CDB:                       ${CDB}"
+echo "${padding}cdb                      : ${CDB}"
 
-echo "${padding}EDITION:                   ${EDITION}"
-echo "${padding}DATABASE STATUS:           ${DATABASE_STATUS}"
+echo "${padding}edition                  : ${EDITION}"
+echo "${padding}database status          : ${DATABASE_STATUS}"
 
-if [ "${VERSION_FULL}" != "" ]
+if [ "${VERSION_FULL}" != "" ]	# version_full only in versions from about 11g onwards
 then
     VERSION=${VERSION_FULL}
 fi
-echo "${padding}VERSION:                   ${VERSION}"
+echo "${padding}version                  : ${VERSION}"
 
-echo "${padding}OPEN MODE:                 ${OPEN_MODE}"
+echo "${padding}open mode                : ${OPEN_MODE}"
 
 echo ""
 
-echo "${padding}CURRENT SCN:               ${CURRENT_SCN}"
-echo "${padding}LOG MODE:                  ${LOG_MODE}"
-echo "${padding}FLASHBACK ON:              ${FLASHBACK_ON}"
-echo "${padding}FORCE LOGGING:             ${FORCE_LOGGING}"
-echo "${padding}SUPPLEMENTAL LOG DATA MIN: ${SUPPLEMENTAL_LOG_DATA_MIN}"
+echo "${padding}current scn              : ${CURRENT_SCN}"
+echo "${padding}log mode                 : ${LOG_MODE}"
+echo "${padding}flashback on             : ${FLASHBACK_ON}"
+echo "${padding}force logging            : ${FORCE_LOGGING}"
+echo "${padding}supplemental log data min: ${SUPPLEMENTAL_LOG_DATA_MIN}"
 
 echo ""
 
 
 if [ "${NUMBER_OF_STANDBY_DEST}" != "" ] && [ "${NUMBER_OF_STANDBY_DEST}" != "0" ]
 then
-    echo "${padding}STANDBY ARCHLOG DESTS:     ${NUMBER_OF_STANDBY_DEST}"
-    echo "${padding}NUMBER OF STANDBY DEST:    ${NUMBER_OF_STANDBY_DEST}"
-    echo "${padding}INSTANCE ROLE:             ${INSTANCE_ROLE}"
-    echo "${padding}DATABASE ROLE:             ${DATABASE_ROLE}"
-    echo "${padding}PROTECTION MODE:           ${PROTECTION_MODE}"
-    echo "${padding}PROTECTION LEVEL:          ${PROTECTION_LEVEL}"
+    echo "${padding}standby archlog dests    : ${NUMBER_OF_STANDBY_DEST}"
+    echo "${padding}number of standby dest   : ${NUMBER_OF_STANDBY_DEST}"
+    echo "${padding}instance role            : ${INSTANCE_ROLE}"
+    echo "${padding}database role            : ${DATABASE_ROLE}"
+    echo "${padding}protection mode          : ${PROTECTION_MODE}"
+    echo "${padding}protection level         : ${PROTECTION_LEVEL}"
 else
     if [ "${NUMBER_OF_STANDBY_DEST}" = "" ]
     then
         NUMBER_OF_STANDBY_DEST=0
     fi
 
-    echo "${padding}STANDBY ARCHLOG DESTS:     ${NUMBER_OF_STANDBY_DEST}"
+    echo "${padding}standby archlog dests    : ${NUMBER_OF_STANDBY_DEST}"
 fi
 
 echo ""
 
-echo "${padding}ACTIVE STATUS:             ${ACTIVE_STATE}"
-echo "${padding}INSTANCE MODE:             ${INSTANCE_MODE}"
-echo "${padding}FAMILY:                    ${FAMILY}"
-echo "${padding}DATABASE TYPE:             ${DATABASE_TYPE}"
+echo "${padding}active status            : ${ACTIVE_STATE}"
+echo "${padding}instance mode            : ${INSTANCE_MODE}"
+echo "${padding}family                   : ${FAMILY}"
+echo "${padding}database type            : ${DATABASE_TYPE}"
 
 echo ""
 
@@ -346,7 +347,7 @@ if [ "${CDB}" = "YES" ]
 then
   if [ "${style}" = "human" ]
   then
-    echo "${padding}PDBS:"
+    echo "${padding}pdbs:"
   else
     echo "${padding}<PDBS>"
   fi

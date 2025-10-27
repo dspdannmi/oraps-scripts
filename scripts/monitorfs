@@ -53,7 +53,7 @@ do
 
     if [ $status -ne 0 ]
     then
-	echo "ERROR: chkfsusage for $filesystem on ${HOSTNAME} errored" | mailx -s "WARNING: ${{HOSTNAME}}:${filesystem} warning" ${email_address}
+	echo "ERROR: chkfsusage for $filesystem on ${HOSTNAME} errored" | mailx -s "WARNING: ${HOSTNAME}:${filesystem} warning" ${email_address}
 	sleep 60
     fi
 done

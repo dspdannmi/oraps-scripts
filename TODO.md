@@ -46,14 +46,35 @@ INSTALL
 
 - when running install if serveridentity.txt file does not exist then populate it with a UUID irrespective and then force/encourage serverstamp
 
+- can we include info on whether server is part of a cluster
+
 - when not installing in to /opt/dsp we need to update lots of files for CS_TOP / DSP_TOP
 
 - install.sh script looping when filesystem full
 
 
+RESOURCES
+=========
+SQL scripts
+	- UIM user profile
+	- unexpirty profile
+	- data pump scripts
+	- create c##dsp_dba user
+
+
 PRIORITY:  HIGH
 ===============
+
+- even if serverstamp cant handle it yet, setup serveridentity.txt so it can accept
+- multiple entries when a server has multiple components installed such as DB, WebLogic, ORDS etc.
+
+- not so much for standardised scripts but for build standards and HCs:
+	- force_logging enabled for DBvisit and Data Guard databases
+	- a reminder that our build standards should also feed health check checks
+
 - runlater where does it put its log, should really be $HOME/dsp/runlater/out
+
+- how can i tell if root or opc user have passwords set
 
 - runlater does not seem to be working
 
@@ -90,6 +111,8 @@ PRIORITY:  HIGH
 		nc
 
 - have a changelog for servers
+
+- i just made a mcdwork directory and the session was two 2 days old so $today was set to 20251026
 
 - capture formsweb.cfg
 - capture webutil.cfg
@@ -263,6 +286,133 @@ V$ASM_USERGROUP
 V$ASM_USERGROUP_MEMBER
 V$ASM_VOLUME
 V$ASM_VOLUME_STAT
+
+
+
+DEMO
+====
+
+- create demo VM with 6 databases installed
+	- ORADB01
+	- ORADB02
+	- ORADB03
+        - ORADEV
+        - ORATST
+        - ORAPRD
+
+- installation
+
+- serverstamp
+
+- setting the environment
+	. /opt/dsp/setenv
+
+		you'll notice the prompt changes
+
+		dsp19c
+
+		setpdb
+
+
+- running scripts to get initial information
+	- serversummary
+	- getinfo
+		getinfo-os
+		getinfo-orahome
+		getinfo-oradb
+		getinfo-oralsn
+
+- directory structure
+	- bin
+	- config
+	- dbscripts
+	- env
+	- functions
+	- local
+		changelog
+		doco
+	- profiles
+	- resources
+	- scripts
+	- setenv  <----------------------- start here
+	- tools
+
+
+- demo some of the shell shortcuts etc.
+	setdbaliases
+		set sid
+		alert log
+ 		setcon
+		
+	mcd
+	mcdwork
+	catidpub
+	cdfile
+	viewwhich
+	viwhich
+	showpath
+	pslgwr
+	runningdbs
+        runlater
+	
+- work directories
+	- creating work directory
+	- listing work directory
+	- changing back to work directory
+
+- create a sql script in working directory
+	- run sql from the command line
+	- run a sql script from the command line
+	- run that same sql script across all running instances
+
+- create a sql script to $DSP_TOP/sql/oracle
+	- put it in category
+		- make sure it has a description
+	- RESYNC sql
+	- RESYNC sql scripts
+
+- miscellaneous DB
+	- dbdown DSP19C
+	- dbup DSP19C
+	- dbbounce DSP19C
+
+
+- SQL scripts to demo:
+	printtbl
+	dbusers
+	dbausers
+	dbausers2
+	LISTSQL
+
+	sqlx
+	sqlx -d
+	sqlx -d DB:pdb
+
+	runsql -d DB
+	runsql -
+
+- demo of scripts
+
+- show tools directory
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

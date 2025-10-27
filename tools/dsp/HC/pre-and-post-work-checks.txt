@@ -77,6 +77,8 @@ AFTER
 Check:
         - all the same things as pre-check
 
+- OCI server isn't indicating a region that is not where installed such as that UIP marketplace image server yum/dnf repositories
+
 	- filesystem space
 	- users exist
 	- groups exist

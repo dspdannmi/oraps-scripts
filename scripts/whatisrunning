@@ -19,6 +19,12 @@
 #
 #+++___________________________________________________________________________________
 
+### BEGIN NOT YET IMPLEMENTED
+# Oracle Access Manager (OAM)
+# Oracle Enterprise Manager (OEM)
+# Oracle OC4J
+### END-NOT YET IMPLEMENTED
+
 CS_TOP=${CS_TOP:-/opt/dsp}
 . ${CS_TOP}/env/dsp.env
 . ${CS_TOP}/env/funcs.sh

@@ -1,2 +1,1 @@
-
-host listsqlscripts &1
+CATEGORY/misc/LISTSQL.sql

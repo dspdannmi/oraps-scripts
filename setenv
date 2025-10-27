@@ -83,7 +83,11 @@ else
     . ${DSP_ENV_SCRIPT}
 fi
 
+#
+# need to do this interactive shell stuff AFTER calling dsp.env
 DSP_FUNCS_INTERACTIVE_SHELL_SCRIPT=${DSP_ENV_SCRIPT_DIR}/env/funcs_interactive_shell.sh
+DSP_INTERACTIVE_SHELL="YES"
+
 if [ ! -r ${DSP_FUNCS_INTERACTIVE_SHELL_SCRIPT} ]
 then
     echo "ERROR: cannot find environment setting scripts [${DSP_FUNCS_INTERACTIVE_SHELL_SCRIPT}] or is not readable"
@@ -132,7 +136,7 @@ BANNER_FILE=${CS_TOP}/resources/banners/dsp/dsp.txt
     echo -e "                 --=== ${BGreen}Oracle Professional Services ${White}===--           "
     echo "                (OracleProfessionalServicesTeam@dsp.co.uk)          "
     echo ""
-    echo "                               (${dsp_version})"
+    echo "                               (${DSP_VERSION})"
     
     serversummary
     
@@ -298,6 +302,16 @@ export ALERTLOG=""
     alias h50='history 50'
     alias h100='history 100'
     alias latr='ls -latr'
+
+    alias lastwork2='lastwork 2'
+    alias lastwork3='lastwork 3'
+    alias lastwork4='lastwork 4'
+    alias lastwork5='lastwork 5'
+    alias lastwork6='lastwork 6'
+    alias lastwork7='lastwork 7'
+    alias lastwork8='lastwork 8'
+    alias lastwork9='lastwork 9'
+
     alias lu='du -sh * | sort -h'
     alias path='echo -e ${PATH//:/\\n}'
     alias cdssh='cd ${HOME}/.ssh'

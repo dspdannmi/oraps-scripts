@@ -3,6 +3,7 @@
 
 for func in become \
             catidpub \
+            cdwork \
 	    col1 \
 	    col2 \
 	    col3 \
@@ -15,10 +16,12 @@ for func in become \
 	    col10 \
             cdfile \
             duora \
+            lastwork \
+            listwork \
             latrora \
             lsora \
             mcd \
-            mcdworkdir \
+            mcdwork \
             mvold \
             psgrep \
             pslgwr \
@@ -30,6 +33,7 @@ for func in become \
             setoradbenv \
             setpdb \
             setpdbroot \
+            settoday \
             showpath \
             showsqlpath \
             ssh-asap \

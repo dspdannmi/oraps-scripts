@@ -35,7 +35,7 @@ then
 else
     NOSYMLINK_FILES_FOUND=NO
 
-    for file in $(ls -1 [a-z]*.sql)
+    for file in $(ls -1 *.sql)
     do
         if [ ! -h ${file} ]
         then

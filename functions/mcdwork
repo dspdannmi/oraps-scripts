@@ -1,6 +1,8 @@
 
 function mcdwork
     {
+    settoday
+
     notes_template_file=${CS_TOP}/resources/templates/work_notes.txt.template
 
     notes_file=readme.txt
@@ -56,9 +58,6 @@ function mcdwork
             status=$?
 
         fi
-
-        echo "Sleeping 2 seconds..."
-        sleep 2
 
         sed -i -e "s;XX_working_directory_XX;${PWD};" -e "s/XX_datetime_XX/$(date +%Y-%m-%d:%H:%M:%S)/" ${notes_file}
 

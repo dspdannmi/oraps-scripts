@@ -1,6 +1,8 @@
 
 function listwork
     {
+    settoday
+
     if [ "${WORKDIR_TOP}" = "" ]
     then
         echo "WARNING: WORKDIR_TOP not set - creating under $HOME/work"
@@ -8,8 +10,6 @@ function listwork
     else
         topdir=${WORKDIR_TOP}        
     fi
-
-    dir=${topdir}/$today${suffix}
 
     ls -1d ${topdir}/* 
     }
