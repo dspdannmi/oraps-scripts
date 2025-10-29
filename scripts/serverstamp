@@ -142,11 +142,8 @@ echo "Choose machine type"
 echo "-------------------"
 
 unset selections
-selections=(
-"physical server" 
-"virtual machine (on-prem)" 
-"virtual machine (cloud)"
-)
+#dont split selections= across multiple lines as this can break the menu functionality
+selections=( "physical server" "virtual machine (on-prem)" "virtual machine (cloud)")
 choose_from_menu "Please select a machine type" selected_choice "${selections[@]}"
 machine_type=${selected_choice}
 

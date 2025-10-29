@@ -6,3 +6,5 @@ schemas=
 logfile=
 dumpfile=
 flashback_time=systimestamp
+
+#TRANSFORM=DISABLE_ARCHIVE_LOGGING:Y 

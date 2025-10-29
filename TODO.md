@@ -68,6 +68,8 @@ SQL scripts
 PRIORITY:  HIGH
 ===============
 
+- give a warning when running setenv if scripts are OLDER than 6 months
+
 - in getinfo for the DB, put in date of last successful full or incr0 bacukp
 
 - even if serverstamp cant handle it yet, setup serveridentity.txt so it can accept

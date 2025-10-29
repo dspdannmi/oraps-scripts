@@ -1,6 +1,8 @@
 
 # ACKNOWLEDGE: https://askubuntu.com/questions/1705/how-can-i-create-a-select-menu-in-a-shell-script
 
+# dont split selections= setting across multiple lines as this can break functionality
+
 function choose_from_menu() {
     local -r prompt="$1" outvar="$2" options=("${@:3}")
     local cur=0 count=${#options[@]} index=0
