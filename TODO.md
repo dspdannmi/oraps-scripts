@@ -74,7 +74,7 @@ PRIORITY:  HIGH
 
 - even if serverstamp cant handle it yet, setup serveridentity.txt so it can accept
 
-- track under CURRENT_WORKDIR when we backup files and change files
+- track under DSP_CURRENT_WORKDIR when we backup files and change files
 
 - multiple entries when a server has multiple components installed such as DB, WebLogic, ORDS etc.
 
