@@ -11,7 +11,50 @@ function listwork
         topdir=${WORKDIR_TOP}        
     fi
 
-    ls -1d ${topdir}/* 
+    echo
+    echo "current work dir"
+    echo "----------------"
+
+    if [ "${DSP_CURRENT_WORKDIR}" != "" ]
+    then
+
+        if [ -d ${DSP_CURRENT_WORKDIR} ]
+        then
+            current_workdir_status="EXISTS"
+        else
+            current_workdir_status="DOES NOT EXIST"
+        fi
+
+        echo "    ${DSP_CURRENT_WORKDIR} [${current_workdir_status}]"
+        echo
+    else
+        echo "    INFO: No directory currently set as work dir"
+    fi
+
+    one_exists=NO
+
+    echo
+    echo "work dirs"
+    echo "---------"
+    for dir in $(ls -1d ${topdir}/* 2>/dev/null)
+    do
+        one_exists=YES
+        prefix="    "
+
+        if [ "${dir}" = "${DSP_CURRENT_WORKDIR}" ]
+        then
+            prefix=">>> "
+        fi
+
+        echo "${prefix}${dir}"
+    done
+
+    if [ "${one_exists}" = "NO" ]
+    then
+        echo "INFO: no working directories exist under: ${topdir}"
+    fi
+    
+    echo
     }
 
 

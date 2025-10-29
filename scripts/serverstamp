@@ -5,7 +5,7 @@
 #
 # Script name:                  serverstamp
 #
-# Description:			Stamp server with DSP serverid and config
+# Description:
 #
 # Parameters:
 #
@@ -23,19 +23,29 @@ CS_TOP=${CS_TOP:-/opt/dsp}
 . ${CS_TOP}/env/dsp.env
 . ${CS_TOP}/env/funcs.sh
 
-USAGE_STRING=""
+USAGE_STRING="[-f [-x]]"
 
 DEBUG=NO
 
 FORCE=NO
+FULL_FORCE=NO		# if FULL_FORCE then offer option to keep existing serverid
+			# even if serverstampcheck highlights a failiure
+ALLOW_KEEP_ID=YES
 
-while getopts 'f' OPTION
+while getopts 'fx' OPTION
 do
     case "$OPTION" in
         f) FORCE=YES ;;
+        x) FULL_FORCE=YES ;;
         ?) usage ;;
     esac
 done
+
+if [ "${FULL_FORCE}" = "YES" ] && [ "${FORCE}" != "YES" ]
+then
+    echo "ERROR: -x option only allowable when -f option used - exiting"
+    usage
+fi
 
 user=$(whoami)
 
@@ -46,16 +56,32 @@ then
     exit ${EXITCODE}
 fi
 
+if [ -f ${DSP_IDENTITY_FILE} ] 
+then
+    if [ "${FORCE}" != "YES" ]
+    then
+        echo "ERROR: identity file [${DSP_IDENTITY_FILE}] already exists and force option [-f] not specified - exiting"
+        EXITCODE=1
+        exit $EXITCODE
+    fi
+
+    serverstampcheck 2>&1 > /dev/null
+    status=$?
+
+    if [ $status -ne 0 ] && [ "${FULL_FORCE}" != "YES" ]
+    then
+       # if DSP_IDENTITY_FILE exists and serverstampcheck is reporting a discrepency then
+       # force user to choose new serverid by setting ALLOW_KEEP_ID to NO thus not presenting
+       # user with "Keep Existing" menu option.  However, if FULL_FORCE -x option is specified
+       # on command line then allow it
+       ALLOW_KEEP_ID="NO" 
+    fi
+
+fi
+
 #
 # outstanding mods:
 #   - make sure running as correct owner
-
-if [ -f ${DSP_IDENTITY_FILE} ] && [ "${FORCE}" != "YES" ]
-then
-    echo "ERROR: identity file [${DSP_IDENTITY_FILE}] already exists and force option [-f] not specified - exiting"
-    EXITCODE=1
-    exit $EXITCODE
-fi
 
 owner=$(cut -d: -f1 ${DSP_OWNER_FILE})
 dspserverid=$(grep ^dspserverid: ${DSP_IDENTITY_FILE} | cut -d: -f2)
@@ -78,7 +104,7 @@ echo
 echo
 echo "Hostname"
 echo "--------"
-echo "${HOSTNAME}"
+echo "${thishost}"
 echo
 echo
 echo "Register UUID for the server ID"
@@ -88,7 +114,7 @@ if [ "${newid}" != "" ] && [ $status -eq 0 ]	# uuidgen exists and we could gener
 then
   unset selections
 
-  if [ -f ${DSP_IDENTITY_FILE} ]
+  if [ "${ALLOW_KEEP_ID}" = "YES" ]
   then
       selections=("Keep existing" "Generate a server ID" "Provide a UUID to use for server ID")
   else
@@ -111,6 +137,12 @@ then
       fi
       newid=$(echo ${dspserverid})	# echo to help get rid of whitespace
   fi
+else
+    echo "WARNING: uuidgen not available - you will need to specify a UUID"
+    echo
+
+    echo -n "Enter the UUID you wish to stamp for this server: "
+    read newid
 fi
 
 echo ""
@@ -120,8 +152,8 @@ echo "------------------"
 echo
 
 unset selections
-showmacaddrs | grep -v '00:00:00:00:00:00' > ${tmpfile}.array
-readarray -t selections < ${tmpfile}.array
+selections=( $(showmacaddrs | grep -v '00:00:00:00:00:00') )
+#readarray -t selections < ${tmpfile}.array
 choose_from_menu "Please select a MAC address to use to stamp this server" selected_choice "${selections[@]}"
 macaddr=${selected_choice}
 
@@ -131,8 +163,7 @@ echo "Choose IP Address"
 echo "-----------------"
 
 unset selections
-showipaddrs | sort -n > ${tmpfile}.array
-readarray -t selections < ${tmpfile}.array
+selections=( $(showipaddrs | sort -n) )
 choose_from_menu "Please select an IP address to use to stamp this server" selected_choice "${selections[@]}"
 ipaddr=${selected_choice}
 
@@ -142,7 +173,6 @@ echo "Choose machine type"
 echo "-------------------"
 
 unset selections
-#dont split selections= across multiple lines as this can break the menu functionality
 selections=( "physical server" "virtual machine (on-prem)" "virtual machine (cloud)")
 choose_from_menu "Please select a machine type" selected_choice "${selections[@]}"
 machine_type=${selected_choice}
@@ -156,13 +186,12 @@ case "${machine_type}" in
     *) ;;
 esac
 
-#IFS="\n"
-unset selections
-grep ^${prefix}: ${SERVERCODE_LOOKUP_FILE} | awk -F: '{print $2}' > ${tmpfile}.array
+grep ^${prefix}: ${SERVERCODE_LOOKUP_FILE} | awk -F: '{print $2}'  > ${tmpfile}.array
 
-# had all kinds of issues with getting an array built and
-# for multi-line/multi-word content
-readarray -t selections < ${tmpfile}.array
+IFS_SAVE=${IFS}
+IFS=$'\n'
+selections=( $(cat ${tmpfile}.array) )
+IFS=${IFS_SAVE}
 
 choose_from_menu "Please select a machine sub-type" selected_choice "${selections[@]}"
 machine_subtype=${selected_choice}
@@ -189,9 +218,10 @@ echo "------------------------------"
 unset selections
 grep ^[0-9].*: ${DBHOSTING_LOOKUP_FILE} | awk -F: '{print $2}' > ${tmpfile}.array
 
-# had all kinds of issues with getting an array built and
-# for multi-line/multi-word content
-readarray -t selections < ${tmpfile}.array
+IFS_SAVE=${IFS}
+IFS=$'\n'
+selections=( $(cat ${tmpfile}.array) )
+IFS=${IFS_SAVE}
 
 choose_from_menu "Please select a machine sub-type" selected_choice "${selections[@]}"
 dbhosting_status=${selected_choice}
@@ -220,7 +250,7 @@ echo "------------"
 echo
 echo "The following will be used to stamp this server:"
 echo ""
-echo "    hostname  : ${HOSTNAME}"
+echo "    hostname  : ${thishost}"
 echo "    server id : ${newid}"
 echo ""
 echo "   machine-id : ${machine_id}"
@@ -252,7 +282,7 @@ then
 fi
 
 (
-    echo "hostname: ${HOSTNAME}"
+    echo "hostname: ${thishost}"
     echo "dspserverid: ${newid}"
     echo "macaddr:  ${macaddr}"
     echo "ipaddr:   ${ipaddr}"
