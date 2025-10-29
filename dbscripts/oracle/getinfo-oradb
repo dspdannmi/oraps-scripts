@@ -310,6 +310,7 @@ echo ""
 echo "${padding}TDE                      : <unknown - check not yet implemented>"
 echo ""
 
+echo "${padding}last successful bkup     : <unknown - check not yet implemented>"
 echo "${padding}current scn              : ${CURRENT_SCN}"
 echo "${padding}log mode                 : ${LOG_MODE}"
 echo "${padding}flashback on             : ${FLASHBACK_ON}"

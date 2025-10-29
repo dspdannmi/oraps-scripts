@@ -68,6 +68,8 @@ SQL scripts
 PRIORITY:  HIGH
 ===============
 
+- in getinfo for the DB, put in date of last successful full or incr0 bacukp
+
 - even if serverstamp cant handle it yet, setup serveridentity.txt so it can accept
 
 - track under CURRENT_WORKDIR when we backup files and change files
@@ -293,18 +295,7 @@ V$ASM_USERGROUP_MEMBER
 V$ASM_VOLUME
 V$ASM_VOLUME_STAT
 
-
-
-DEMO
-====
-
-- create demo VM with 6 databases installed
-	- ORADB01
-	- ORADB02
-	- ORADB03
-        - ORADEV
-        - ORATST
-        - ORAPRD
+DEMO ==== - create demo VM with 6 databases installed - ORADB01 - ORADB02 - ORADB03 - ORADEV - ORATST - ORAPRD
 
 - installation
 
@@ -360,6 +351,8 @@ DEMO
 	pslgwr
 	runningdbs
         runlater
+        whatisrunning
+        bkup
 	
 - work directories
 	- creating work directory
