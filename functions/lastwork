@@ -29,7 +29,7 @@ function lastwork
 
     target_dir=$(ls -1d ${topdir}/* | tail -${offset} | head -1)
 
-    cd ${target_dir} && export CURRENT_WORKDIR=${target_dir}
+    cd ${target_dir} && export DSP_CURRENT_WORKDIR=${target_dir}
     }
 
 

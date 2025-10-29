@@ -23,6 +23,7 @@
 # Oracle Access Manager (OAM)
 # Oracle Enterprise Manager (OEM)
 # Oracle OC4J
+# Veritas Netbackup Veeam commvault
 ### END-NOT YET IMPLEMENTED
 
 CS_TOP=${CS_TOP:-/opt/dsp}
@@ -62,15 +63,17 @@ ps -aux > ${tmpfile}.ps-aux
 FOUND_ONE="NO"
 
 echo ""
-echo "=============================WARNING========================================"
-echo "This is not an exact or guaranteed output.  The list (of any) software or"
+echo "****************************************************************************"
+echo "                             IMPORTANT"
+echo "****************************************************************************"
+echo "This is not an exact or guaranteed output.  The list of (if any) software or"
 echo "components shown is based only on pattern matching against output of the"
 echo "ps command.  Please consider the POSSIBILITY of FALSE POSITIVES and software"
 echo "may be installed and running that this script has not been configured to"
 echo "identity.  This output should be considered with healthy scepticism.  Please"
 echo "help maintain this script by informing the code maintainer of any software"
 echo "you believe it has not correctly detected."
-echo "============================================================================"
+echo "****************************************************************************"
 echo ""
 
 # Oracle Grid
@@ -266,7 +269,7 @@ fi
 
 # Crowdstrike
 
-if ps_search crowdstrike
+if ps_search crowdstrike falcon-sensor
 then
     echo "Crowdstrike"
     FOUND_ONE="YES"

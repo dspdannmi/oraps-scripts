@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Script name:		parse_legacy_import.sh
+
 #. importing TSMSYS's objects into TSMSYS
 #. . importing table                         "SRS$"          0 rows imported
 #. importing OPSSOM19's objects into OPSSOM19

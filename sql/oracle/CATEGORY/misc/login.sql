@@ -69,6 +69,7 @@ col SEGMENT_TYPE format a15
 col SEQUENCE_NAME format a40
 col SEQUENCE_OWNER format a15
 col SID format 9999
+col SPID format 9999999
 col SYNONYM_NAME format a40
 col TABLESPACE_NAME format a18
 col TABLE_NAME format a40

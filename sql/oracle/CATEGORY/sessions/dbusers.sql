@@ -5,14 +5,14 @@ set verify off
 
 clear breaks
 
-col sid format 9999
-col ser# format 99999
-col pid format 9999
-col spid format a6
+col sid format 999999
+col ser# format 9999999
+col pid format 9999999
+col spid format 9999999
 col username format a18
 col program format a28
 col serial# format 999999
-col process heading "FGPID" format a14
+col process format a16
 
 col logon heading "LOGON" format a11
 col osuser_v$s$p heading "OSUSER V$S:V$P" format a17

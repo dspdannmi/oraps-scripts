@@ -3,7 +3,7 @@
 #+++___________________________________________________________________________________
 #
 #
-# Script name:                  chk_control_file_dirs_exist.sh
+# Script name:                  chk_control_file_dirs_exists.sh
 #
 # Description:			Check if controlfile directories exist
 #

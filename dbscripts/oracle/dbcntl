@@ -147,7 +147,7 @@ exit
 	EXITCODE=2
     fi
 
-    if [ "${USER}" != "oracle" ]
+    if [ "${DSP_WHOAMI}" != "oracle" ]
     then
 	scriptout WARNING: ${ORACLE_SID} started as non-oracle user
     fi

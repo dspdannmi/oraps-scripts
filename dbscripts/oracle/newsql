@@ -55,7 +55,7 @@ do
 	else
 	    replace XXSCRIPT_NAMEXX ${newsql} ${newsql}
 	    replace DD-MON-YYYY ${modhist} ${newsql}
-	    replace  xxxuseridxxx ${USER} ${newsql}
+	    replace  xxxuseridxxx ${DSP_WHOAMI} ${newsql}
 	    status=$?
 
 	    if [ $status -ne 0 ]

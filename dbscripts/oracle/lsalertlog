@@ -3,9 +3,9 @@
 #+++___________________________________________________________________________________
 #
 #
-# Script name:                  xxxxx
+# Script name:                  lsalertlog
 #
-# Description:
+# Description:			Directory listing of Oracle Database alert log file
 #
 # We base it on setting of ALERTLOG so we can still see / interact with the alert log
 # when database is down.  If we had to rely on DB being up to get location then likely

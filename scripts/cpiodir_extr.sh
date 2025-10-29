@@ -3,7 +3,7 @@
 #+++___________________________________________________________________________________
 #
 #
-# Script name:                  cpiodir.sh
+# Script name:                  cpiodir_extr.sh
 #
 # Description:                  Extract from cpio archive
 #

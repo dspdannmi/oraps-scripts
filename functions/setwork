@@ -1,7 +1,7 @@
 
 function setwork
     {
-    export CURRENT_WORKDIR=${PWD}
+    export DSP_CURRENT_WORKDIR=${PWD}
     }
 
 

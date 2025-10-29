@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Script name:		parse_datapump_export.sh
+
 #. . exported "OPSSOM36"."WT0510_202001"                  15.17 MB  282753 rows
 #. . exported "OPSSOM36"."WT0510_202002"                  15.13 MB  281965 rows
 

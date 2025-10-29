@@ -3,7 +3,7 @@
 #+++___________________________________________________________________________________
 #
 #
-# Script name:          	 chk_port_usage.sh
+# Script name:          	 portusage
 #
 # Description:          	 Attempt to determine what proceses are listening on ports
 #

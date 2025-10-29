@@ -33,7 +33,7 @@ function mcdwork
 
     if [ -d ${dir} ]
     then
-        export CURRENT_WORKDIR=${dir}
+        export DSP_CURRENT_WORKDIR=${dir}
 	cd ${dir}
 
         if [ -f ${notes_templates_file} ]

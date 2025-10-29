@@ -3,7 +3,7 @@
 #+++___________________________________________________________________________________
 #
 #
-# Script name:                  genccf
+# Script name:                  currentscn
 #
 # Description:			Generate a CREATE CONTROFILE script to standard output
 #

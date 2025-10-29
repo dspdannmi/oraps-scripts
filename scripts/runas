@@ -39,7 +39,7 @@ fi
 runas=${1}
 shift
 
-if [ "${USER}" = "root" ]
+if [ "${DSP_WHOAMI}" = "root" ]
 then
     su - ${runas} -c ${*}
 else

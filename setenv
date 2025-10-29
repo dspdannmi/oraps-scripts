@@ -87,6 +87,7 @@ fi
 # need to do this interactive shell stuff AFTER calling dsp.env
 DSP_FUNCS_INTERACTIVE_SHELL_SCRIPT=${DSP_ENV_SCRIPT_DIR}/env/funcs_interactive_shell.sh
 DSP_INTERACTIVE_SHELL="YES"
+DSP_CURRENT_WORKDIR=""
 
 if [ ! -r ${DSP_FUNCS_INTERACTIVE_SHELL_SCRIPT} ]
 then
@@ -330,19 +331,19 @@ export ALERTLOG=""
     #
     # Set prompt
     #
-    if [ "${USER}" = "root" ]
+    if [ "${DSP_WHOAMI}" = "root" ]
     then
         #PS1='$PWD:[${ORACLE_SID}]:[ROOT] ## '
         #PS1="${PS1}:[ROOT] ## "
-        PS1='[${USER}:$PWD:[${ORACLE_SID:-<*>}{${DSP_PDB_SID}}]: [ROOT] ##> '
+        PS1='[${DSP_WHOAMI}:$PWD:[${ORACLE_SID:-<*>}{${DSP_PDB_SID}}]: [ROOT] ##> '
         #PATH=${PATH}:${ORACLE_HOME}/bin
-    elif [ "${USER}" = "oracle" ]
+    elif [ "${DSP_WHOAMI}" = "oracle" ]
     then
-        PS1='[${USER}:$PWD:[${ORACLE_SID:-<*>}{${DSP_PDB_SID}}]: ${USER}> '
+        PS1='[${DSP_WHOAMI}:$PWD:[${ORACLE_SID:-<*>}{${DSP_PDB_SID}}]: ${DSP_WHOAMI}> '
         #export PATH=${PATH}:/usr/local/bin:.
     else
         #PS1='$PWD:[${ORACLE_SID}> '
-        PS1='[${USER}:$PWD:[${ORACLE_SID:-<*>}{${DSP_PDB_SID}}]: ${USER}> '
+        PS1='[${DSP_WHOAMI}:$PWD:[${ORACLE_SID:-<*>}{${DSP_PDB_SID}}]: ${DSP_WHOAMI}> '
         #export PATH=${PATH}:/usr/local/bin:.
     fi
 

@@ -1,4 +1,6 @@
 
+have a UIM directory log that we can get UIM to monitor for adhoc stuff, no?
+
  capture dspserverid in work direcotires so you can kinda tell if a VM is cloned and those work directories werenot applicable to this incarnation
 PACKAGING
 ========
@@ -60,12 +62,16 @@ SQL scripts
 	- unexpirty profile
 	- data pump scripts
 	- create c##dsp_dba user
+	- service start scripts for oracle database + dbvisit snapshots etc.
 
 
 PRIORITY:  HIGH
 ===============
 
 - even if serverstamp cant handle it yet, setup serveridentity.txt so it can accept
+
+- track under CURRENT_WORKDIR when we backup files and change files
+
 - multiple entries when a server has multiple components installed such as DB, WebLogic, ORDS etc.
 
 - not so much for standardised scripts but for build standards and HCs:
@@ -359,6 +365,8 @@ DEMO
 	- creating work directory
 	- listing work directory
 	- changing back to work directory
+
+- show logins.sql
 
 - create a sql script in working directory
 	- run sql from the command line

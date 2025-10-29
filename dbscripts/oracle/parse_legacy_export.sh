@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Script name:		parse_legacy_export.sh
+
 #. about to export SYSTEM's tables via Direct Path ...
 #Table DEF$_AQCALL will be exported in conventional path.
 #. . exporting table                    DEF$_AQCALL          0 rows exported

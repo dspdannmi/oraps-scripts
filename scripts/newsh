@@ -56,7 +56,7 @@ do
 	else
 	    replace XXSCRIPT_NAMEXX ${newscript} ${newscript}
 	    replace DD-MON-YYYY ${modhist} ${newscript}
-	    replace  xxxuseridxxx ${USER} ${newscript}
+	    replace  xxxuseridxxx ${DSP_WHOAMI} ${newscript}
 	    status=$?
 
 	    if [ $status -ne 0 ]

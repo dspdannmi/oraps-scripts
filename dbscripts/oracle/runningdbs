@@ -64,9 +64,9 @@ done
 # ignore any with leading + as likely ASM
 if [ "${LONG}" = "NO" ]
 then
-    ps -ef | grep 'ora_smon_[a-zA-Z0-9_$#]' | cut -d_ -f3 | sort
+    ps -ef | grep 'ora_smon_[a-zA-Z0-9_$#]' | awk '{print $NF}' | cut -d_ -f3 | sort
 else
-    ps -ef | grep 'ora_smon_[a-zA-Z0-9_$#]' 
+    ps -ef | grep 'ora_smon_[a-zA-Z0-9_$#]' | awk '{print $NF ":" $1 ":" $2}' | sed -e 's/^ora_smon_'// | sort
 fi
 
 

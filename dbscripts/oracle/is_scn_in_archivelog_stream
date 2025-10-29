@@ -3,11 +3,11 @@
 #+++___________________________________________________________________________________
 #
 #
-# Script name:                  genccf
+# Script name:                  is_scn_in_archivelog_stream
 #
-# Description:			Generate a CREATE CONTROFILE script to standard output
+# Description:			xxx
 #
-# Parameters:			1	(optional)	SID
+# Parameters:			
 #
 # Environment:
 #

@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# Script name:			create_large_file.sh
+
 # Description:	Show command to create large (empty) file
 
 

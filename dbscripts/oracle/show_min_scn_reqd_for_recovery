@@ -3,11 +3,11 @@
 #+++___________________________________________________________________________________
 #
 #
-# Script name:                  genccf
+# Script name:                  show_min_scn_reqd_for_recovery
 #
-# Description:			Generate a CREATE CONTROFILE script to standard output
+# Description:			xxxx
 #
-# Parameters:			1	(optional)	SID
+# Parameters:			
 #
 # Environment:
 #

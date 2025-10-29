@@ -3,7 +3,7 @@
 #+++___________________________________________________________________________________
 #
 #
-# Script name:                  genccf
+# Script name:                  show_info_about_archlog
 #
 # Description:			Generate a CREATE CONTROFILE script to standard output
 #

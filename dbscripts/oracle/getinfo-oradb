@@ -305,7 +305,9 @@ fi
 echo "${padding}version                  : ${VERSION}"
 
 echo "${padding}open mode                : ${OPEN_MODE}"
+echo ""
 
+echo "${padding}TDE                      : <unknown - check not yet implemented>"
 echo ""
 
 echo "${padding}current scn              : ${CURRENT_SCN}"
