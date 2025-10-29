@@ -37,6 +37,7 @@ for func in catdebug \
             scriptout4 \
             setalertlogvar \
             setoradbenv \
+            settoday \
             set_error_trap \
             usage 
 do
