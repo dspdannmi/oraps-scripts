@@ -12,8 +12,8 @@ function listwork
     fi
 
     echo
-    echo "current work dir"
-    echo "----------------"
+    echo "current work dir:"
+    echo "-----------------"
 
     if [ "${DSP_CURRENT_WORKDIR}" != "" ]
     then
@@ -34,8 +34,8 @@ function listwork
     one_exists=NO
 
     echo
-    echo "work dirs"
-    echo "---------"
+    echo "work dirs:"
+    echo "----------"
     for dir in $(ls -1d ${topdir}/* 2>/dev/null)
     do
         one_exists=YES

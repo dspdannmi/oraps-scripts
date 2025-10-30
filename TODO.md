@@ -68,6 +68,12 @@ SQL scripts
 PRIORITY:  HIGH
 ===============
 
+- getinfo-oradb
+	on future non-prod server I did a getinfo-oradb and two things.  Interestingly even though single instance it showed database type as RAC
+        but also I realised that my general list of configuration does not state whether server is RAC or single instance
+
+- SADLY getinfo-oradb does not work well when database is not OPEN I don't think printtbl likes it
+
 - give a warning when running setenv if scripts are OLDER than 6 months
 
 - in getinfo for the DB, put in date of last successful full or incr0 bacukp

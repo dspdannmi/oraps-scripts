@@ -83,6 +83,17 @@ fi
 # outstanding mods:
 #   - make sure running as correct owner
 
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+
 owner=$(cut -d: -f1 ${DSP_OWNER_FILE})
 dspserverid=$(grep ^dspserverid: ${DSP_IDENTITY_FILE} | cut -d: -f2)
 
@@ -104,7 +115,7 @@ echo
 echo
 echo "Hostname"
 echo "--------"
-echo "${thishost}"
+echo "${HOSTNAME}"
 echo
 echo
 echo "Register UUID for the server ID"
@@ -307,16 +318,6 @@ status=$?
 serversummary
 
 
-
-#
-# Define local script variables
-#
-
-#
-# Script starts here
-#
-#
-set_error_trap
 
 
 echo
