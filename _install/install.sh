@@ -106,7 +106,7 @@ function set_install_vars
 
 function fresh_install_post_steps
     {
-    echo "Wooohoo! Freshy! :)"
+    chown -R oracle:oinstall /opt/dsp
     }
 
 
@@ -268,9 +268,9 @@ function do_install
 function existing_installation_found_prologue
     {
     echo
-    echo "--------------------------------"
-    echo "Pre-existing installation found:"
-    echo "--------------------------------"
+#    echo "--------------------------------"
+#    echo "Pre-existing installation found:"
+#    echo "--------------------------------"
     echo
     echo "Directory:            [${INSTALL_DIR}]"
     echo
@@ -426,8 +426,6 @@ do
         fi
 
         set_install_vars
-
-        echo Hello!
     fi
   else
     #

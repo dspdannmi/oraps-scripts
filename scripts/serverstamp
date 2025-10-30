@@ -76,7 +76,10 @@ then
        # on command line then allow it
        ALLOW_KEEP_ID="NO" 
     fi
-
+else
+    # identity file does not exist so does not make sense to allow the "Keep existing"
+    # UUID
+    ALLOW_KEEP_ID=NO
 fi
 
 #
