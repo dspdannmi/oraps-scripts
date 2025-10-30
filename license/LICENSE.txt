@@ -1,0 +1,43 @@
+
+**************************************************************************
+* LICENSE:  RESTRICTED USE
+**************************************************************************
+
+The scripts, files, resources and all contents of this installation 
+remain the property of DSP Group and the named contributors below.
+
+Only authorised users - specifically DSP technical resources and
+DSP customers may use these scripts.  In the case of DSP customers
+they may only run these scripts where (a) the server in question is
+specifically stated in a current DSP Managed Services contract and
+(b) and only where the scripts have been installed either by DSP
+or under the guidance of DSP.
+
+These scripts may not be installed and/or operating, either wholly
+or partially, on any servers by non-DSP technical consultants on
+any server that is not under a current DSP Managed Services contract.
+
+Where this scripts have been installed on a server that was once
+under a DSP Managed Service contract but which has now reached its
+term and therefore no longer applies, the customer or any third-party
+no longer have license to use this scripts and they should be
+removed.  
+
+All rights reserved. (c) 2025 DSP Group
+
+Scripts which have been included in this bundle that have been
+sourced from the public domain are not affected by this license.
+
+Primary contributes/maintainers:
+	---------------------------------
+	Professional Services Oracle Team
+	---------------------------------
+
+        Adeem Mir               (adeem.mir@dsp.co.uk)
+        Carl Hewkin             (carl.hewkin@dsp.co.uk)
+        George Dickson          (george.dickson@dsp.co.uk)
+        Mike Dann               (mike.dann@dsp.co.uk)
+        Rizwan Baza             (rizwan.baza@dsp.co.uk)
+        Stefano Angossini       (stefano.angossini@dsp.co.uk)
+        Tim Miller              (tim.miller@dsp.co.uk)
+

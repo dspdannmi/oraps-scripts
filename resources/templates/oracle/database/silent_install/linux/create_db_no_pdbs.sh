@@ -1,9 +1,5 @@
 export SYS_PASSWORD=
-#export ORACLE_SID=DSP19C
-
-echo -n "Enter ORACLLE_SID                           :  "
-read ORACLE_SID
-echo
+export ORACLE_SID=DSP19C
 
 echo -n "Enter new admin password (SYS, SYSTEM etc.) :  "
 read -s SYS_PASSWORD

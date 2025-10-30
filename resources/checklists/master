@@ -49,3 +49,30 @@ Load Balancer
 	- use reserved IP addresses
 
 
+Server Reprovision
+------------------
+- get list of custom rpms installed
+- backup:
+	/etc
+	/var
+	/opt
+	/home
+	/root
+
+        eg. cd/
+	tar zcvf ...../backup.YYYYMMDD/etc.tar.gz etc
+
+	or if space is premium run gzip -9
+
+		tar cvf - etc | gzip -9 > ......./backup.YYYYMMDD/etc.tar.gz
+
+- $ORACLE_HOME/dbs
+- $ORACLE_HOME/network/admin
+
+- database spfiles
+
+- have databases been backed up off server
+
+- capture info (capture.sh)
+
+	

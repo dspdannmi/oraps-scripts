@@ -68,6 +68,8 @@ SQL scripts
 PRIORITY:  HIGH
 ===============
 
+- getinfo-os
+	reporting wrong core count... need to combine it with "physical id" to get the number of physical sockets and "core id"
 - getinfo-oradb
 	on future non-prod server I did a getinfo-oradb and two things.  Interestingly even though single instance it showed database type as RAC
         but also I realised that my general list of configuration does not state whether server is RAC or single instance

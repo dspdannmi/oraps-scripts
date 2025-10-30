@@ -339,11 +339,11 @@ export ALERTLOG=""
         #PATH=${PATH}:${ORACLE_HOME}/bin
     elif [ "${DSP_WHOAMI}" = "oracle" ]
     then
-        PS1='[${DSP_WHOAMI}:$PWD:[${ORACLE_SID:-<*>}{${DSP_PDB_SID}}]: ${DSP_WHOAMI}> '
+        PS1='[$PWD:[${ORACLE_SID:-<*>}{${DSP_PDB_SID}}]: ${DSP_WHOAMI}> '
         #export PATH=${PATH}:/usr/local/bin:.
     else
         #PS1='$PWD:[${ORACLE_SID}> '
-        PS1='[${DSP_WHOAMI}:$PWD:[${ORACLE_SID:-<*>}{${DSP_PDB_SID}}]: ${DSP_WHOAMI}> '
+        PS1='[$PWD:[${ORACLE_SID:-<*>}{${DSP_PDB_SID}}]: ${DSP_WHOAMI}> '
         #export PATH=${PATH}:/usr/local/bin:.
     fi
 
