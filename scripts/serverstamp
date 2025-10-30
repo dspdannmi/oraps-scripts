@@ -264,7 +264,7 @@ echo "------------"
 echo
 echo "The following will be used to stamp this server:"
 echo ""
-echo "    hostname  : ${thishost}"
+echo "    hostname  : ${HOSTNAME}"
 echo "    server id : ${newid}"
 echo ""
 echo "   machine-id : ${machine_id}"
@@ -296,7 +296,7 @@ then
 fi
 
 (
-    echo "hostname: ${thishost}"
+    echo "hostname: ${HOSTNAME}"
     echo "dspserverid: ${newid}"
     echo "macaddr:  ${macaddr}"
     echo "ipaddr:   ${ipaddr}"
