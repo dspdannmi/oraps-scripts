@@ -16,3 +16,6 @@ select tz_version || ' please read  Doc ID 1255474.1 as per oracle-base.com reco
 REM does every temp tablespace have tempfiles that exist
 REM any gauranteed restore points
 REM sequences that are approaching max 
+
+
+- pdbs without saved state

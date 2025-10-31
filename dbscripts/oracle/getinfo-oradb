@@ -168,13 +168,15 @@ else
     exit ${EXITCODE}
 fi
 
+##
+## Determine version
+##   REMOVING AS DOESNT WORK WHEN DATABASE
+##   IN NOMOUNT OR MOUNTED ONLY WHEN OPEN
+##
+#version=$(getdbversion -d ${ORACLE_SID})
 #
-# Determine version
-#
-version=$(getdbversion -d ${ORACLE_SID})
-
-echo "${padding}VERSION:           ${version}"
-echo ""
+#echo "${padding}VERSION:           ${version}"
+#echo ""
 
 #
 # ORACLE_HOME

@@ -1,20 +1,6 @@
-REM 
-REM This is clearly an inefficient way and possibly the most inefficient way to capture the details
-REM for this database however it is trying to be compataible across Oracle versions and also
-REM must try to take in to account a database/instance that is only in NOMOUNT or MOUNT mode.
-REM Therefore, before this script is judged negatively here are some of the challenges:
-REM     - the script output needs to be readable/consumable by a BASH script and therefore merely
-REM		dumping out "select * from ..." a table will not make this easy
-REM     - columns are added over time such.  For example, with multi-tenant only from 12c onwards
-REM		the CDB column on V$DATABASE did not exist in versions 11g and before
-REM	- if the instance is not OPEN then DBA_ and other views are not available so need to rely
-REM		strongly on V$
-REM	- DBMS_OUTPUT is available in MOUNT mode in later versions including as recent as 10g
-REM		so could have perhaps used that with PL/SQL however do not believe it is available
-REM		in 9i or below so whilst could have made a call to not support 9i and below
-REM		give it is relatively easy to create the SQL below, even though its not efficient
-REM		thought it was best to try to support all versions.
-REM
+
+set pages 0
+set feedback off
 
 prompt <V_DATABASE>
 select 'DBID:' || DBID from v$database;
@@ -116,5 +102,3 @@ from v$pdbs
 order by con_id;
 prompt </V_PDBS>
 
-select 'DBSIZE_GB:' || round(sum(bytes)/1024/1024/1024)
-from v$datafile;

@@ -68,6 +68,8 @@ SQL scripts
 PRIORITY:  HIGH
 ===============
 
+- create "dbopen" script to allow database to be opened from MOUNT state or alternatively at a switch on to dbup eg. -o
+
 - getinfo-os
 	reporting wrong core count... need to combine it with "physical id" to get the number of physical sockets and "core id"
 - getinfo-oradb
