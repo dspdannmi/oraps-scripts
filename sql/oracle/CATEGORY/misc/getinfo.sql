@@ -16,6 +16,9 @@ REM		give it is relatively easy to create the SQL below, even though its not eff
 REM		thought it was best to try to support all versions.
 REM
 
+set lines 300
+col SETTNG format a200
+
 prompt <V_DATABASE>
 select 'DBID:' || DBID from v$database;
 select 'NAME:' || NAME from v$database;
@@ -118,3 +121,7 @@ prompt </V_PDBS>
 
 select 'DBSIZE_GB:' || round(sum(bytes)/1024/1024/1024)
 from v$datafile;
+
+prompt <V_PARAMETERS>
+select name || ':' || value from v$parameter where name = 'cluster_database';
+prompt </V_PARAMETERS>

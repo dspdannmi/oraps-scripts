@@ -52,14 +52,24 @@ case "${style}" in
     *) echo "ERROR: invalid style [${style}] - exiting" ; exit 1 ;;
 esac
 
-if [ "${ORACLE_SID}" = "" ]
-then
-    echo "ERROR: ORACLE_SID not set and not passed via command line - exiting"
-    exit 1
+#if [ "${ORACLE_SID}" != "" ]
+#then
+#    . ${ORAENV} 2>&1 > /dev/null
+#    status=$?
+#
+#    if [ $status -ne 0 ]
+#    then
+#        echo "ERROR: encountered error when running oraenv - exiting"
+#        EXITCODE=1
+#	exit ${EXITCODE}
+#    fi
+#else
+#    echo "ERROR: ORACLE_SID not set and not passed via command line - exiting"
+#    exit 1
 #else
 #    . ${ORAENV} 2>&1 > /dev/null
 #    status=$?
-fi
+#fi
 
 
 if [ ! -d ${ORACLE_HOME} ]
@@ -150,20 +160,33 @@ padding="    ${padding}"
 echo "${padding}ORACLE_SID:        ${ORACLE_SID}"
 echo ""
 
-if chkoradbinoratab ${ORACLE_SID}
+if chkoradbinoratab ${ORACLE_SID} 2>&1 > /dev/null
 then
     :
 else
-    echo "ERROR: ${ORACLE_SID} not in [${ORATAB}]"
+    echo "${padding}STATUS:            instance not configured in ${ORATAB}"
+    echo ""
     EXITCODE=1
     exit ${EXITCODE}
 fi
 
-if chkorainstsysdba ${ORACLE_SID}
+export ORACLE_SID
+export ORAENV_ASK=NO
+. ${ORAENV} 2>&1 > /dev/null
+
+if [ "${ORACLE_HOME}" = "" ]
+then
+    echo "${padding}ORACLE_HOME:	not set - exiting"
+    EXITCODE=1
+    exit ${EXITCODE}
+fi
+
+if chkorainstsysdba ${ORACLE_SID} 2>&1 > /dev/null
 then
     :
 else
-    echo "ERROR: ${ORACLE_SID} is not up"
+    echo "${padding}STATUS:            instance not started"
+    echo ""
     EXITCODE=1
     exit ${EXITCODE}
 fi
@@ -205,7 +228,10 @@ fi
 
 echo "${padding}PASSWORD FILE:     ${ORAPW_FILE}"
 
-runsql -d ${ORACLE_SID} getinfo.sql > ${tmpfile}
+# expecting some errors on older versions as newer columns etc.
+# are added to DBA_ and V$_ as versions increment so run with
+# -c flag to prevent exit on error
+runsql -c -d ${ORACLE_SID} getinfo.sql > ${tmpfile}
 
 
 awk '/<V_INSTANCE>/ {
@@ -245,6 +271,19 @@ awk '/<V_PDBS>/ {
                                      }' ${tmpfile} > ${tmpfile}.pdbs
 
 
+awk '/<V_PARAMETERS>/ {
+                                     process="true"
+                                     next
+                                     }
+                                     /<\/V_PARAMETERS>/ {
+                                     process=""
+                                     next
+                                     }
+                                     process=="true" {
+                                     print
+                                     }' ${tmpfile} > ${tmpfile}.v_parameters
+
+
 INSTANCE_NAME=$(grep '^INSTANCE_NAME[ ]*:' ${tmpfile}.v_instance | cut -d: -f2- | xargs)
 VERSION=$(grep '^VERSION[ ]*:' ${tmpfile}.v_instance | cut -d: -f2- | xargs)
 VERSION_LEGACY=$(grep '^VERSION_LEGACY[ ]*:' ${tmpfile}.v_instance | cut -d: -f2- | xargs)
@@ -277,15 +316,19 @@ CDB=$(grep '^CDB[ ]*:' ${tmpfile}.v_database | cut -d: -f2- | xargs)
 NUMBER_OF_STANDBY_DEST=$(grep '^NUMBER_OF_STANDBY_DEST:' ${tmpfile} | cut -d: -f2- | xargs)
 DBSIZE_GB=$(grep '^DBSIZE_GB:' ${tmpfile} | cut -d: -f2- | xargs)
 
+CLUSTER_DATABASE=$(grep '^cluster_database[ ]*:' ${tmpfile}.v_parameters | cut -d: -f2- | xargs)
+
 padding="    ${padding}"
 
 echo ""
-echo "${padding}dbid                     : ${DBID}"
 echo "${padding}db name                  : ${NAME}"
 echo "${padding}db unique name           : ${DB_UNIQUE_NAME}"
 echo "${padding}instance name            : ${INSTANCE_NAME}"
 echo "${padding}created                  : ${CREATED}"
 echo "${padding}startup time             : ${STARTUP_TIME}"
+echo "${padding}dbid                     : ${DBID}"
+echo ""
+echo "${padding}cluster_database         : ${CLUSTER_DATABASE}"
 echo ""
 echo "${padding}dbsize(total)            : ${DBSIZE_GB}Gb"
 echo ""

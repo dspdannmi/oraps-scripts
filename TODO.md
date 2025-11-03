@@ -44,8 +44,6 @@ Scenarios:
 INSTALL
 =======
 
-- when running serverstamp if there isn't already a serveridentity.txt file then dont give option of KEEP EXISTING id
-
 - when running install if serveridentity.txt file does not exist then populate it with a UUID irrespective and then force/encourage serverstamp
 
 - can we include info on whether server is part of a cluster
@@ -65,8 +63,26 @@ SQL scripts
 	- service start scripts for oracle database + dbvisit snapshots etc.
 
 
+BUILD STANDARDS
+===============
+- force_logging enabled for DBvisit and Data Guard databases
+- a reminder that our build standards should also feed health check checks
+
+HealthChecks
+============
+
+- add to HCs and miniHCs and getinfos to check for guaranteed restore points
+
+
 PRIORITY:  HIGH
 ===============
+
+- bug: serverstamp / serverstampcheck
+	scenario:  upgraded future OL7->OL8 so new machine
+			brought back from backup the identity.txt file
+			serverstampcheck fails because MAC address has changed (which is weird)
+			but it wasn't clear I needed -f and -x.  A message to tell me the reason I am not getting
+				"keep existing" option for ID because I ran with -f but not -x would be good
 
 - create "dbopen" script to allow database to be opened from MOUNT state or alternatively at a switch on to dbup eg. -o
 
@@ -76,27 +92,25 @@ PRIORITY:  HIGH
 	on future non-prod server I did a getinfo-oradb and two things.  Interestingly even though single instance it showed database type as RAC
         but also I realised that my general list of configuration does not state whether server is RAC or single instance
 
-- SADLY getinfo-oradb does not work well when database is not OPEN I don't think printtbl likes it
+XX_FIXED_XX - SADLY getinfo-oradb does not work well when database is not OPEN I don't think printtbl likes it
 
 - give a warning when running setenv if scripts are OLDER than 6 months
 
-- in getinfo for the DB, put in date of last successful full or incr0 bacukp
+XX_modified_to_show_check_but_as_not_yet_implemented_XX - in getinfo for the DB, put in date of last successful full or incr0 bacukp
 
 - even if serverstamp cant handle it yet, setup serveridentity.txt so it can accept
 
 - track under DSP_CURRENT_WORKDIR when we backup files and change files
 
 - multiple entries when a server has multiple components installed such as DB, WebLogic, ORDS etc.
+	- this applies to serversummary and similar but also the infrastructure to track multiple components
 
-- not so much for standardised scripts but for build standards and HCs:
-	- force_logging enabled for DBvisit and Data Guard databases
-	- a reminder that our build standards should also feed health check checks
 
-- runlater where does it put its log, should really be $HOME/dsp/runlater/out
+XX_DONE_XX - runlater where does it put its log, should really be $HOME/dsp/runlater/out
 
 - how can i tell if root or opc user have passwords set
 
-- runlater does not seem to be working
+XX_FIXED_XX - runlater does not seem to be working
 
 - create a script to try to workout what kind of server this is
 	- virtual or physical
@@ -108,7 +122,6 @@ PRIORITY:  HIGH
 
 - capture dsp bundle installs (including first one) in change log
 
-- add to HCs and miniHCs and getinfos to check for guaranteed restore points
 
 - when modifying getinfo-ohome I found that scriptdir was not being set so set it again in funcs.sh ---> check this
 - and also when modifying getinfo-chown I had to force ${scriptdir}/sql rather than just sql to avoid the $ORACLE_HOME/bin/sql being run
@@ -132,7 +145,7 @@ PRIORITY:  HIGH
 
 - have a changelog for servers
 
-- i just made a mcdwork directory and the session was two 2 days old so $today was set to 20251026
+XX_fixed_XX - i just made a mcdwork directory and the session was two 2 days old so $today was set to 20251026
 
 - capture formsweb.cfg
 - capture webutil.cfg
@@ -142,7 +155,7 @@ PRIORITY:  HIGH
 		- if server = prod then DB assumed prod unless config says otherwise
 
 
-- $ORACLE_HOHE/bin/sql ---> SQLcl tool, which can interfere with our "sql" when $ORACLE_HOME/bin is earlier in the path
+XX_DONE_202510sometime_XX_changed_reluctantly_to_sqlx_XX - $ORACLE_HOHE/bin/sql ---> SQLcl tool, which can interfere with our "sql" when $ORACLE_HOME/bin is earlier in the path
 
 - using local /etc/oratab not as easy as it sounds
 	- firstly, it is set in dsp.env therefore if it is updated hardcoded in there it will
@@ -152,7 +165,7 @@ PRIORITY:  HIGH
 
 - harbour energy had whitespace at beginning of /etc/oratab lines ... yuk
 
-- create iscdb.sql script
+XX_done_XX - create iscdb.sql script
 
 - if i use setpdb at command line at prompt, when going in to SQL it lands me there but prompt doesn't initially show me
 
@@ -164,6 +177,13 @@ PRIORITY:  HIGH
 
 XX_DONE_20251024_XX - dbscripts/oracle/chkoradbopen needs renaming as it just checks that the instance is running.  select user form dual returns SYS even if instance is mounted
 XX_DONE_20251024_XX - which is fine as long as we know that when we are using it to check.  Rename to chkorainstanceup perhaps
+
+- had a really good example whereby login.sql sets a whole heap of columns but then call script1 and it sets columns for itself and then I call script2 and columns are screwy
+- was for column defined as "USED (%)" and was inappropriate as script1 used was in fact a percentage so set heading to "USED(%)" but in script2 used was an actual amount
+- so because I didn't specifically set USED column in script two it was displayed as "USED(%)" which is misleading.  Moral is make sure individual SQL scripts set column
+- headers themselves.  Dont assume anything other than the column may be poorly defined - or alternatively reset column headers for every sql script
+
+- fix LISTSQL.sql so it works from sql*plus
 
 - had a really good example whereby login.sql sets a whole heap of columns but then call script1 and it sets columns for itself and then I call script2 and columns are screwy
 - was for column defined as "USED (%)" and was inappropriate as script1 used was in fact a percentage so set heading to "USED(%)" but in script2 used was an actual amount
@@ -186,7 +206,7 @@ XX_DONE_20251024_XX - which is fine as long as we know that when we are using it
 
 - make it clear that on stamping the server to make sure to choose the most appropriate IP address, not any old one, make sure it's the pprimary IP address of the node and not floating ip address for exmaple
 
-- serverstamp does not work properly on Oracle Linux 5
+XX_fixed_XX - serverstamp does not work properly on Oracle Linux 5
 
 PRIORITY:  MEDIUM
 ===============
@@ -250,13 +270,6 @@ PRIORITY:  MEDIUM
 - add in templates for starting servers for oracle database and dbvisit
 
 PRIORITY:  LOW
-==============
-
-- latest datasafe_privileges.sql
-
-- incorporate ahf/tfa etc in these scripts
-
-V$ASM_ACFSAUTORESIZE
 V$ASM_ACFSREPL
 V$ASM_ACFSREPLTAG
 V$ASM_ACFSSNAPSHOTS

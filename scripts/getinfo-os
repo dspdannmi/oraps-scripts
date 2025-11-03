@@ -166,6 +166,9 @@ function get_meminfo
 function get_cpuinfo
     {
     NUM_CPUS=$(grep -i '^processor' /proc/cpuinfo | wc -l)
+
+    #
+    # this is not accurate for multi-socket machines hence no using in this script (yet!)
     NUM_CORES=$(grep -i '^core id' /proc/cpuinfo | sort -u | wc -l)	# need to sort and get unique for cores
     }
 
@@ -222,7 +225,7 @@ echo "${padding}uptime                 : ${UPTIME}"
 echo "${padding}last boot              : ${LASTBOOT}"
 echo ""
 echo "${padding}(v)cpus                : ${NUM_CPUS}"
-echo "${padding}cores                  : ${NUM_CORES}"
+#echo "${padding}cores                  : ${NUM_CORES}"
 echo ""
 echo "${padding}memory "
 echo "${padding}${padding}total              : ${MEM_TOTAL}"

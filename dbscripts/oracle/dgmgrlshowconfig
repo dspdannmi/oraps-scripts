@@ -1,0 +1,116 @@
+#!/bin/bash
+set +x
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  dgmgrlshowconfig
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       01-Oct-2003     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+CS_TOP=${CS_TOP:-/opt/dsp}
+. ${CS_TOP}/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+
+USAGE_STRING="[-c] [-d SID[:pdb]] [-h host] [-z]"
+
+#DEBUG=YES
+
+#
+# Script starts here
+#
+#
+#set_error_trap
+
+INTERACTIVE_SHELL="YES"
+while getopts 'd:h:z' OPTION
+do
+    case "$OPTION" in
+        d) db=$OPTARG ; unset ORACLE_PDB_SID ; unset DSP_PDB_SID ;; 	# if -d parameter then clear any PDB env references
+        h) dbhost=$OPTARG ;;
+        z) INTERACTIVE_SHELL="NO" ;;
+        ?) usage ;;
+    esac
+done
+shift $((OPTIND-1))
+
+if [ $# -gt 0 ]
+then
+    usage
+fi
+
+
+db=${db:-${ORACLE_SID}}	# set to ORACLE_SID if not set from command line -d option
+
+if [ "${dbhost}" != "" ]
+then
+    : # run on different host
+else
+   :  # run on this host
+   export ORACLE_SID=$(echo ${db} | awk -F: '{print $1}')
+
+   if [ "${ORACLE_SID}" = "" ]
+   then
+        echo ERROR: ORACLE_SID is null
+        EXITCODE=1
+        exit $EXITCODE
+   fi
+
+   if chkoradbinoratab ${ORACLE_SID}
+   then
+       :
+   else
+       echo "ERROR: $ORACLE_SID not in [${ORATAB}]"
+       EXITCODE=1
+       exit ${EXITCODE}
+   fi
+
+   . /usr/local/bin/oraenv 2>&1 > /dev/null
+
+   if chkorainstsysdba $ORACLE_SID 
+   then
+       :
+   else
+       echo "ERROR: $ORACLE_SID is not up"
+       EXITCODE=1
+       exit ${EXITCODE}
+   fi
+
+   SQL_EXIT_ON_ERROR=${SQL_EXIT_ON_ERROR:-YES}
+   if [ "${SQL_EXIT_ON_ERROR}" != "NO" ]
+   then
+	SQL_WHENERROR="exit sql.sqlcode"
+   else
+	SQL_WHENERROR="continue"
+   fi
+
+    if [ "${INTERACTIVE_SHELL}" = "YES" ]
+    then
+        sqlplus_set_cmd="set pagesize ${SQLPLUS_PAGESIZE} linesize ${SQLPLUS_LINESIZE} echo on feedback on termout on"
+    else
+        sqlplus_set_cmd="set pagesize 0 linesize 140 echo off feedback off verify off"
+    fi
+
+dgmgrl << *EOF*
+connect /
+show configuration
+*EOF*
+status=$?
+
+fi	#dbhost
+    
+exit $EXITCODE
+

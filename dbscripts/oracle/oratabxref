@@ -43,7 +43,7 @@ CS_TOP=${CS_TOP:-/opt/dsp}
 #
 echo
 echo "===================================================="
-echo "ORACLE_HOME(s) in [ ${ORATAB} ]"
+echo "ORACLE_HOME(s) in [${ORATAB}]"
 echo "===================================================="
 echo
 for ohome in $(grep '^[a-zA-Z0-9_$].*:' ${ORATAB} | awk -F: '{print $2}' | sort -u)
@@ -66,7 +66,7 @@ done
 
 echo
 echo "===================================================="
-echo "Checking ${ORATAB} as to which instances are running"
+echo "ORACLE_SID(s) in [${ORATAB}]"
 echo "===================================================="
 echo
 grep '^[a-zA-Z0-9_$].*:' ${ORATAB} | sort | while read LINE
@@ -93,7 +93,7 @@ done
 echo
 echo
 echo "=================================================="
-echo "Checking running instances have entry in ${ORATAB}"
+echo "ORACLE_SID(s)
 echo "=================================================="
 echo
 for sid in $(runningdbs)

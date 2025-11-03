@@ -28,15 +28,46 @@ USAGE_STRING="[-o ORACLE_HOME] [-m lite|basic|comp] [-s human|machine]"
 mode="lite"
 style="human"
 
-while getopts 'o:m:s:' OPTION
+while getopts 'd:o:m:s:' OPTION
 do
     case "$OPTION" in
-        o) ORACLE_HOME=$OPTARG ;;
+        d) osid=$OPTARG ;;
+        o) ohome=$OPTARG ;;
         m) mode=$OPTARG ;;
         s) style=$OPTARG ;;
         ?) usage ;;
     esac
 done
+
+if [ "${osid}" != "" ] && [ "${ohome}" != "" ]
+then
+    echo "ERROR: cannot using -d and -o options concurrently - exiting"
+    EXITCODE=1
+    exit ${EXITCODE}
+fi
+
+if [ "${osid}" != "" ]
+then
+    export ORACLE_SID=${osid}
+    export ORAENV_ASK=NO
+    . ${ORAENV}
+else
+    export ORACLE_HOME=${ohome}
+fi
+
+if [ "${ORACLE_HOME}" = "" ]
+then
+    echo "ERROR: ORACLE_HOME not set - exiting"
+    EXITCODE=1
+    exit ${EXITCODE}
+fi
+
+if [ ! -d ${ORACLE_HOME} ]
+then
+    echo "ERROR: ORACLE_HOME [${ORACLE_HOME}] set but is not a directory - exiting"
+    EXITCODE=1
+    exit ${EXITCODE}
+fi
 
 case "${mode}" in
     [lL][iI][tT][eE] ) mode=lite ;;
