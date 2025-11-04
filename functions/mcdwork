@@ -31,6 +31,8 @@ function mcdwork
 	mkdir -p ${dir} || echo "mcd: mkdir error"
     fi
 
+    dsp_server_id=${DSP_SERVERID}
+
     if [ -d ${dir} ]
     then
         export DSP_CURRENT_WORKDIR=${dir}
@@ -44,22 +46,26 @@ function mcdwork
             echo "WARNING: notes templates file [${notes_templates_file} does not exist - creating on fly - please report this to maintainers"
 
             (
-            echo "DATE:		XX_datetime_XX"
+            echo "date:		%%datetime%%"
             echo ""
-            echo "WORKING DIR:"
-            echo "XX_working_directory_XX"
+            echo "dsp_serverid: %%dsp_serverid%%"
+            echo ""
+            echo "working dir:"
+            echo "%%working_directory%%"
             echo
-            echo "CONSULTANT:"
+            echo "consultant:"
             echo ""
-            echo "DESCRIPTION:"
+            echo "description:"
             echo ""
-            echo "NOTES:"
+            echo "notes:"
             ) > ${notes_file}
             status=$?
 
         fi
 
-        sed -i -e "s;XX_working_directory_XX;${PWD};" -e "s/XX_datetime_XX/$(date +%Y-%m-%d:%H:%M:%S)/" ${notes_file}
+        sed -i -e "s;%%working_directory%%;${PWD};" \
+               -e "s/%%datetime%%/$(date +%Y-%m-%d:%H:%M:%S)/" \
+               -e "s/%%dsp_serverid%%/${dsp_server_id}/" ${notes_file}
 
         vi ${notes_file}
     else

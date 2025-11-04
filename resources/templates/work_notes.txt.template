@@ -1,22 +1,25 @@
 
-DATE/TIME:	
-XX_datetime_XX
+date:
+%%datetime%%
 
-WORKING DIRECTORY:
-XX_working_directory_XX
+dsp_serverid:
+%%dsp_serverid%%
+
+working directory:
+%%working_directory%%
 
 
-DSP REFERENCE#:
+dsp reference#:
 xxxx
 
 
-CONSULTANT:	
+consultant:
 xxxx
 
 
-DESCRIPTION:
+description:
 xxxx
 
 
-UPDATES:
+updates:
 xxxx

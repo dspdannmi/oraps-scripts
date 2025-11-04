@@ -1,9 +1,12 @@
 
 --DESCRIBE: Show ASM disk group usage
 
+col name format a30
 col total_mb format 999999999999
 col free_mb format 999999999999
-col used format 999.99
+col used format 999999999999
+col pctused format 999.99
+col neg_usable format a16
 
 select name, 
        total_mb, 
@@ -11,7 +14,7 @@ select name,
        total_mb-free_mb used,
        usable_file_mb,
        (total_mb-free_mb)*100/total_mb pctused,
-       decode(sign(usable_file_mb), -1, '*** negative usable ***')
+       decode(sign(usable_file_mb), -1, '*** <0 usable ***') neg_usable
 from v$asm_diskgroup_stat
 order by name;
 
