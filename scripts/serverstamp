@@ -100,7 +100,7 @@ set_error_trap
 owner=$(cut -d: -f1 ${DSP_OWNER_FILE})
 dspserverid=$(grep ^dspserverid: ${DSP_IDENTITY_FILE} | cut -d: -f2)
 
-if [ "${user}" != "${owner}" ]
+if [ "${user}" != "root" ] && [ "${user}" != "${owner}" ]
 then
     echo "ERROR: this user [${user}] does not match owner [${owner}] - exiting"
     EXITCODE=1

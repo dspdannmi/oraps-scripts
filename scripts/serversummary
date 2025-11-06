@@ -142,7 +142,6 @@ done
 
 echo ""
 echo -e "server time   :  ${BYellow}$(date)${White}"
-echo ""
 
 echo ""
 # -P used as on Oracle Linux 5 formatting can go over more than one line and suspect
@@ -170,7 +169,6 @@ then
 fi
 
 echo -e ${Colour_Off}
-echo
 echo
 
 #

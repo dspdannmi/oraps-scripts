@@ -154,6 +154,13 @@ set_error_trap
 level=1
 TAG=ORACLE_SID
 
+if [ "${ORACLE_SID}" = "" ]
+then
+    echo "ERROR: ORACLE_SID not set and not passed on command line - exiting"
+    EXITCODE=1
+    exit ${EXITCODE}
+fi
+
 print_begin ${TAG}
 
 padding="    ${padding}"
