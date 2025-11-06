@@ -19,304 +19,378 @@
 #
 #+++___________________________________________________________________________________
 
+DEBUG="NO"
+
 DSP_TOP=/opt/dsp
 
 USAGE_STRING=""
 
 OS=$(uname)
-user=$(whoami)
+user=$(id -un)
+group=$(id -gn)
 
+BANNER_FILE=banner.txt
+NEW_INSTALL_VERSION_FILE=version.txt
 DSP_DIR=dsp
 
 DEFAULT_INSTALL_DIR_ROOT=/opt/${DSP_DIR}
 DEFAULT_INSTALL_DIR_NONROOT=$HOME/${DSP_DIR}
-#INSTALL_DIR=${DEFAULT_INSTALL_DIR_ROOT}
+
+DEFAULT_INSTALL_DIR=${DEFAULT_INSTALL_DIR_ROOT}
 
 DEFAULT_OWNER="oracle"
 DEFAULT_GROUP="oinstall"
 
-KEEP_TRYING="YES"
+keep_trying="YES"
+
+install_dir_exists="NO"
+install_dir_writeable="NO"
+new_install_version_file=version.txt
+owner_is_me="NO"
+
+function echodebug
+    {
+    if [ "${DEBUG}" = "YES" ]
+    then
+        echo "debug: ${*}"
+    fi
+    }
+
+
+
+
+function get_install_owner
+    {
+    echodebug "ask_for_install_owner: begin"
+
+    tmp_owner="${install_owner}"
+    tmp_group="${install_group}"
+
+    if [ "${user}" != "root" ]
+    then
+        tmp_owner=${user}
+        tmp_group=${group}
+    fi
+
+    OK="NO"
+    while [ "${OK}" = "NO" ]
+    do
+        echo -n "Enter install owner: [${tmp_owner}] "
+        read userinput
+
+        if [ "${userinput}" = "" ]
+        then
+            if [ "${tmp_owner}" != "" ]
+            then
+                 install_owner=${tmp_owner}
+                 OK="YES"
+            else
+                 :
+            fi
+        else
+            install_owner=${userinput}
+            OK="YES"
+        fi
+
+        if grep ^${install_owner}: /etc/passwd 2>&1 > /dev/null
+        then
+            :
+        else
+            echo "ERROR: user [${install_owner}] does not exist"
+            OK="NO"
+        fi
+    done
+
+    OK="NO"
+    while [ "${OK}" = "NO" ]
+    do
+        echo -n "Enter install group: [${tmp_group}] "
+        read userinput
+
+        if [ "${userinput}" = "" ]
+        then
+            if [ "${tmp_group}" != "" ]
+            then
+                 install_group=${tmp_group}
+                 OK="YES"
+            else
+                 :
+            fi
+        else
+            install_group=${userinput}
+            OK="YES"
+        fi
+
+        if grep ^${install_group}: /etc/group 2>&1 > /dev/null
+        then
+            :
+        else
+            echo "ERROR: group [${install_group}] does not exist"
+            OK="NO"
+        fi
+    done
+
+    echodebug "ask_for_install_owner: end"
+    }
+
+
+function do_install()
+    {
+    echo "Installation"
+    echo "------------"
+    echo ""
+    echo "   installation dir  : ${INSTALL_DIR}"
+    echo "              owner  : ${install_owner}"
+    echo "              group  : ${install_group}"
+    echo ""
+    echo "    current version  : ${current_version}"
+    echo "        new version  : ${NEW_VERSION}"
+    echo ""
+   
+
+    if prompt_confirm "Do you wish to proceed?"
+    then
+        echo "Installing..."
+
+        if [ "${user}" = "root" ]
+        then
+            tar_owner_clause="--owner=${install_owner}"
+            tar_group_clause="--group=${install_group}"
+        else
+            tar_owner_clause=""
+            tar_group_clause=""
+        fi
+
+        if [ ! -d ${INSTALL_DIR} ]
+        then
+            echo "ERROR: installation dir [${INSTALL_DIR}] does not exist - exiting"
+            EXITCODE=1
+            exit ${EXITCODE}
+        fi
+
+        # choosing cpio as it gives better control around forcing ownership to be
+        # specific owner:group for files that already exist.  A bit more versatile
+        # and predictable compared to tar
+
+        # add -v clause for verbose
+        echodebug "gunzip -c ${NEW_INSTALL_FILE} | cpio -icdm --owner ${install_owner}:${install_group} -u -D ${INSTALL_DIR}"
+        gunzip -c ${NEW_INSTALL_FILE} | cpio -icdm --owner ${install_owner}:${install_group} -u -D ${INSTALL_DIR}
+        status=$?
+
+        echodebug "status=$status"
+
+        echo "${install_owner}:${install_group}" > ${owner_file}
+        status=$?
+
+        keep_trying="NO"
+    else
+        :
+    fi
+    }
+
+
+function check_already_installed()
+    {
+    echodebug "check_already_installed: begin"
+
+    if [ "${existing_installation}" = "YES" ]
+    then
+        return 0
+    else
+        return 1
+    fi
+
+    echodebug "check_already_installed: end"
+    }
+
+
+function create_install_dir()
+    {
+    echodebug "create_install_dir: begin"
+
+    if [ "${parent_dir_writeable}" = "YES" ]
+    then
+        mkdir -m 755 ${INSTALL_DIR}
+        status=$?
+
+        if [ $status -eq 0 ]
+        then
+            if [ "${user}" = "root" ]
+            then
+                chown ${install_owner}:${install_group} ${INSTALL_DIR}
+                status=$?
+            fi
+
+            echo "Installation directory [${INSTALL_DIR}] successfully created"
+            echo
+        else
+            :
+        fi
+
+    else
+        echo ""
+        echo "ERROR: parent directory [${parent_dir}] not writeable"
+        return 1
+    fi
+
+    echodebug "create_install_dir: end"
+    }
+
+
+function check_i_am_root_or_owner()
+    {
+    if [ "${user}" = "root" ] || [ "${user}" = "${install_owner}" ]
+    then
+        return 0
+    else
+        return 1
+    fi
+    }
+
+function prompt_confirm() {
+# acknowledge https://stackoverflow.com/questions/3231804/in-bash-how-to-add-are-you-sure-y-n-to-any-command-or-alias
+  while true; do
+    read -r -n 1 -p "${1:-Continue?} [y/n]: " REPLY
+    case $REPLY in
+      [yY]) echo ; return 0 ;;
+      [nN]) echo ; return 1 ;;
+      *) printf " \033[31m %s \n\033[0m" "invalid input"
+    esac 
+  done  
+}
+
+
+
+function set_install_dir()
+    {
+    echodebug "set_install_dir: begin"
+
+    echo -n "Enter installation directory ["${INSTALL_DIR}"]: "
+    read userinput
+
+    if [ "${userinput}" = "" ]
+    then
+        : # do nothing as default is already set and accepted
+    else
+        INSTALL_DIR=${userinput}
+    fi
+
+    install_dir_exists="NO"
+    install_dir_writeable="NO"
+    parent_dir_exists="NO"
+    parent_dir_writeable="NO"
+    install_owner_is_me="NO"
+
+    install_owner=""
+    install_group=""
+
+    if [ "$(grep ^oracle: /etc/passwd)" ]
+    then
+        install_owner="oracle"
+    fi
+
+    if [ "$(grep ^oinstall: /etc/group)" ]
+    then
+        install_group="oinstall"
+    else
+        if [ "$(grep ^dba: /etc/group)" ]
+        then
+            install_group="dba"
+        fi
+    fi
+
+    if [ "${INSTALL_DIR}" = "" ]
+    then
+        INSTALL_DIR=${DEFAULT_INSTALL_DIR}
+    fi
+
+    config_dir=${INSTALL_DIR}/config/dsp
+    owner_file=${config_dir}/owner.txt
+    identity_file=${config_dir}/identity.txt
+    version_file=${config_dir}/version.txt
+    
+    parent_dir=$(dirname ${INSTALL_DIR})
+
+    if [ -d ${INSTALL_DIR} ]
+    then
+        install_dir_exists="YES"
+
+        #install_owner is who should own the code
+        #install_dir_owner is the actual owner of the install dir
+        #
+        install_owner=$(stat -c "%U" ${INSTALL_DIR})
+        install_dir_owner=${install_owner}
+
+
+        #install_group is who should own the code
+        #install_dir_group is the actual group of the install dir
+        #
+        install_group=$(stat -c "%G" ${INSTALL_DIR})
+        install_dir_group=${install_group}
+
+        if [ "${install_owner}" = "${user}" ]
+        then
+             install_owner_is_me="YES"
+        fi
+
+        if [ "$(find ${INSTALL_DIR} | wc -l)" = "1" ]	# directory is empty
+        then
+            install_dir_empty="YES"
+        else
+            install_dir_empty="NO"
+        fi
+
+        if [ -f ${owner_file} ] && [ -f ${identity_file} ] && [ -f ${version_file} ]
+        then
+            existing_installation="YES" 
+
+            install_owner=$(cut -d: -f1 ${owner_file})
+            install_group=$(cut -d: -f2 ${owner_file})
+
+            if [ "${install_owner}" != "${install_dir_owner}" ] || [ "${install_group}" != "${install_dir_group}" ]
+            then
+                echo "ERROR: install owner:group [${install_owner}:${install_group}] from owner.txt file mismatch"
+                echo "       with dir owner [${install_dir_owner}:${install_dir_group}]"
+                EXITCODE=1
+                exit ${EXITCODE}
+            fi
+        else
+            existing_installation="NO" 
+        fi
+    fi
+
+    if [ -w ${INSTALL_DIR} ]
+    then
+        install_dir_writeable="YES"
+    fi
+
+    if [ -w ${parent_dir} ]
+    then
+        parent_dir_writeable="YES"
+    fi 
+
+    check_already_installed
+
+    echodebug "install_dir_exists       : ${install_dir_exists}"
+    echodebug "existing_installation    : ${existing_installation}"
+    echodebug "install_dir_writeable    : ${install_dir_writeable}"
+    echodebug "parent_dir_writeable     : ${parent_dir_writeable}"
+    echodebug "install_dir_empty        : ${install_dir_empty}"
+    echodebug "install_owner_is_me      : ${install_owner_is_me}"
+    echodebug "install_owner        : ${install_owner}"
+    echodebug "install_group        : ${install_group}"
+
+    echodebug "set_install_dir: end"
+    }
+
 
 #
 # Define local script variables
 #
 
-function install_root_default_dir_exists
-    {
-    echo "Yeeha!"
-    }
-
-
-function get_current_version
-    {
-    if [ -r ${VERSION_FILE} ]
-    then
-        CURRENT_VERSION=$(cat ${VERSION_FILE})
-    else
-        CURRENT_VERSION=""
-    fi
-    }
-
-
-
-function set_install_vars
-    {
-    CONFIG_DIR=${INSTALL_DIR}/config/dsp
-
-    VERSION_FILE=${CONFIG_DIR}/version.txt
-    OWNER_FILE=${CONFIG_DIR}/owner.txt
-    IDENTITY_FILE=${CONFIG_DIR}/identity.txt
-
-    if [ -r ${OWNER_FILE} ]
-    then
-        INSTALL_OWNER=$(cat ${OWNER_FILE} | cut -d: -f1)
-        INSTALL_GROUP=$(cat ${OWNER_FILE} | cut -d: -f2)
-    else
-        INSTALL_OWNER=""
-        INSTALL_GROUP=""
-    fi
-
-    INSTALL_DIR_EXISTS=no	#failsafe approach - assume install dir does not exist
-				#until determined otherwise later
-
-    if [ -d ${INSTALL_DIR} ]
-    then
-        INSTALL_DIR_EXISTS=yes
-    else
-        INSTALL_DIR_EXISTS=no
-    fi
-
-    if [ -r ${INSTALL_DIR_VERSION_FILE} ]
-    then
-        INSTALL_DIR_VERSION_FILE_EXISTS=yes
-    else
-        INSTALL_DIR_VERSION_FILE_EXISTS=no
-    fi
-    
-    if [ -r ${INSTALL_DIR_OWNER_FILE} ]
-    then
-        INSTALL_DIR_OWNER_FILE_EXISTS=yes
-    else
-        INSTALL_DIR_OWNER_FILE_EXISTS=no
-    fi
-
-    get_current_version
-    }
-
-
-function fresh_install_post_steps
-    {
-    chown -R oracle:oinstall /opt/dsp
-    }
-
-
-function get_install_owner_and_group
-    {
-    if [ "${user}" = "root" ]
-    then
-      #
-      # run as root so let us ask for preferred user and group
-      #
-      LOOP=yes
-      while [ "${LOOP}" = "yes" ]
-      do
-        echo "User to own this installation: [${DEFAULT_OWNER}]"
-        read userinput
-
-        if [ "${userinput}" = "" ]
-        then
-            INSTALL_OWNER=${DEFAULT_OWNER}
-        else
-            INSTALL_OWNER=${userinput}
-        fi
-
-        if grep ${INSTALL_OWNER}: /etc/passwd 2>&1 > /dev/null
-        then
-            LOOP=no
-        else
-            echo "User [${INSTALL_OWNER}] not a valid user - try again"
-        fi
-      done
-
-      LOOP=yes
-      while [ "${LOOP}" = "yes" ]
-      do
-        echo "Group to own this installation: [${DEFAULT_GROUP}]"
-        read userinput
-    
-        if [ "${userinput}" = "" ]
-        then
-            INSTALL_GROUP=${DEFAULT_GROUP}
-        else
-            INSTALL_GROUP=${userinput}
-        fi
-
-        if grep ${INSTALL_GROUP}: /etc/group 2>&1 > /dev/null
-        then
-            LOOP=no
-        else
-            echo "User [${INSTALL_GROUP}] not a valid user - try again"
-        fi
-      done
-    else
-      LOOP=yes
-      while [ "${LOOP}" = "yes" ]
-      do
-        #
-        # run as non-root so let us get user and group from current user
-        #
-        INSTALL_OWNER=${user}
-        INSTALL_GROUP=$(id -ng)
-
-        LOOP=no
-       done
-    fi
-    }
-
-
-function do_install
-    {
-    if [ "${INSTALL_OWNER}" = "" ] || [ "${INSTALL_GROUP}" = "" ]
-    then
-        get_install_owner_and_group
-    fi
-
-    if [ "${NEW_VERSION}" = "${CURRENT_VERSION}" ] 
-    then
-        version_suffix="<<< same as current <<<"
-    fi
-    
-    echo
-    echo "--------------------------------"
-    echo "Installation:"
-    echo "--------------------------------"
-    echo
-    echo "Install directory:    [${INSTALL_DIR}]"
-    echo
-    echo "New version:          [${NEW_VERSION}] ${version_suffix}"
-    echo
-    echo "Install owner:        [${INSTALL_OWNER}]"
-    echo "Install group:        [${INSTALL_GROUP}]"
-    echo
-    
-    if [ "${NEW_VERSION}" = "${CURRENT_VERSION}" ]
-    then
-        echo  "*************************************************"
-        echo  "*  WARNING: version already installed           *"
-        echo  "*************************************************"
-    elif [[ "${NEW_VERSION}" < "${CURRENT_VERSION}" ]]
-    then
-        echo  "*************************************************"
-        echo  "*  WARNING: installed version is later          *"
-        echo  "*************************************************"
-    fi
-
-    echo -n "Do you wish to proceed with installation?  (<ENTER> to continue <ctrl-C> to abort)"
-    echo
-    read userinput
-
-    #continuing with install
-
-    if [ ! -w ${INSTALL_DIR} ] || [ ! -d ${INSTALL_DIR} ]
-    then
-         echo "ERROR: unexpected error at this stage - install directory [${INSTALL_DIR}] does not exist or is not writeable - exiting"
-         exit 1
-    fi
-
-    if [ ! -r ${NEW_INSTALL_FILE} ]
-    then
-         echo "ERROR: unexpected error at this stage - install file [${NEW_INSTALL_FILE}] does not exist or is not writeable - exiting"
-         exit 1
-    fi
-
-    CURRENT_VERSION_SAVE=${CURRENT_VERSION}
-
-    echo "Extracting [${NEW_INSTALL_FILE}] into [${INSTALL_DIR}]..."
-
-    # add a sleep otherwise the silent extract is quite quick it may feel to some
-    # that nothing has happened - would prefer not to run tar with v (verbose) option
-    # as that generates a lot of output
-    sleep 2
-
-    tar -C ${INSTALL_DIR} -zxvf ${NEW_INSTALL_FILE}
-    status=$?
-    
-    if [ $status -eq 0 ]
-    then
-        KEEP_TRYING=no
-
-        get_current_version
-
-        echo
-        echo "----------"
-        echo "SUCCESS!!!"
-        echo "----------"
-        echo
-
-        echo "Previous version:       [${CURRENT_VERSION_SAVE}]"
-        echo "Current version:        [${CURRENT_VERSION}]"
-        echo
-
-        [ ! -f ${IDENTITY_FILE} ] && fresh_install_post_steps
-
-    else
-        echo "ERROR: an error occurred extracting - exiting"
-        status=$?
-    fi
-    }
-
-function existing_installation_found_prologue
-    {
-    echo
-#    echo "--------------------------------"
-#    echo "Pre-existing installation found:"
-#    echo "--------------------------------"
-    echo
-    echo "Directory:            [${INSTALL_DIR}]"
-    echo
-    echo "Version:              [${CURRENT_VERSION}]"
-    echo
-    echo "Configured owner:     [${INSTALL_OWNER}]"
-    echo "Configured group:     [${INSTALL_GROUP}]"
-    echo
-    }
-
-function confirm_run_as_nonroot
-    {
-    echo "You are running as non-root user [${user}]"
-    echo "It is recommended to run this install script as [root] - press <ENTER> to continue or <ctrl-C> to abort"
-    read userinput
-    }
-
-
 #
-#---------------------------------------------------------------
 # Script starts here
-#---------------------------------------------------------------
 #
-
-
-#---------------------------------------------------------------
-# initial checks
-#---------------------------------------------------------------
-#
-if [ "${OS}" != "Linux" ]
-then
-    echo "ERROR: Expecting OS [Linux] but found [${OS}] - exiting"
-    exit 1
-fi
-
-
-FRESH_INSTALL=yes	# assume fresh install until determined otherwise
-
-NEW_INSTALL_VERSION_FILE=version.txt
-BANNER_FILE=banner.txt
-
-if [ ! -r ${NEW_INSTALL_FILE} ]
-then
-    echo "ERROR: install file [${NEW_INSTALL_FILE}] does not exist or is not readable in current directory - exiting"
-    exit 1
-fi
 
 if [ -r ${NEW_INSTALL_VERSION_FILE} ]
 then
@@ -326,7 +400,7 @@ else
     exit 1
 fi
 
-NEW_INSTALL_FILE=dsp-${NEW_VERSION}.tar.gz
+NEW_INSTALL_FILE=dsp-${NEW_VERSION}.cpio.gz
 
 if [ ! -r ${NEW_INSTALL_FILE} ]
 then
@@ -334,151 +408,85 @@ then
     exit 1
 fi
 
-#
-#---------------------------------------------------------------
-#set and check default location and associated files
-#---------------------------------------------------------------
-#
-
-
-# if id=root + NO EXIST /opt/dsp then = suggest installilng /opt/dsp
-# if id=root + /opt/dsp does not exist then install and create it (optionally ask for a different location)
-# if id=root + /opt/dsp exists + version.txt file exists where expected then install there using owner.txt to change ownership
-# if id != root + /opt/dsp exists + version.txt file exists where expected + id = owner.txt then install in /opt/dsp
-# if id != root + $HOME/dsp exists + version.txt file exists where expected + id = owner.txt then install in $HOME/dsp
-# all options exhausted
-
 if [ -r ${BANNER_FILE} ]
 then
     sed -e "s/%%VERSION%%/${NEW_VERSION}/" ${BANNER_FILE}
 fi
 
-INSTALL_DIR=${DEFAULT_INSTALL_DIR_ROOT}
-set_install_vars
+echo
 
-if [ "${user}" = "root" ]
-then
-    : # do nothing, INSTALL_DIR already set correctly
-else
-    if [ -w ${INSTALL_DIR} ]
-    then
-        : # looks like we have a default install already not under $HOME
-          # so even though running as non-root we may still be able to install
-          # it there
-    else
-echo X=$INSTALL_DIR
-        INSTALL_DIR=${DEFAULT_INSTALL_DIR_NONROOT}
- 
-        echo $INSTALL_OWNER
-        echo $INSTALL_GROUP
-        echo $INSTALL_DIR_EXISTS
-			
+#
+# main loop
+#
+INSTALL_DIR=${DEFAULT_INSTALL_DIR}
 
-        echo $INSTALL_DIR_VERSION_FILE_EXISTS
-        echo $INSTALL_DIR_OWNER_FILE_EXISTS
-
-        echo EE ; exit
-    fi
-fi
-set_install_vars
-
-while [ "${KEEP_TRYING}" = "YES" ]
+while [ "${keep_trying}" = "YES" ]
 do
-  #
-  # installing as root
-  #
-  if [ "${user}" = "root" ]
-  then
-    if [ "${INSTALL_DIR_EXISTS}" = "yes" ]
+    OK_TO_DO_INSTALL="YES"
+
+    set_install_dir
+
+    if [ "${install_dir_exists}" = "YES" ] 	# install directory exists
     then
-        if [ "${INSTALL_DIR_VERSION_FILE_EXISTS}" = "yes" ] && [ "${INSTALL_DIR_OWNER_FILE_EXISTS}" = "yes" ]
+        if [ "${install_dir_writeable}" = "YES" ] 	# install directory writeable
         then
-            # install dir exists and expected files also
-            INSTALL_DIR=${INSTALL_DIR}
-            set_install_vars
-
-            existing_installation_found_prologue
-
-            count_of_files_not_owned_by_intended_owner=$(find ${INSTALL_DIR} ! -user ${INSTALL_OWNER} 2>/dev/null | wc -l)	#not interested in error output hence 2 redierct to /dev/null
-            status=$?
-
-	    do_install
-        else
-            : # install dir exists but expected files dont
-        fi
-    else
-        # install dir does not exist - fresh install
-
-	echo "Enter installation directory [${INSTALL_DIR}]: "
-        read userinput
-
-        if [ "${userinput}" != "" ]
-        then
-            INSTALL_DIR=${userinput}
-        fi
-
-        if [ ! -d ${INSTALL_DIR} ]
-        then
-            mkdir -p ${INSTALL_DIR}
-            status=$?
-        else
-            : # hmmmm... unexpected, this should not happen
-        fi
-
-        set_install_vars
-    fi
-  else
-    #
-    # installing as non-root
-    #
-    if [ "${INSTALL_DIR_EXISTS}" = "yes" ]
-    then
-        if [ "${INSTALL_DIR_VERSION_FILE_EXISTS}" = "yes" ] && [ "${INSTALL_DIR_OWNER_FILE_EXISTS}" = "yes" ]
-        then
-            #set_install_vars
-
-            if [ "${user}" = "${INSTALL_OWNER}" ]	# are we running as the user that the code has previously been installed as
+            if [ "${install_dir_empty}" = "YES" ]	# directory is empty
             then
-                if [ -w ${INSTALL_DIR} ]
+                get_install_owner
+            else
+                if check_already_installed 2>&1 > /dev/null
                 then
-                    existing_installation_found_prologue
-
-                    count_of_files_not_owned_by_intended_owner=$(find ${INSTALL_DIR} ! -user ${INSTALL_OWNER} 2>/dev/null | wc -l)	#not interested in error output hence 2 redierct to /dev/null
-                    status=$?
-
-                    if [ $status -eq 0 ] && [ "${count_of_files_not_owned_by_intended_owner}" = "0" ]	# find gave no error and number of unexpected owner files is zero then all good
+                    if check_i_am_root_or_owner 2>&1 > /dev/null
                     then
-			do_install
+                        echo ""
+                        echo "INFO: existing installation found under [${INSTALL_DIR}]"
+                        echo ""
+                        current_version=$(cat ${version_file})
                     else
-                         echo "ERROR:  there are files under ${INSTALL_DIR} that are not owned by [${INSTALL_OWNER}] - exiting"
-                         exit 1
+                        echo "ERROR: current user [${user}] does not match expected [${install_owner}]"
+                        OK_TO_DO_INSTALL="NO"
                     fi
                 else
-                    : # doh, not root, directory exists but is not writeable
-                    echo "ERROR: the install dir [${INSTALL_DIR}] exists but is not writeable - exiting"
-                    exit 1
+                    echo "ERROR: installation directory [${INSTALL_DIR}] is not empty"
+                    echo "       and does not appear to contain a previous installation"
+
+                    OK_TO_DO_INSTALL="NO"
                 fi
-            else
-                echo "ERROR: current install owner [${INSTALL_OWNER}] does not match current user [${user}] - exiting"
-                exit 1
             fi
         else
-            : # uh-oh, install dir exists but perhaps does not contain an install as expected
-            echo
-            echo "ERROR: the install dir [${INSTALL_DIR}] exists but does not contain some/all expected files - exiting"
-            exit 1
+            echo "ERROR: installation directory [${INSTALL_DIR}] not writeable"
         fi
     else
-        confirm_run_as_nonroot
+        echo "Installation directory [${INSTALL_DIR}] does not exist"
 
-        mkdir -p ${INSTALL_DIR}
-        status=$?
+        if prompt_confirm "Do you wish to create [${INSTALL_DIR}]?"
+        then
+            get_install_owner
+            
+            create_install_dir
+            status=$?
 
-        do_install
+            if [ $status -ne 0 ]
+            then
+                OK_TO_DO_INSTALL="NO"
+            fi
+        else
+            OK_TO_DO_INSTALL="NO"
+            echo
+        fi
     fi
-  fi
-done	# while KEEP_TRYING = yes
+
+    if [ "${OK_TO_DO_INSTALL}" = "YES" ]
+    then
+        do_install
+    else
+        echo ""
+        echo "An error occurred (see above) - restarting installation procedure"
+        echo ""
+    fi
+
+done
 
 
-exit $EXITCODE
+
 

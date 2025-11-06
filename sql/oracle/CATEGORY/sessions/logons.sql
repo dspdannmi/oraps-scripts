@@ -14,7 +14,7 @@ col program format a28
 col serial# format 999999
 
 col "LOGON" format a11
-col "OSUSER V$S:V$P" format a17
+col "OSUSER V$S:V$P" format a24
 col "SESSION" format a9
 
 select s.sid,

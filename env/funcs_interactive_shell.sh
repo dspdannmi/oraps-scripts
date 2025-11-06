@@ -16,6 +16,7 @@ for func in become \
 	    col10 \
             cdfile \
             duora \
+            kernelrpms \
             lastwork \
             listwork \
             latrora \

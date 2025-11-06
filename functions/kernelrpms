@@ -1,0 +1,7 @@
+
+function kernelrpms
+    {
+    rpm -qa | grep -i kernel | sort
+    }
+
+

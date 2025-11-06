@@ -41,6 +41,9 @@ Scenarios:
 
 * No direct/indirect connectivity to server
 
+* consider cpio to better manage/control installatino ownership
+	zcat .tar.gz | cpio -idm --owner user:group
+
 INSTALL
 =======
 
@@ -51,6 +54,28 @@ INSTALL
 - when not installing in to /opt/dsp we need to update lots of files for CS_TOP / DSP_TOP
 
 - install.sh script looping when filesystem full
+
+- install scenarios:
+	- install as root
+		- directory does not exist
+		- directory exists
+			- is empty
+		        - contains installation
+		        - does not contain installation
+	- install as non-root
+		- directory does not exist
+			- and i cannot create it
+			- and i can create it
+		- directory exists
+			- i am the owner
+				- empty
+				- not empty
+					- contains installation
+						- owner.txt file matches me
+						- owner.txt file does not match me
+					- does not contain installation
+			- i am not the owner
+	
 
 
 RESOURCES
@@ -76,6 +101,12 @@ HealthChecks
 
 PRIORITY:  HIGH
 ===============
+
+- adding versions in to actual scripts
+
+- tmux doesn't persist the environment
+
+- take machine-id and hostid out of serversummary
 
 - bug: serverstamp / serverstampcheck
 	scenario:  upgraded future OL7->OL8 so new machine
