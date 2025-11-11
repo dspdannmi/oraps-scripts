@@ -19,3 +19,6 @@ REM sequences that are approaching max
 
 
 - pdbs without saved state
+
+
+REM > 1 v$thread (redo log thread) when database is not RAC - might indicate an incomplete transition from RAC-enabled databse to single-instance
