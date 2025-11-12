@@ -25,13 +25,15 @@ CS_TOP=/opt/dsp
 
 USAGE_STRING="[-o ORACLE_HOME] [-m lite|basic|comp] [-s human|machine]"
 
+listener=""
 mode="lite"
 style="human"
 
-while getopts 'o:m:s:' OPTION
+while getopts 'o:m:s:l:' OPTION
 do
     case "$OPTION" in
         o) ORACLE_HOME=$OPTARG ;;
+        l) listener=$OPTARG ;;
         m) mode=$OPTARG ;;
         s) style=$OPTARG ;;
         ?) usage ;;
@@ -109,77 +111,20 @@ function print_end
     }
 
 
-function show_databases
+function show_listener
     {
     level=$1
-    TAG=DATABASES
+    TAG=LISTENER
 
     print_begin ${TAG}
 
     padding="    ${padding}"
 
-    for DB in $(awk -F: -v v_ohome=${ORACLE_HOME} '$2==v_ohome {print $1}' ${ORATAB} | grep ^[a-zA-Z0-9_$] | sort)
-    do
-        echo -n "${padding}${DB}:"
-
-        if isinstup ${DB} 2>&1 > /dev/null
-        then
-            instance_status=$(${scriptdir}/sqlx -d ${DB} select \'STATUS=\' \|\| status from v\$instance 2>/dev/null | grep ^STATUS= | cut -d= -f2)
-
-            [ "${instance_status}" = "STARTED" ] && instance_status="NOMOUNT"
-        else
-            instance_status="DOWN"
-        fi
-
-        echo "instance:${instance_status}"
-    done
+    lsnrctl status ${listener}
 
     print_end ${TAG}
     }
 
-function show_opatch_version
-    {
-    level=$1
-    TAG=OPATCH_VERSION
-
-    print_begin ${TAG}
-
-    padding="    ${padding}"
-    ${ORACLE_HOME}/OPatch/opatch version | sed -e s"/^/${padding}/"
-    status=$?
-
-    print_end ${TAG}
-    }
-
-
-function show_opatch_lspatches
-    {
-    level=$1
-    TAG=OPATCH_LSPATCHES
-
-    print_begin ${TAG}
-
-    padding="    ${padding}"
-    ${ORACLE_HOME}/OPatch/opatch lspatches | sed -e s"/^/${padding}/"
-    status=$?
-
-    print_end ${TAG}
-    }
-
-
-function show_opatch_lsinventory
-    {
-    level=$1
-    TAG=OPATCH_LSINVENTORY
-
-    print_begin ${TAG}
-
-    padding="    ${padding}"
-    ${ORACLE_HOME}/OPatch/opatch lsinventory | sed -e s"/^/${padding}/"
-    status=$?
-
-    print_end ${TAG}
-    }
 
 
 #
@@ -193,7 +138,7 @@ function show_opatch_lsinventory
 set_error_trap
 
 level=1
-TAG=ORACLE_HOME-DATABASE
+TAG=ORACLE_LISTENER
 
 print_begin ${TAG}
 
@@ -201,20 +146,7 @@ padding="    ${padding}"
 echo "${padding}LOC: ${ORACLE_HOME}"
 echo 
 
-(
-#
-# run in subshell so as not to interfere with
-# TAG setting as each of the functions below
-# set TAG and without subshell
-show_databases 2
-show_opatch_version 2
-show_opatch_lspatches 2
-
-if [ "${mode}" = "comp" ]
-then
-    show_opatch_lsinventory 2
-fi
-)
+show_listener 2
 
 print_end ${TAG}
 
