@@ -98,7 +98,13 @@ set_error_trap
 
 
 owner=$(cut -d: -f1 ${DSP_OWNER_FILE})
-dspserverid=$(grep ^dspserverid: ${DSP_IDENTITY_FILE} | cut -d: -f2)
+
+if [ -f ${DSP_IDENTITY_FILE} ]
+then
+    dspserverid=$(grep ^dspserverid: ${DSP_IDENTITY_FILE} | cut -d: -f2)
+else
+    dspserverid=""
+fi
 
 if [ "${user}" != "root" ] && [ "${user}" != "${owner}" ]
 then
