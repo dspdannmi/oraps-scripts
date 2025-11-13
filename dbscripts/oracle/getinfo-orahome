@@ -52,7 +52,10 @@ then
     export ORAENV_ASK=NO
     . ${ORAENV}
 else
-    export ORACLE_HOME=${ohome}
+    if [ "${ohome}" != "" ]
+    then
+        export ORACLE_HOME=${ohome}
+    fi
 fi
 
 if [ "${ORACLE_HOME}" = "" ]
