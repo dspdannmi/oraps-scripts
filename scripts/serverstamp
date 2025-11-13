@@ -98,6 +98,7 @@ set_error_trap
 
 
 owner=$(cut -d: -f1 ${DSP_OWNER_FILE})
+group=$(cut -d: -f2 ${DSP_OWNER_FILE})
 
 if [ -f ${DSP_IDENTITY_FILE} ]
 then
@@ -324,10 +325,13 @@ fi
 ) > ${DSP_IDENTITY_FILE}
 status=$?
 
+if [ "${user}" = "root" ]
+then
+    chown ${owner}:${group} ${DSP_IDENTITY_FILE}
+    status=$?
+fi
+
 serversummary
-
-
-
 
 echo
 
