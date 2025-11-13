@@ -35,7 +35,7 @@ col DEFAULT_TABLESPACE format a18
 col EXTENTS format 99999
 col EXTENTS_COALESCED format 99999
 col FILE_ID format 9999
-col FILE_NAME format a55
+col FILE_NAME format a85
 col GRANTABLE format a9
 col GRANTED_ROLE format a15
 col GRANTEE format a15
