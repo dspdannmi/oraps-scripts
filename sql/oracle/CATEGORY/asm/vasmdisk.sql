@@ -1,5 +1,5 @@
 
---DESCRIBE: show ASM disk infor from v$asm_disk
+--DESCRIBE: show ASM disk info from v$asm_disk
 
 col failgroup format a10
 col group_number heading "Grp#" format 999

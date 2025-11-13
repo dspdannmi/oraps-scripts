@@ -102,6 +102,8 @@ HealthChecks
 PRIORITY:  HIGH
 ===============
 
+- pretty sure getinfo-oralsn does not do a ps -ef to get ORACLE_HOME but uses current
+
 - do something better with bkup
 	- firstly dont just give up if file.YYYYMMDD already exists --> do better
 	- write it to a log

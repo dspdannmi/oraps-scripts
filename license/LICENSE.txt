@@ -13,7 +13,7 @@ specifically stated in a current DSP Managed Services contract and
 (b) and only where the scripts have been installed either by DSP
 or under the guidance of DSP.
 
-These scripts may not be installed and/or operating, either wholly
+These scripts may not be installed and/or operated, either wholly
 or partially, on any servers by non-DSP technical consultants on
 any server that is not under a current DSP Managed Services contract.
 
