@@ -30,7 +30,7 @@ CS_TOP=${CS_TOP:-/opt/dsp}
 . ${CS_TOP}/env/dsp.env
 . ${CS_TOP}/env/funcs.sh
 
-DEL_TEMPFILES="NO"
+DEL_TEMPFILES="YES"
 
 function ps_search
     {

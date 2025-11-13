@@ -1,5 +1,5 @@
 
---DESCRIBE: list users that are not ORACLE_MAINTAINED
+--DESCRIBE: list users that ARE ORACLE_MAINTAINED
 
 set verify off
 

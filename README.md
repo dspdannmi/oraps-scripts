@@ -12,7 +12,7 @@ OraPS Scripts
                  --=== Oracle Professional Services ===--
                 (OracleProfessionalServicesTeam@dsp.co.uk)
 
-                               (v2025-0.001)
+                               (%%VERSION%%)
 -------------------------------------------------------------------------
 
 This bundle of scripts is intended to be used by DSP employees and partners.
