@@ -81,6 +81,7 @@ function get_install_owner
         OK="NO"
         while [ "${OK}" = "NO" ]
         do
+            echo ""
             echo -n "Enter install owner: [${tmp_owner}] "
             read userinput
     
@@ -582,6 +583,15 @@ do
     fi
 
 done
+
+if [ ! -f ${identity_file} ]
+then
+    echo ""
+    echo "*********************************************"
+    echo "IMPORTANT: this server needs to be stamped"
+    echo "*********************************************"
+    echo ""
+fi
 
 echo ""
 
