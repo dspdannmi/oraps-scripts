@@ -93,7 +93,7 @@ done
 echo
 echo
 echo "=================================================="
-echo "ORACLE_SID(s)
+echo "ORACLE_SID(s) running check exist in [${ORATAB}]"
 echo "=================================================="
 echo
 for sid in $(runningdbs)
