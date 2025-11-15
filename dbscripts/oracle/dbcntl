@@ -5,7 +5,7 @@
 #
 # Script name:                  dbcntl
 #
-# Description:
+# Description:			Database startup/shutdown/bounce (dbup/dbdown/dbbounce)
 #
 # Parameters:
 #

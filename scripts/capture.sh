@@ -190,11 +190,11 @@ for file in /etc/dnf/plugins/versionlock.conf \
             /etc/yum/plugins/versionlock.list \
             /etc/fstab \
             /etc/hosts \
-	    /etc/passwd \
 	    /etc/group \
-	    /etc/sysctl.conf \
+            /etc/mtab \
 	    /etc/oratab \
-	    /var/opt/oratab \
+	    /etc/passwd \
+	    /etc/sysctl.conf \
 	    /etc/resolv.conf \
 	    /etc/sudo.conf \
 	    /etc/chrony.conf \
@@ -205,6 +205,7 @@ for file in /etc/dnf/plugins/versionlock.conf \
 	    /proc/cpuinfo \
 	    /proc/meminfo \
             /etc/sysconfig/network-scripts \
+	    /var/opt/oratab \
             /var/spool/cron
 do
   dir=$(dirname ${file})
@@ -283,6 +284,10 @@ netstat -an 2>&1 | tee netstat-an.out > ${output_device}
 #---------------------------------------------------------------
 header df-h
 df -h 2>&1 | tee df-h.out > ${output_device}
+
+#---------------------------------------------------------------
+header df-i
+df -i 2>&1 | tee df-i.out > ${output_device}
 
 #---------------------------------------------------------------
 header ps-ef

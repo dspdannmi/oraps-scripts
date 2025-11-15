@@ -3,7 +3,7 @@
 #+++___________________________________________________________________________________
 #
 #
-# Script name:                  RESYNC
+# Script name:                  RESYNC.sh
 #
 # Description:			Re-synchronise database shell scripts for SQL scripts
 #

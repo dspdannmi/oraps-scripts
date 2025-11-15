@@ -1,25 +1,12 @@
 
-date:
-%%datetime%%
-
-dsp_serverid:
-%%dsp_serverid%%
-
-working directory:
-%%working_directory%%
-
-
-dsp reference#:
-xxxx
-
-
-consultant:
-xxxx
-
+date              : %%datetime%%
+dsp_serverid      : %%dsp_serverid%%
+working directory : %%working_directory%%
+dsp reference#    : xxxx
+consultant        : xxxx
 
 description:
 xxxx
-
 
 updates:
 xxxx

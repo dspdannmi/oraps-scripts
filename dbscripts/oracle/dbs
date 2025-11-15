@@ -67,6 +67,5 @@ then
     echo
 fi
 
-
 exit $EXITCODE
 

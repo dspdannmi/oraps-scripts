@@ -10,5 +10,5 @@
                  --=== Oracle Professional Services ===--
                 (OracleProfessionalServicesTeam@dsp.co.uk)
 
-                               (%%VERSION%%)
+                             (%%VERSION%%)
 _________________________________________________________________________

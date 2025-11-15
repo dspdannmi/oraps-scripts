@@ -14,8 +14,8 @@
 #
 # Environment:
 #
-# Return codes:			0	success		all are unique
-#				1	fail		there are files not unique
+# Return codes:			
+#				
 #
 # Modification history:
 #

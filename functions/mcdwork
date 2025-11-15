@@ -5,7 +5,7 @@ function mcdwork
 
     notes_template_file=${CS_TOP}/resources/templates/work_notes.txt.template
 
-    notes_file=readme.txt
+    notes_file=README.txt
 
     suffix="${*}"
 
