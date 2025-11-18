@@ -1,4 +1,6 @@
 
+Adhoc IDEAS for Health Checks
+
 REM check to make sure after patching we don't get ORA-29548
 REM would need to run ?/rdbms/admin/update_javavm_db.sql
 
@@ -22,3 +24,12 @@ REM sequences that are approaching max
 
 
 REM > 1 v$thread (redo log thread) when database is not RAC - might indicate an incomplete transition from RAC-enabled databse to single-instance
+
+
+check inodes on filesystems
+
+check semaphores and such things as these can give "no space on device" linux errors
+
+check permissions on /tmp
+check permissions on /var/tmp
+

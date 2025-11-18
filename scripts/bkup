@@ -21,8 +21,6 @@ CS_TOP=${CS_TOP:-/opt/dsp}
 . ${CS_TOP}/env/dsp.env
 . ${CS_TOP}/env/funcs.sh
 
-echo today=$today
-
 EXITCODE=0
 USAGE_STRING="file1 [file2 file3 ...]"
 
