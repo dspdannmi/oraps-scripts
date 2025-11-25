@@ -6,12 +6,12 @@ set verify off
 col sid format 9999
 col ser# format 99999
 col pid format 9999
-col username format a18
+col username format a24
 col program format a28
 col serial# format 999999
 
 col "LOGON" format a11
-col "OSUSER V$S:V$P" format a17
+col "OSUSER V$S:V$P" format a22
 col "SESSION" format a9
 
 select s.sid,

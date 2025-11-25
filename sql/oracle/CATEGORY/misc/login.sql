@@ -77,7 +77,7 @@ col TABLE_OWNER format a15
 col TEMPORARY_TABLESPACE format a15
 col TRIGGER_NAME format a40
 col TRIGGER_OWNER format a15
-col USERNAME format  a15
+col USERNAME format  a24
 col USER_NAME format  a15
 col VIEW_NAME format a40
 

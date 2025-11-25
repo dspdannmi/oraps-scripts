@@ -9,7 +9,7 @@ clear computes
 col sid format 9999
 col ser# format 99999
 col pid format 9999
-col username format a18
+col username format a24
 col program format a28
 col serial# format 999999
 
