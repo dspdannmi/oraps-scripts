@@ -8,7 +8,7 @@ clear computes
 
 break on tablespace_name 
 
-col name format a60
+col name format a100
 col "Size (Mb)" format 999999999.99
 col "Create Size (Mb)" format 999999999.99
 col tablespace_name format a18

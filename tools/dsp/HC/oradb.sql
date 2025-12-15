@@ -37,6 +37,8 @@ check permissions on /var/tmp
 MINI-HC
 -------
 
+- check  remember-the-milk health check
+
 GI
 --
 * ASM instance not running
@@ -58,6 +60,11 @@ DB
 * asm disk usage nearly full or full
 * v$recovery_area_usage full or nearly full
 * no full or L0 backup in last X days
+* RECOVERY
+        * database not in archivelog mode
+	* database no in forced logging
+	* database no supplemental logging
+        * single-instance DB with > thread redo log
 * ADVANCED:
 	* locked user since start time
 	* expected fill of tablespace in next 10mins based on rate of fill

@@ -46,14 +46,14 @@ col INDEX_OWNER format a15
 col INITIAL_EXTENT format 99999999
 col MAX_EXTENTS format 9999
 col MIN_EXTENTS format 9999
-col NAME format a40
+col NAME format a100
 col NEW_NAME format a15
 col NEW_OWNER format a15
 col NEXT_EXTENT format 9999999999
 col OBJECT_NAME format a40
 col OBJECT_TYPE format a10
 col OBJ_NAME format a40
-col OWNER format  a15
+col OWNER format  a24
 col PCT_FREE format 99
 col PCT_INCREASE format 99
 col PCT_USED format 99
