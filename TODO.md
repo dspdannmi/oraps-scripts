@@ -102,6 +102,10 @@ HealthChecks
 PRIORITY:  HIGH
 ===============
 
+- install.sh:  cpio -D not an option on OL5.  Bummer
+
+- ol5.8 seems like getting IP address is incorrect (gets a 192.168.x.x address from somewhere)
+
 - pretty sure getinfo-oralsn does not do a ps -ef to get ORACLE_HOME but uses current
 
 - do something better with bkup
