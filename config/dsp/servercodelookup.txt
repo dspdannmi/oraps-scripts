@@ -1,7 +1,7 @@
 
 #00x Physical servers
 #-------------------
-001:Physcal server (commodity hardware)
+001:Physical server (commodity hardware)
 002:Oracle Database Appliance (ODA) (bare metal)
 003:Oracle Exadata (bare metal)
 004:Oracle Private Cloud Appliance (PCA) (bare metal)

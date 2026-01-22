@@ -44,8 +44,12 @@ Scenarios:
 * consider cpio to better manage/control installatino ownership
 	zcat .tar.gz | cpio -idm --owner user:group
 
+* need to account for different OS and different architecture
+
 INSTALL
 =======
+
+- IMPORTANT:  when I do an install put the tar file whatever also under /opt/dsp so that it's available for easy install on another server from that one
 
 - when running install if serveridentity.txt file does not exist then populate it with a UUID irrespective and then force/encourage serverstamp
 
