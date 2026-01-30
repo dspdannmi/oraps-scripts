@@ -169,11 +169,11 @@ MIKE12C:
         forced_logging: YES
         arch. lag tgt:  900
 
-GEORGE19C:
+GXXXXXX19C:
 	oracle_home:	/u01/app/oracle/product/19.0.0/dbhome_1
         version:        19.3
         edition:        standard edition
-	db_unique_name: GEORGE19C_DC1
+	db_unique_name: GXXXXXX19C_DC1
 	open mode:	MOUNTED
 	RAC:		NO
 	data guard:	YES [STANDBY]

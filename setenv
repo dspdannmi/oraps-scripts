@@ -322,6 +322,7 @@ export ALERTLOG=""
     # square brackets around the grep string prevents
     # the grep command matching on itself from the ps -ef
     # output and returning itself
+    alias psdbwr='ps -ef | grep [d]bwr'
     alias pslgwr='ps -ef | grep [l]gwr'
     alias pssmon='ps -ef | grep [s]mon'
     alias pspmon='ps -ef | grep [p]mon'

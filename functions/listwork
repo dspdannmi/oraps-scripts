@@ -28,7 +28,7 @@ function listwork
         echo "    ${DSP_CURRENT_WORKDIR} [${current_workdir_status}]"
         echo
     else
-        echo "    INFO: No directory currently set as work dir"
+        echo "    <not set>"
     fi
 
     one_exists=NO
@@ -51,7 +51,7 @@ function listwork
 
     if [ "${one_exists}" = "NO" ]
     then
-        echo "INFO: no working directories exist under: ${topdir}"
+        echo "    <none>"
     fi
     
     echo
