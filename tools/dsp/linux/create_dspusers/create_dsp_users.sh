@@ -68,7 +68,7 @@ set_error_trap
 #
 # validate DSP groups exists first
 #
-if ! grep ^dspadmuser: /etc/group 2>&1 > /dev/null
+if ! grep ^${DSP_ADMIN_USER_GROUP}: /etc/group 2>&1 > /dev/null
 then
     echo "ERROR: DSP admin group [${DSP_ADMIN_USER_GROUP}] does not exist - exiting"
     EXITCODE=1
@@ -78,6 +78,13 @@ fi
 if ! grep ^${DSP_STD_USER_GROUP} /etc/group 2>&1 > /dev/null
 then
     echo "ERROR: DSP standard user group [${DSP_STD_USER_GROUP}] does not exist - exiting"
+    EXITCODE=1
+    exit ${EXITCODE}
+fi
+
+if ! grep ^${DSP_AUDIT_USER_GROUP} /etc/group 2>&1 > /dev/null
+then
+    echo "ERROR: DSP standard user group [${DSP_AUDIT_USER_GROUP}] does not exist - exiting"
     EXITCODE=1
     exit ${EXITCODE}
 fi
@@ -101,6 +108,8 @@ do
 
     comment=$(echo ${LINE} | awk -F: '{print $4}')
 
+  if [ "${comment}" != "" ]   # can be confident line was properly formed - let's continue
+  then
     echo 
     echo "-------------------------------------------------------------"
     echo "username:    ${username}"
@@ -188,6 +197,11 @@ do
         echo "***WARNING: home directory [${homedir}] does not exist as expected ***"
         EXITCODE=1
     fi
+  else # comment field empty so think line was not well formed
+      echo "ERROR: suspect line is malformed - comment field (4) blank - exiting"
+      EXITCODE=1
+      exit ${EXITCODE}
+  fi
 done
 
 echo

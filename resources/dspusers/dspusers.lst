@@ -4,13 +4,24 @@
 # start at 8100 to avoid confusion with GIDs starting at 8001
 #
 8101:dspadmuser:adeem.mir:Adeem Mir (DSP-PSORA):
-8102:dspadmuser:aswiin.rajendiren (DSP-MSORA1):
-8103:dspadmuser:carl.hewkin (DSP-PSORA):
-8104:dspadmuser:george.dickson (DSP-PSORA):
-8105:dspadmuser:mike.dann (DSP-PSORA):
-8106:dspadmuser:rizwan.baza (DSP-PSORA):
-8107:dspadmuser:sikkendar.khan (DSP-MSORA1):
-8108:dspadmuser:stefano.angossini (DSP-PSORA):
-8109:dspadmuser:tim.miller (DSP-PSORA):
-8110:dspadmuser:tom.howarth (DSP-MSORA1):
-8111:dspadmuser:tony.mclaughlin (DSP-MSORA1):
+#
+8102:dspadmuser:aswiin.rajendiren:Aswiin Rajendiren (DSP-MSORA1):
+#
+8103:dspadmuser:carl.hewkin:Carl Hewkin (DSP-PSORA):
+#
+8104:dspadmuser:george.dickson:George Dickson (DSP-PSORA):
+#
+8105:dspadmuser:mike.dann:Mike Dann (DSP-PSORA):
+#
+8106:dspadmuser:rizwan.baza:Rizwan Baza (DSP-PSORA):
+#
+8107:dspadmuser:sikkendar.khan:Sikkendar Khan (DSP-MSORA1):
+#
+8108:dspadmuser:stefano.angossini:Stefano Angossini (DSP-PSORA):
+#
+8109:dspadmuser:tim.miller:Tim Miller (DSP-PSORA):
+#
+8110:dspadmuser:tom.howarth:Tom Howarth (DSP-MSORA1):
+#
+8111:dspadmuser:tony.mclaughlin:Tony Mclaughlin (DSP-MSORA1):
+#

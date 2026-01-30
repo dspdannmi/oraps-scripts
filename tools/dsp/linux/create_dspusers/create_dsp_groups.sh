@@ -145,6 +145,11 @@ then
         echo "    AllowUsers *" >> ${sshd_config_file}
         status=$?
 
+        echo
+        echo "========================================="
+        echo "IMPORTANT:  restart SSHD daemon"
+        echo "========================================="
+
     else
         echo "nothing to do - configuration exists!"
     fi
