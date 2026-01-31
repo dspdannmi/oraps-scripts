@@ -214,6 +214,14 @@ function do_install()
         if [ $status -eq 0 ]
         then
             echo "SUCCESS!!!"
+
+            cp -p ${NEW_INSTALL_FILE} ${INSTALL_DIR}/resources/release/latest/.
+            status=$?
+
+            if [ $status -ne 0 ]
+            then
+                echo "WARNING: could not copy release file in to TOP/resources/release/latest"
+            fi
         else
             echo "*********************************************"
             echo "ERROR: an error occurred when extracting the files"
