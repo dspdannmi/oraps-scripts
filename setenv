@@ -258,6 +258,15 @@ export ALERTLOG=""
     alias udump='cd $ORACLE_BASE/admin/$ORACLE_SID/udump'
     alias tailfalert='tailalert -f'
     alias tailalertf='tailalert -f'
+
+    # square brackets around the grep string prevents
+    # the grep command matching on itself from the ps -ef
+    # output and returning itself
+    alias psdbwr='ps -ef | grep [d]bwr'
+    alias pslgwr='ps -ef | grep [l]gwr'
+    alias pssmon='ps -ef | grep [s]mon'
+    alias pspmon='ps -ef | grep [p]mon'
+    
     #
     #   -- aliases for cd shortcuts
     #
@@ -319,15 +328,11 @@ export ALERTLOG=""
     alias rm='rm -i'
     alias tailf='tail -100f'
     
-    # square brackets around the grep string prevents
-    # the grep command matching on itself from the ps -ef
-    # output and returning itself
-    alias psdbwr='ps -ef | grep [d]bwr'
-    alias pslgwr='ps -ef | grep [l]gwr'
-    alias pssmon='ps -ef | grep [s]mon'
-    alias pspmon='ps -ef | grep [p]mon'
-    
-    
+    alias tailfmessages='tail -50f /var/log/messages'    
+    alias tailmessagesf='tail -50f /var/log/messages'    
+
+    alias tailfsecure='tail -50f /var/log/secure'    
+    alias tailsecuref='tail -50f /var/log/secure'    
     #
     # Set prompt
     #

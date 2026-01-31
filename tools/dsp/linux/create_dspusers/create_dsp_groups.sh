@@ -141,14 +141,18 @@ then
         [ -f ${bkupfile} ] && bkupfile=${sshd_config_file}.$(date +%Y%m%d_%H%M%S)
         [ -f ${bkupfile} ] && bkupfile=${sshd_config_file}.$(date +%Y%m%d_%H%M%S).${$}
 
-        echo "Match group dsp*" >> ${sshd_config_file}
-        echo "    AllowUsers *" >> ${sshd_config_file}
+        echo ""                  >> ${sshd_config_file}
+        echo "#allow DSP groups" >> ${sshd_config_file}
+        echo "Match group dsp*"  >> ${sshd_config_file}
+        echo "    AllowUsers *"  >> ${sshd_config_file}
+        echo ""                  >> ${sshd_config_file}
         status=$?
 
         echo
         echo "========================================="
         echo "IMPORTANT:  restart SSHD daemon"
         echo "========================================="
+        echo ""
 
     else
         echo "nothing to do - configuration exists!"
