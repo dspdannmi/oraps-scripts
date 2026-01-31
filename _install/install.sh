@@ -215,6 +215,13 @@ function do_install()
         then
             echo "SUCCESS!!!"
 
+           
+            if [ ! -d ${INSTALL_DIR}/resources/release/latest ]
+            then
+                mkdir ${INSTALL_DIR}/resources/release/latest
+                status=$?
+            fi
+
             cp -p ${NEW_INSTALL_FILE} ${INSTALL_DIR}/resources/release/latest/.
             status=$?
 
