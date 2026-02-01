@@ -79,7 +79,6 @@ function get_install_owner
     #
     if [ "${user}" = "root" ]
     then
-echo AA AB
         OK="NO"
         
         while [ "${OK}" = "NO" ]
@@ -424,8 +423,6 @@ echo install_owner="${install_owner}"
         #
         install_owner=$(stat -c "%U" ${INSTALL_DIR})
         install_dir_owner=${install_owner}
-echo XX=$install_owner
-
 
         #install_group is who should own the code
         #install_dir_group is the actual group of the install dir
@@ -614,21 +611,35 @@ do
         echo "Installation directory [${INSTALL_DIR}] does not exist"
         echo ""
 
-        if prompt_confirm "Do you wish to create [${INSTALL_DIR}]?"
+        if expr "${INSTALL_DIR}" : "/" 2>&1 > /dev/null
         then
-            get_install_owner
-            
-            create_install_dir
-            status=$?
+            # leading character is / - continue
 
-            if [ $status -ne 0 ]
+            if prompt_confirm "Do you wish to create [${INSTALL_DIR}]?"
             then
+                get_install_owner
+            
+                create_install_dir
+                status=$?
+
+                if [ $status -ne 0 ]
+                then
+                    OK_TO_DO_INSTALL="NO"
+                fi
+            else
                 OK_TO_DO_INSTALL="NO"
+                echo
             fi
         else
+            # leading character is not /
+            # give error and reset install directory to default
+
+            echo "ERROR: absolute paths only"
+
+            INSTALL_DIR=${DEFAULT_INSTALL_DIR}
             OK_TO_DO_INSTALL="NO"
-            echo
         fi
+
     fi
 
     if [ "${OK_TO_DO_INSTALL}" = "YES" ]

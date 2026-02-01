@@ -48,6 +48,9 @@ Scenarios:
 
 INSTALL
 =======
+- Let's generate a checksum on our file
+
+- I hit an issue where I accidentally entered "y" for install directory ---> so let's do a check that istall directectory starts with a /
 
 - need to change all /opt/dsp references when installed in to a different location than /opt/dsp
 
