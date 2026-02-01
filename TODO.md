@@ -49,13 +49,11 @@ Scenarios:
 INSTALL
 =======
 
-- IMPORTANT:  when I do an install put the tar file whatever also under /opt/dsp so that it's available for easy install on another server from that one
+- need to change all /opt/dsp references when installed in to a different location than /opt/dsp
 
 - when running install if serveridentity.txt file does not exist then populate it with a UUID irrespective and then force/encourage serverstamp
 
 - can we include info on whether server is part of a cluster
-
-- when not installing in to /opt/dsp we need to update lots of files for CS_TOP / DSP_TOP
 
 - install.sh script looping when filesystem full
 
@@ -105,6 +103,10 @@ HealthChecks
 
 PRIORITY:  HIGH
 ===============
+
+- need to find way of changing ownership and updating owner.txt file
+    created a scripted [changedspownership] but only supported as running as [root] currently
+
 
 - install.sh:  cpio -D not an option on OL5.  Bummer
 

@@ -1,0 +1,222 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  changedspownership
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       01-Feb-2026     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+CS_TOP=/opt/dsp
+. ${CS_TOP}/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING=""
+
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+if [ "${DSP_TOP}" = "" ]
+then
+    echo "ERROR: DSP_TOP is not set - exiting"
+    EXITCODE=1
+    exit ${EXITCODE}
+fi
+
+if [ "${DSP_OWNER_FILE}" = "" ]
+then
+    echo "ERROR: DSP_OWNER_FILE is not set - exiting"
+    EXITCODE=1
+    exit ${EXITCODE}
+fi
+
+if [ "${DSP_VERSION_FILE}" = "" ]
+then
+    echo "ERROR: DSP_VERSION_FILE is not set - exiting"
+    EXITCODE=1
+    exit ${EXITCODE}
+fi
+
+if [ "${DSP_WHOAMI}" = "" ]
+then
+    echo "ERROR: DSP_WHOAMI is not set - exiting"
+    EXITCODE=1
+    exit ${EXITCODE}
+fi
+
+if [ "${DSP_WHOAMI}" != "root" ]
+then
+    echo "ERROR: only supported as running as [root] currently - please liaise with DSP PS Ora for amendment request and advice"
+    EXITCODE=1
+    exit ${EXITCODE}
+fi
+
+if [ -d ${DSP_TOP} ] && [ -r ${DSP_VERSION_FILE} ] && [ -r ${DSP_OWNER_FILE} ]
+then
+    :
+else
+    echo "ERROR: does not look like a valid installation - key files do not exist or not readable - exiting"
+    EXITCODE=1
+    exit ${EXITCODE}
+fi
+
+if [ "$(echo ${DSP_OWNER_FILE} | grep ^${DSP_TOP}/)" != "${DSP_OWNER_FILE}" ] || [ "$(echo ${DSP_VERSION_FILE} | grep ^${DSP_TOP}/)" != "${DSP_VERSION_FILE}" ]
+then
+    echo "ERROR: DSP owner and/or version files [${DSP_OWNER_FILE} / ${DSP_VERSION_FILE}] do not appear to be under DSP_TOP [${DSP_TOP}] - exiting"
+    EXITCODE=1
+    exit ${EXITCODE}
+fi
+
+current_owner=$(cut -d: -f1 ${DSP_OWNER_FILE})
+current_group=$(cut -d: -f2 ${DSP_OWNER_FILE})
+
+echo "Current owner: ${current_owner}"
+echo "Current group: ${current_group}"
+
+
+PROCEED="NO"
+while [ "${PROCEED}" = "NO" ]
+do
+  INPUT_OK="NO"
+  while [ "${INPUT_OK}" = "NO" ]
+  do
+    echo ""
+    echo -n "Enter install owner: [${tmp_owner}] "
+    read userinput
+
+    if [ "${userinput}" = "" ]
+    then
+        if [ "${tmp_owner}" != "" ]
+        then
+             install_owner=${tmp_owner}
+             INPUT_OK="YES"
+        else
+             :
+        fi
+    else
+        install_owner=${userinput}
+        INPUT_OK="YES"
+    fi
+
+    if [ "${install_owner}" = "" ]
+    then
+        echo "********************************************"
+        echo "ERROR: cannot be blank - must specify a user"
+        echo "********************************************"
+        INPUT_OK="NO"
+    elif ! grep ^${install_owner}: /etc/passwd 2>&1 > /dev/null
+    then
+        echo "*********************************************"
+        echo "ERROR: user [${install_owner}] does not exist"
+        echo "*********************************************"
+        INPUT_OK="NO"
+    else
+        INPUT_OK="YES"
+    fi
+  done
+
+  INPUT_OK="NO"
+  while [ "${INPUT_OK}" = "NO" ]
+  do
+    echo ""
+    echo -n "Enter install group: [${tmp_group}] "
+    read userinput
+
+    if [ "${userinput}" = "" ]
+    then
+        if [ "${tmp_group}" != "" ]
+        then
+             install_group=${tmp_group}
+             INPUT_OK="YES"
+        else
+             :
+        fi
+    else
+        install_group=${userinput}
+        INPUT_OK="YES"
+    fi
+
+    if [ "${install_group}" = "" ]
+    then
+        echo "********************************************"
+        echo "ERROR: cannot be blank - must specify a user"
+        echo "********************************************"
+        INPUT_OK="NO"
+    elif ! grep ^${install_group}: /etc/group 2>&1 > /dev/null
+    then
+        echo "*********************************************"
+        echo "ERROR: user [${install_group}] does not exist"
+        echo "*********************************************"
+        INPUT_OK="NO"
+    else
+        INPUT_OK="YES"
+    fi
+  done  #INPUT_OK
+
+  if [ "${current_owner}" = "${install_owner}" ] && [ "${current_group}" = "${install_group}" ]
+  then
+      echo "INFO: same owner:group selected as current - nothing to do"
+  else
+      PROCEED="YES"
+  fi
+
+done #PROCEED
+
+echo "New owner:     ${install_owner}"
+echo "New group:     ${install_group}"
+
+#
+# last minute redundant checks
+# chown x:y as root is a powerful command so need to make
+# sure it is operating only on the DSP_TOP directory tree
+#
+if [ "${DSP_TOP}" != "" ] && [ "${DSP_TOP}" != "/" ] && [ -r ${DSP_OWNER_FILE} ] && [ -r ${DSP_VERSION_FILE} ]
+then
+    echo "Changing ownership: [${DSP_TOP}]"
+    chown -R ${install_owner}:${install_group} ${DSP_TOP}
+    status=$?
+
+    if [ $status -eq 0 ]
+    then
+        bkup ${DSP_OWNER_FILE}
+        status=$?
+
+        echo ${install_owner}:${install_group} > ${DSP_OWNER_FILE}
+        status=$?
+    else
+        echo "ERROR: an error occurred changing ownership - please investigate"
+        echo "       reminder owner file [${DSP_OWNER_FILE}] may now be incosistent also"
+        EXITCODE=1
+        exit ${EXITCODE}
+    fi
+
+else
+    echo "ERROR: did not pass final validation.  Either DSP_TOP not set, DSP_TOP set to / or owner or version file not readable - exiting"
+    EXITCODE=1
+    exit ${EXITCODE}
+fi
+
+
+
+exit $EXITCODE
+

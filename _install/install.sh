@@ -1,4 +1,5 @@
 #!/bin/bash
+set +x
 
 #+++___________________________________________________________________________________
 #
@@ -78,7 +79,9 @@ function get_install_owner
     #
     if [ "${user}" = "root" ]
     then
+echo AA AB
         OK="NO"
+        
         while [ "${OK}" = "NO" ]
         do
             echo ""
@@ -99,14 +102,20 @@ function get_install_owner
                 OK="YES"
             fi
     
-            if grep ^${install_owner}: /etc/passwd 2>&1 > /dev/null
+            if [ "${install_owner}" = "" ]
             then
-                :
-            else
+                echo "********************************************"
+                echo "ERROR: cannot be blank - must specify a user"
+                echo "********************************************"
+                OK="NO"
+            elif ! grep ^${install_owner}: /etc/passwd 2>&1 > /dev/null
+            then
                 echo "*********************************************"
                 echo "ERROR: user [${install_owner}] does not exist"
                 echo "*********************************************"
                 OK="NO"
+            else
+                OK="YES"
             fi
         done
     
@@ -130,14 +139,46 @@ function get_install_owner
                 OK="YES"
             fi
     
-            if grep ^${install_group}: /etc/group 2>&1 > /dev/null
+            if [ "${install_group}" = "" ]
             then
-                :
-            else
-                echo "ERROR: group [${install_group}] does not exist"
+                echo "********************************************"
+                echo "ERROR: cannot be blank - must specify a group"
+                echo "********************************************"
                 OK="NO"
+            elif ! grep ^${install_group}: /etc/group 2>&1 > /dev/null
+            then
+                echo "*********************************************"
+                echo "ERROR: group [${install_group}] does not exist"
+                echo "*********************************************"
+                OK="NO"
+            else
+                OK="YES"
             fi
         done
+
+        if [ "${install_owner}" = "root" ]
+        then
+            echo ""
+            echo "***************************************************"
+            echo "WARNING: not recommended to leave ownership as root"
+            echo "***************************************************"
+            echo
+            echo "Press [ENTER] to continue or <ctrl-C> to abort"
+            echo
+            read userinput
+
+            echo ""
+            echo "***************************************************************************"
+            echo "WARNING:"
+            echo "    You have elected to keep ownership as ${install_owner}:${install_group}"
+            echo ""
+            echo "    It is recommended to change ownership to a non-root user after install"
+            echo "***************************************************************************"
+            echo
+            echo "Press [ENTER] to continue or <ctrl-C> to abort"
+            echo
+            read userinput
+        fi
     else # user is root
          :
     fi
@@ -346,20 +387,21 @@ function set_install_dir()
     install_owner=""
     install_group=""
 
-    if [ "$(grep ^oracle: /etc/passwd)" ]
+    if [ "$(grep ^${DEFAULT_OWNER}: /etc/passwd)" ]
     then
-        install_owner="oracle"
+        install_owner="${DEFAULT_OWNER}"
     fi
 
-    if [ "$(grep ^oinstall: /etc/group)" ]
+    if [ "$(grep ^${DEFAULT_GROUP}: /etc/group)" ]
     then
-        install_group="oinstall"
+        install_group="${DEFAULT_GROUP}"
     else
         if [ "$(grep ^dba: /etc/group)" ]
         then
             install_group="dba"
         fi
     fi
+echo install_owner="${install_owner}"
 
     if [ "${INSTALL_DIR}" = "" ]
     then
@@ -382,6 +424,7 @@ function set_install_dir()
         #
         install_owner=$(stat -c "%U" ${INSTALL_DIR})
         install_dir_owner=${install_owner}
+echo XX=$install_owner
 
 
         #install_group is who should own the code
