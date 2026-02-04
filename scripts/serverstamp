@@ -254,7 +254,6 @@ dbhosting_status_code=$(awk -v dbhosting_status="${dbhosting_status}" -F: '$2 ==
 # double-check validation
 X=$(grep ^${dbhosting_status_code}: ${DBHOSTING_LOOKUP_FILE} | awk -F: '{print $2}')
 
-echo X=[$X]
 echo dbhosting_status=[$dbhosting_status]
 if [ "${X}" != "${dbhosting_status}" ] # something weird has happened
 then
