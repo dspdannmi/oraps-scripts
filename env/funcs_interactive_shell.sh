@@ -2,6 +2,7 @@
 #
 
 for func in become \
+            catauthkeys \
             catidpub \
             cdwork \
 	    col1 \

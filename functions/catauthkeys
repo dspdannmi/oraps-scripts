@@ -1,0 +1,7 @@
+
+function catauthkeys
+    {
+    cat $HOME/.ssh/authorized_keys
+
+    echo
+    }

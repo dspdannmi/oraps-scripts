@@ -56,6 +56,8 @@ INSTALL
 
 - when running install if serveridentity.txt file does not exist then populate it with a UUID irrespective and then force/encourage serverstamp
 
+- I was able to run serverstamp as root even though owner.txt indicated different user - ok may ok but would be better to say "Hey shouldn't you run this as [oracle] for example"
+
 - can we include info on whether server is part of a cluster
 
 - install.sh script looping when filesystem full
