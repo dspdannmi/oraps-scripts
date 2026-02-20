@@ -283,7 +283,7 @@ function do_install()
 
         keep_trying="NO"
     else
-        :
+        keep_trying="NO"
     fi
     }
 
