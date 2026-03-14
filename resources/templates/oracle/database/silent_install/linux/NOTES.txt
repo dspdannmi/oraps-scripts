@@ -1,0 +1,35 @@
+
+https://oracle-base.com/articles/19c/oracle-db-19c-installation-on-oracle-linux-8
+
+Setup OS with Oracle Database 19c pre-reqs (such as running /opt/dsp/resources/rpms/oracle-database-preinstall/OL8/x86_64/oracle-database-preinstall-19c-1.0-2.el8.x86_64.rpm)
+
+root:
+	mkdir -p /u01/app/oracle/oradata
+	mkdir -p /u01/app/oracle/fast_recovery_area
+	mkdir -p /u01/app/oracle/product/19.0.0.0/dbhome_1
+	mkdir -p /u01/app/oracle/stage
+	mkdir -p /u01/app/oracle/admin
+	mkdir -p /u01/app/oraInventory
+
+	chown -R oracle:oinstall /u01/app/oracle
+	chown -R oracle:oinstall /u01/app/oraInventory
+
+
+mkdir $ORACLE_HOME	<--- /u01/app/oracle/product/19.0.0.0/dbhome_1
+
+mkdir /u01/app/oraInventory
+
+# Unzip software.
+cd $ORACLE_HOME
+unzip -oq /u01/app/oracle/stage/LINUX.X64_193000_db_home.zip
+
+# Fake Oracle Linux 7.
+export CV_ASSUME_DISTID=OEL7.6
+
+cd $ORACLE_HOME
+
+$OLDPWD/go_runInstaller.sh
+
+
+
+

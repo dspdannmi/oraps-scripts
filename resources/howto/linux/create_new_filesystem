@@ -1,0 +1,41 @@
+
+Example below.
+
+------------------------------------
+WARNING - DESTRUCTIVE COMMANDS BELOW
+------------------------------------
+
+Destructive commands below!!!!! 
+
+Not to be copied and pasted as-is without understanding what these commands are doing.
+
+
+parted /dev/sdb mklabel gpt
+parted /dev/sdb mkpart  part01 ext4 1 100%
+mkfs.ext4 /dev/sdb1
+blkid /dev/sdb1
+blkid -s UUID -o value /dev/sdb1
+blkid -s TYPE -o value /dev/sdb1
+mkdir /u01
+cp -p /etc/fstab /etc/fstab.$(date +%Y%m%d_%H%M)
+echo "UUID=\"0a084459-3c08-4599-9a72-8f02706819b5\"     /u01    ext4    defaults,_netdev 0 0" >> /etc/fstab
+
+may need to run:
+
+# systemctl daemon-reload
+
+
+------
+NOTE FOR OCI VMs (valid as at 06/03/2026)
+-----
+
+## ORACLE CLOUD INFRASTRUCTURE CUSTOMERS
+##
+## If you are adding an iSCSI remote block volume to this file you MUST
+## include the '_netdev' mount option or your instance will become
+## unavailable after the next reboot.
+## SCSI device names are not stable across reboots; please use the device UUID instead of /dev path.
+##
+## Example:
+## UUID="94c5aade-8bb1-4d55-ad0c-388bb8aa716a"   /data1    xfs       defaults,noatime,_netdev      0      2
+

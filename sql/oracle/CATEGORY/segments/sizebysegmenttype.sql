@@ -13,8 +13,9 @@ col "SIZE(GB)" format 99999999
 
 select owner, segment_type, count(*) "COUNT", sum(bytes)/1024/1024/1024 "SIZE(GB)"
 from dba_segments
-where upper(owner) like upper('%&&1&')
+where upper(owner) like upper('%&&1%')
   or upper(segment_type) like upper('%&&1%')
 group by owner, segment_type
 order by 1,2;
 
+undefine 1

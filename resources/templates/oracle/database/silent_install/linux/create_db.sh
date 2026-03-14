@@ -18,8 +18,6 @@ then
     exit 1
 fi
 
-exit 0
-
 dbca -silent -createDatabase                                                    \
      -templateName General_Purpose.dbc                                          \
      -gdbname ${ORACLE_SID} -sid ${ORACLE_SID} -responseFile NO_VALUE           \
@@ -27,12 +25,13 @@ dbca -silent -createDatabase                                                    
      -sysPassword ${SYS_PASSWORD}                                               \
      -systemPassword ${SYS_PASSWORD}                                            \
      -createAsContainerDatabase true                                            \
-     -numberOfPDBs 0                                                            \
+     -numberOfPDBs 1                                                            \
+     -pdbName ${PDB_NAME}                                                       \
      -databaseType MULTIPURPOSE                                                 \
      -memoryMgmtType auto_sga                                                   \
      -totalMemory 2000                                                          \
      -storageType FS                                                            \
-     -datafileDestination "/u01/app/oracle/oradata/"                                       \
+     -datafileDestination "/u01/app/oracle/oradata/"                            \
      -redoLogFileSize 500                                                       \
      -emConfiguration NONE                                                      \
      -ignorePreReqs
