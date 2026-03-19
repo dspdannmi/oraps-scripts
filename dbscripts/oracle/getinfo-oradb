@@ -124,20 +124,184 @@ function print_end
     }
 
 
-function show_opatch_version
+
+function display_human
     {
-    level=$1
-    TAG=OPATCH_VERSION
-
-    print_begin ${TAG}
-
+    print_begin "${TAG}"
+    
     padding="    ${padding}"
-    ${ORACLE_HOME}/OPatch/opatch version | sed -e s"/^/${padding}/"
-    status=$?
+    echo "${padding}ORACLE_SID:        ${ORACLE_SID}"
+    echo ""
+
+    #
+    # ORACLE_HOME
+    #
+    echo "${padding}ORACLE_HOME:       ${ORACLE_HOME}"
+    
+    #
+    # Determine alert log
+    #
+    ALERTLOG=$(showalertlogloc)
+    
+    echo "${padding}ALERT LOG:         ${ALERTLOG}"
+    
+    #
+    # Password file
+    #
+    ORAPW_FILE=${ORACLE_HOME}/dbs/orapw${ORACLE_SID}
+    
+    if [ -r ${ORAPW_FILE} ]
+    then
+        ORAPW_FILE_EXISTS=true
+    else
+        ORAPW_FILE_EXISTS=false
+        ORAPW_FILE="${ORAPW_FILE} [***DOES NOT EXIST***]"
+    fi
+    
+    echo "${padding}PASSWORD FILE:     ${ORAPW_FILE}"
+    
+    padding="    ${padding}"
+        
+    echo ""
+    echo "${padding}db name                  : ${NAME}"
+    echo "${padding}db unique name           : ${DB_UNIQUE_NAME}"
+    echo "${padding}instance name            : ${INSTANCE_NAME}"
+    echo "${padding}created                  : ${CREATED}"
+    echo "${padding}startup time             : ${STARTUP_TIME}"
+    echo "${padding}dbid                     : ${DBID}"
+    echo ""
+    echo "${padding}cluster_database         : ${CLUSTER_DATABASE}"
+    echo ""
+    echo "${padding}dbsize(total)            : ${DBSIZE_GB}Gb"
+    echo ""
+    
+    echo "${padding}cdb                      : ${CDB}"
+    
+    echo "${padding}edition                  : ${EDITION}"
+    echo "${padding}database status          : ${DATABASE_STATUS}"
+    
+    if [ "${VERSION_FULL}" != "" ]	# version_full only in versions from about 11g onwards
+    then
+        VERSION=${VERSION_FULL}
+    fi
+    echo "${padding}version                  : ${VERSION}"
+    
+    echo "${padding}open mode                : ${OPEN_MODE}"
+    echo ""
+    
+    echo "${padding}TDE                      : <unknown - check not yet implemented>"
+    echo ""
+    
+    echo "${padding}last successful bkup     : <unknown - check not yet implemented>"
+    echo "${padding}current scn              : ${CURRENT_SCN}"
+    echo "${padding}log mode                 : ${LOG_MODE}"
+    echo "${padding}flashback on             : ${FLASHBACK_ON}"
+    echo "${padding}force logging            : ${FORCE_LOGGING}"
+    echo "${padding}supplemental log data min: ${SUPPLEMENTAL_LOG_DATA_MIN}"
+    
+    echo ""
+    
+    
+    if [ "${NUMBER_OF_STANDBY_DEST}" != "" ] && [ "${NUMBER_OF_STANDBY_DEST}" != "0" ]
+    then
+        echo "${padding}standby archlog dests    : ${NUMBER_OF_STANDBY_DEST}"
+        echo "${padding}number of standby dest   : ${NUMBER_OF_STANDBY_DEST}"
+        echo "${padding}instance role            : ${INSTANCE_ROLE}"
+        echo "${padding}database role            : ${DATABASE_ROLE}"
+        echo "${padding}protection mode          : ${PROTECTION_MODE}"
+        echo "${padding}protection level         : ${PROTECTION_LEVEL}"
+    else
+        if [ "${NUMBER_OF_STANDBY_DEST}" = "" ]
+        then
+            NUMBER_OF_STANDBY_DEST=0
+        fi
+
+        echo "${padding}standby archlog dests    : ${NUMBER_OF_STANDBY_DEST}"
+    fi
+    
+    echo ""
+    
+    echo "${padding}active status            : ${ACTIVE_STATE}"
+    echo "${padding}instance mode            : ${INSTANCE_MODE}"
+    echo "${padding}family                   : ${FAMILY}"
+    echo "${padding}database type            : ${DATABASE_TYPE}"
+    
+    echo ""
+    
+    if [ "${CDB}" = "YES" ]
+    then
+      echo "${padding}pdbs:"
+    
+      padding_save=${padding}
+      padding="    ${padding}"
+      #grep ^PDB: ${tmpfile}.pdbs | cut -d: -f2- | sed -e "s/^/${padding}/" -e "s/^$//" | awk -F: '{printf "%20s%s%s%s",$1, $2, $3, $4}'
+
+      (
+      echo "CON_ID CON_NAME                       OPEN MODE  RESTRICTED"
+      echo "------ ------------------------------ ---------- ----------"
+  
+      grep ^PDB: ${tmpfile}.pdbs | cut -d: -f2- | sed -e "s/^/${padding}/" -e "s/^$//" | awk -F: '{print sprintf("%6d", $1) " " sprintf("%-30s", $2) " " sprintf("%-10s", $3) " " sprintf("%-4s", $4)}'
+      ) | sed -e 's/^/                /'
+    fi
 
     print_end ${TAG}
     }
 
+
+function display_machine
+    {
+    #
+    # ORACLE_HOME
+    #
+    echo "<getinfo:oracle_database>"
+
+    echo "oracle_sid:${ORACLE_SID}"
+    echo "oracle_home:${ORACLE_HOME}"
+    echo "alert_log:${ALERTLOG}"
+    echo "password_file:${ORAPW_FILE}"
+    echo "db_name:${NAME}"
+    echo "db_unique_name:${DB_UNIQUE_NAME}"
+    echo "instance_name:${INSTANCE_NAME}"
+    echo "created:${CREATED}"
+    echo "startup_time:${STARTUP_TIME}"
+    echo "dbid:${DBID}"
+    echo "cluster_database:${CLUSTER_DATABASE}"
+    echo "dbsize_gb:${DBSIZE_GB}"
+    echo "cdb:${CDB}"
+    echo "edition:${EDITION}"
+    echo "database_status:${DATABASE_STATUS}"
+    
+    if [ "${VERSION_FULL}" != "" ]	# version_full only in versions from about 11g onwards
+    then
+        VERSION=${VERSION_FULL}
+    fi
+    echo "version:${VERSION}"
+    echo "open_mode:${OPEN_MODE}"
+    echo "tde:not_implemented"
+    echo "last_successful_bkup:not_implemented"
+    echo "current_scn:${CURRENT_SCN}"
+    echo "log_mode:${LOG_MODE}"
+    echo "flashback_on:${FLASHBACK_ON}"
+    echo "force_logging:${FORCE_LOGGING}"
+    echo "supplemental_log_data_min:${SUPPLEMENTAL_LOG_DATA_MIN}"
+    
+    echo "number_of_standby_dest:${NUMBER_OF_STANDBY_DEST}"
+    echo "instance_role:${INSTANCE_ROLE}"
+    echo "database_role:${DATABASE_ROLE}"
+    echo "protection_mode:${PROTECTION_MODE}"
+    echo "protection_level:${PROTECTION_LEVEL}"
+    
+    echo "active_status:${ACTIVE_STATE}"
+    echo "instance mode:${INSTANCE_MODE}"
+    echo "family:${FAMILY}"
+    echo "database_type:${DATABASE_TYPE}"
+    
+    echo "<pdbs>"
+    grep ^PDB: ${tmpfile}.pdbs | cut -d: -f2-
+    echo "</pdbs>"
+
+    echo "</getinfo:oracle_database>"
+    }
 
 
 #
@@ -152,7 +316,7 @@ function show_opatch_version
 set_error_trap
 
 level=1
-TAG=ORACLE_SID
+TAG="ORACLE DATABASE"
 
 if [ "${ORACLE_SID}" = "" ]
 then
@@ -160,12 +324,6 @@ then
     EXITCODE=1
     exit ${EXITCODE}
 fi
-
-print_begin ${TAG}
-
-padding="    ${padding}"
-echo "${padding}ORACLE_SID:        ${ORACLE_SID}"
-echo ""
 
 if chkoradbinoratab ${ORACLE_SID} 2>&1 > /dev/null
 then
@@ -198,31 +356,11 @@ else
     exit ${EXITCODE}
 fi
 
-##
-## Determine version
-##   REMOVING AS DOESNT WORK WHEN DATABASE
-##   IN NOMOUNT OR MOUNTED ONLY WHEN OPEN
-##
-#version=$(getdbversion -d ${ORACLE_SID})
-#
-#echo "${padding}VERSION:           ${version}"
-#echo ""
-
-#
-# ORACLE_HOME
-#
-echo "${padding}ORACLE_HOME:       ${ORACLE_HOME}"
-
 #
 # Determine alert log
 #
-ALERTLOG=$(showalertlogloc)
+#ALERTLOG=$(showalertlogloc)
 
-echo "${padding}ALERT LOG:         ${ALERTLOG}"
-
-#
-# Password file
-#
 ORAPW_FILE=${ORACLE_HOME}/dbs/orapw${ORACLE_SID}
 
 if [ -r ${ORAPW_FILE} ]
@@ -232,8 +370,16 @@ else
     ORAPW_FILE_EXISTS=false
     ORAPW_FILE="${ORAPW_FILE} [***DOES NOT EXIST***]"
 fi
-
-echo "${padding}PASSWORD FILE:     ${ORAPW_FILE}"
+    
+##
+## Determine version
+##   REMOVING AS DOESNT WORK WHEN DATABASE
+##   IN NOMOUNT OR MOUNTED ONLY WHEN OPEN
+##
+#version=$(getdbversion -d ${ORACLE_SID})
+#
+#echo "${padding}VERSION:           ${version}"
+#echo ""
 
 # expecting some errors on older versions as newer columns etc.
 # are added to DBA_ and V$_ as versions increment so run with
@@ -325,105 +471,19 @@ DBSIZE_GB=$(grep '^DBSIZE_GB:' ${tmpfile} | cut -d: -f2- | xargs)
 
 CLUSTER_DATABASE=$(grep '^cluster_database[ ]*:' ${tmpfile}.v_parameters | cut -d: -f2- | xargs)
 
-padding="    ${padding}"
-
-echo ""
-echo "${padding}db name                  : ${NAME}"
-echo "${padding}db unique name           : ${DB_UNIQUE_NAME}"
-echo "${padding}instance name            : ${INSTANCE_NAME}"
-echo "${padding}created                  : ${CREATED}"
-echo "${padding}startup time             : ${STARTUP_TIME}"
-echo "${padding}dbid                     : ${DBID}"
-echo ""
-echo "${padding}cluster_database         : ${CLUSTER_DATABASE}"
-echo ""
-echo "${padding}dbsize(total)            : ${DBSIZE_GB}Gb"
-echo ""
-
 if [ "${CDB}" = "" ]
 then
     CDB="NO"
 fi
 
-echo "${padding}cdb                      : ${CDB}"
-
-echo "${padding}edition                  : ${EDITION}"
-echo "${padding}database status          : ${DATABASE_STATUS}"
-
-if [ "${VERSION_FULL}" != "" ]	# version_full only in versions from about 11g onwards
+if [ "${style}" = "human" ]
 then
-    VERSION=${VERSION_FULL}
-fi
-echo "${padding}version                  : ${VERSION}"
-
-echo "${padding}open mode                : ${OPEN_MODE}"
-echo ""
-
-echo "${padding}TDE                      : <unknown - check not yet implemented>"
-echo ""
-
-echo "${padding}last successful bkup     : <unknown - check not yet implemented>"
-echo "${padding}current scn              : ${CURRENT_SCN}"
-echo "${padding}log mode                 : ${LOG_MODE}"
-echo "${padding}flashback on             : ${FLASHBACK_ON}"
-echo "${padding}force logging            : ${FORCE_LOGGING}"
-echo "${padding}supplemental log data min: ${SUPPLEMENTAL_LOG_DATA_MIN}"
-
-echo ""
-
-
-if [ "${NUMBER_OF_STANDBY_DEST}" != "" ] && [ "${NUMBER_OF_STANDBY_DEST}" != "0" ]
-then
-    echo "${padding}standby archlog dests    : ${NUMBER_OF_STANDBY_DEST}"
-    echo "${padding}number of standby dest   : ${NUMBER_OF_STANDBY_DEST}"
-    echo "${padding}instance role            : ${INSTANCE_ROLE}"
-    echo "${padding}database role            : ${DATABASE_ROLE}"
-    echo "${padding}protection mode          : ${PROTECTION_MODE}"
-    echo "${padding}protection level         : ${PROTECTION_LEVEL}"
+    display_human
 else
-    if [ "${NUMBER_OF_STANDBY_DEST}" = "" ]
-    then
-        NUMBER_OF_STANDBY_DEST=0
-    fi
-
-    echo "${padding}standby archlog dests    : ${NUMBER_OF_STANDBY_DEST}"
-fi
-
-echo ""
-
-echo "${padding}active status            : ${ACTIVE_STATE}"
-echo "${padding}instance mode            : ${INSTANCE_MODE}"
-echo "${padding}family                   : ${FAMILY}"
-echo "${padding}database type            : ${DATABASE_TYPE}"
-
-echo ""
-
-if [ "${CDB}" = "YES" ]
-then
-  if [ "${style}" = "human" ]
-  then
-    echo "${padding}pdbs:"
-  else
-    echo "${padding}<PDBS>"
-  fi
-
-  padding_save=${padding}
-  padding="    ${padding}"
-  sed -e "s/^/${padding}/" -e "s/^$//" ${tmpfile}.pdbs
-
-  if [ "${style}" = "human" ]
-  then
-    :
-  else
-    echo "${padding_save}</PDBS>"
-  fi
+    display_machine
 fi
 
 
-
-
-
-print_end ${TAG}
 
 exit $EXITCODE
 

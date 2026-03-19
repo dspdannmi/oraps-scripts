@@ -100,12 +100,21 @@ function print_end
 
 function get_uptime()
     {
+    # just for maximum pedantic accuracy, get both date related values as close
+    # as possible to each other
     upSeconds="$(/usr/bin/cut -d. -f1 /proc/uptime)"
+    now_epoch=$(date +%s)
+
     secs=$((${upSeconds}%60))
     mins=$((${upSeconds}/60%60))
     hours=$((${upSeconds}/3600%24))
     days=$((${upSeconds}/86400))
-    UPTIME=`printf "%d days, %02dh %02dm %02ds" "$days" "$hours" "$mins" "$secs"`
+    if [ "${style}" = "human" ]
+    then
+        UPTIME=`printf "%d days, %02dh %02dm %02ds" "$days" "$hours" "$mins" "$secs"`
+    else
+        UPTIME=${upSeconds}
+    fi
     }
 
 function get_lastboot()
@@ -144,19 +153,29 @@ function get_systemrelease()
 
 function get_meminfo
     {
-    MEM_FREE=$(free -h 2>/dev/null | grep ^Mem: | awk '{print $4}')
-    status=$?
-    
-    if [ "${MEM_FREE}" != "" ]
+    if [ "${style}" = "human" ]
     then
-        MEM_TOTAL=$(free -h | grep ^Mem: | awk '{print $2}')
-    
-        SWAP_FREE=$(free -h | grep ^Swap: | awk '{print $4}')
-        SWAP_TOTAL=$(free -h | grep ^Swap: | awk '{print $2}')
+        # see if -h switch supported
+        MEM_FREE=$(free -h 2>/dev/null | grep ^Mem: | awk '{print $4}')
+        status=$?
+        
+        if [ "${MEM_FREE}" != "" ]
+        then
+            MEM_TOTAL=$(free -h | grep ^Mem: | awk '{print $2}')
+        
+            SWAP_FREE=$(free -h | grep ^Swap: | awk '{print $4}')
+            SWAP_TOTAL=$(free -h | grep ^Swap: | awk '{print $2}')
+        else
+            MEM_FREE="$(free -m | grep ^Mem: | awk '{print $4}')Mb"
+            MEM_TOTAL="$(free -m | grep ^Mem: | awk '{print $2}')Mb"
+        
+            SWAP_FREE="$(free -m | grep ^Swap: | awk '{print $4}')Mb"
+            SWAP_TOTAL="$(free -m | grep ^Swap: | awk '{print $2}')Mb"
+        fi
     else
         MEM_FREE="$(free -m | grep ^Mem: | awk '{print $4}')Mb"
         MEM_TOTAL="$(free -m | grep ^Mem: | awk '{print $2}')Mb"
-    
+        
         SWAP_FREE="$(free -m | grep ^Swap: | awk '{print $4}')Mb"
         SWAP_TOTAL="$(free -m | grep ^Swap: | awk '{print $2}')Mb"
     fi
@@ -172,10 +191,109 @@ function get_cpuinfo
     NUM_CORES=$(grep -i '^core id' /proc/cpuinfo | sort -u | wc -l)	# need to sort and get unique for cores
     }
 
+function display_human
+    {
+    level=1
+    
+    echo "---------------------------------------------------"
+    echo "OPERATING SYSTEM ($(date -d@${now_epoch}))"
+    echo "---------------------------------------------------"
+    echo ""
+    
+    padding="    ${padding}"
+    
+    echo "${padding}hostname               : ${HOSTNAME_HOSTNAME}"
+    echo "${padding}dsp server id          : ${dspserverid}"
+    echo ""
+    echo "${padding}operating system       : ${UNAME_OPERATING_SYSTEM}"
+    echo "${padding}architecture           : ${UNAME_HARDWARE_PLATFORM}"
+    echo "${padding}system release         : ${SYSTEM_RELEASE}"
+    echo "${padding}kernel release         : ${UNAME_KERNEL_RELEASE}"
+    echo "${padding}kernel version         : ${UNAME_KERNEL_VERSION}"
+    echo ""
+    echo "${padding}uptime                 : ${UPTIME}"
+    echo "${padding}last boot              : ${LASTBOOT}"
+    echo ""
+    echo "${padding}(v)cpus                : ${NUM_CPUS}"
+    #echo "${padding}cores                  : ${NUM_CORES}"
+    echo ""
+    echo "${padding}memory "
+    echo "${padding}${padding}total              : ${MEM_TOTAL}"
+    echo "${padding}${padding}free               : ${MEM_FREE}"
+    echo "${padding}swap "
+    echo "${padding}${padding}total              : ${SWAP_TOTAL}"
+    echo "${padding}${padding}free               : ${SWAP_FREE}"
+    echo ""
+    echo "${padding}ip addresses "
+    showipaddrs | sed -e "s/^/${padding}${padding}/"
+    
+    echo ""
+    echo "${padding}mac addresses "
+    showmacaddrs | sed -e "s/^/${padding}${padding}/"
+
+    print_end ${TAG}
+    }
+
+
+function display_machine
+    {
+    echo "<getinfo:operating_system>"
+    (
+    echo "<dsp_version_file>"
+    if [ -r ${DSP_VERSION_FILE} ]
+    then
+        cat ${DSP_VERSION_FILE}
+    else
+        echo "error:file_not_found"
+    fi
+    echo "</dsp_version_file>"
+
+    echo "<dsp_identity_file>"
+    if [ -r ${DSP_IDENTITY_FILE} ]
+    then
+        cat ${DSP_IDENTITY_FILE}
+        status=$?
+    else
+        echo "error:file_not_found"
+    fi
+    echo "</dsp_identity_file>"
+
+    echo "<details>"
+    echo "timestamp:$(date -d@${now_epoch} +%Y%m%d%H%M%S)"
+    echo "DSP_OS:RPM_based_linux"
+    echo "DSP_WHOAMI:${DSP_WHOAMI}"
+    echo "hostname:${HOSTNAME_HOSTNAME}"
+    echo "dspserverid:${dspserverid}"
+    echo "os:${UNAME_OPERATING_SYSTEM}"
+    echo "architecture:${UNAME_HARDWARE_PLATFORM}"
+    echo "system_release:${SYSTEM_RELEASE}"
+    echo "kernel_release:${UNAME_KERNEL_RELEASE}"
+    echo "kernel_version:${UNAME_KERNEL_VERSION}"
+    echo "uptime:${UPTIME}"
+    echo "lastboot:${LASTBOOT}"
+    echo "cpus:${NUM_CPUS}"
+    #echo "cores                  : ${NUM_CORES}"
+    echo "memtotal:${MEM_TOTAL}"
+    echo "memfree:${MEM_FREE}"
+    echo "swaptotal:${SWAP_TOTAL}"
+    echo "swapfree:${SWAP_FREE}"
+    echo "<ip_addresses>"
+    showipaddrs | sed -e "s/^//"
+    echo "</ip_addresses>"
+    echo "<mac_addresses>"
+    showmacaddrs | sed -e "s/^//"
+    echo "</mac_addresses>"
+
+    echo "</details>"
+    ) | base64
+    echo "</getinfo:operating_system>"
+    }
+
 
 #
 # Define local script variables
 #
+
 HOSTNAME_HOSTNAME=$(hostname)
 HOSTNAME_IP_ADDRESSES=$(hostname -I)
 
@@ -204,45 +322,12 @@ get_meminfo
 #
 set_error_trap
 
-level=1
-TAG=OPERATING-SYSTEM
-
-print_begin ${TAG}
-
-padding="    ${padding}"
-echo 
-
-echo "${padding}hostname               : ${HOSTNAME_HOSTNAME}"
-echo "${padding}dsp server id          : ${dspserverid}"
-echo ""
-echo "${padding}operating system       : ${UNAME_OPERATING_SYSTEM}"
-echo "${padding}architecture           : ${UNAME_HARDWARE_PLATFORM}"
-echo "${padding}system release         : ${SYSTEM_RELEASE}"
-echo "${padding}kernel release         : ${UNAME_KERNEL_RELEASE}"
-echo "${padding}kernel version         : ${UNAME_KERNEL_VERSION}"
-echo ""
-echo "${padding}uptime                 : ${UPTIME}"
-echo "${padding}last boot              : ${LASTBOOT}"
-echo ""
-echo "${padding}(v)cpus                : ${NUM_CPUS}"
-#echo "${padding}cores                  : ${NUM_CORES}"
-echo ""
-echo "${padding}memory "
-echo "${padding}${padding}total              : ${MEM_TOTAL}"
-echo "${padding}${padding}free               : ${MEM_FREE}"
-echo "${padding}swap "
-echo "${padding}${padding}total              : ${SWAP_TOTAL}"
-echo "${padding}${padding}free               : ${SWAP_FREE}"
-echo ""
-echo "${padding}ip addresses "
-showipaddrs | sed -e "s/^/${padding}${padding}/"
-
-echo ""
-echo "${padding}mac addresses "
-showmacaddrs | sed -e "s/^/${padding}${padding}/"
-
-
-print_end ${TAG}
+if [ "${style}" = "human" ]
+then
+    display_human
+else
+    display_machine
+fi
 
 exit $EXITCODE
 

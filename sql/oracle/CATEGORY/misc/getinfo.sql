@@ -114,7 +114,7 @@ and target = 'STANDBY';
 
 
 prompt <V_PDBS>
-select con_id, name, open_mode, restricted
+select 'PDB:' || con_id || ':' ||  name || ':' ||  open_mode || ':' ||  restricted pdb
 from v$pdbs
 order by con_id;
 prompt </V_PDBS>

@@ -11,7 +11,7 @@ col password format a20
 
 col user_id format 99999999999
 col "DEFAULT_TS" format a24
-col "TEMP_TS" format a12
+col "TEMP_TS" format a16
 col profile format a16
 
 select user_id, 

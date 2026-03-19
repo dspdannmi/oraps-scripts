@@ -1,0 +1,8 @@
+
+function cdwhich
+    {
+    cd $(which ${1})
+    status=$?
+    }
+
+

@@ -4,6 +4,7 @@
 for func in become \
             catauthkeys \
             catidpub \
+            cdwhich \
             cdwork \
 	    col1 \
 	    col2 \

@@ -197,7 +197,16 @@ XX_FIXED_XX - runlater does not seem to be working
 
 - have a changelog for servers
 
+- setting the Oracle environment will clear ALERTLOG which is fine but if setting to the same environment maybe consider not clearing. eg
+	cdbdb01   <--- alias
+        setalertlog
+        ALERTLOG is now set
+        cdbdb01  <---- same enviroment
+        ALERTLOG is cleared but maybe we could have retained it
+
 XX_fixed_XX - i just made a mcdwork directory and the session was two 2 days old so $today was set to 20251026
+
+- mcdwork create a sub-structure under workdir such as "sql/ scripts/ etc."
 
 - capture formsweb.cfg
 - capture webutil.cfg
@@ -251,6 +260,8 @@ XX_DONE_20251024_XX - which is fine as long as we know that when we are using it
 - not cleaning up tmpfiles ... important one
 
 - make sure when interrogating/querying /etc/oratab that we only take entries that have characters/numbers in particular not *
+
+- dbscript lsalertlog and lsalert are not smart and dont use ALERTLOG
 
 - runalldbs could do somem better error checking and checking whether a database is in $ORATAB before setting the environment
 
@@ -472,6 +483,8 @@ DEMO ==== - create demo VM with 6 databases installed - ORADB01 - ORADB02 - ORAD
 - demo of scripts
 
 - show tools directory
+
+- /usr/sbin/column might be able to generate table->json output for you
 
 
 
