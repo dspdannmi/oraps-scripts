@@ -107,6 +107,11 @@ select 'FAMILY:' || FAMILY from v$instance;
 select 'DATABASE_TYPE:' || DATABASE_TYPE from v$instance;
 prompt </V_INSTANCE>
 
+prompt <NLS_DATABASE_PARAMETERS>
+select 'NLS_CHARACTERSET:' || value from nls_database_parameters where parameter = 'NLS_CHARACTERSET';
+select 'NLS_NCHAR_CHARACTERSET:' || value from nls_database_parameters where parameter = 'NLS_NCHAR_CHARACTERSET';
+prompt </NLS_DATABASE_PARAMETERS>
+
 select 'NUMBER_OF_STANDBY_DEST: ' || count(*)
 from v$archive_dest
 where status = 'VALID'
@@ -114,9 +119,11 @@ and target = 'STANDBY';
 
 
 prompt <V_PDBS>
-select 'PDB:' || con_id || ':' ||  name || ':' ||  open_mode || ':' ||  restricted pdb
-from v$pdbs
-order by con_id;
+select 'PDB:' || p.con_id || ':' ||  p.name || ':' ||  p.open_mode || ':' || p.restricted || ':' ||  sum(d.bytes)/1024/1024 pdb
+from v$pdbs p, v$datafile d
+where p.con_id = d.con_id (+)
+group by p.con_id, p.name, p.open_mode, p.restricted
+order by p.con_id;
 prompt </V_PDBS>
 
 select 'DBSIZE_GB:' || round(sum(bytes)/1024/1024/1024)

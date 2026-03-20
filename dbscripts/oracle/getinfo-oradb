@@ -97,7 +97,7 @@ function print_begin
     if [ "${style}" = "human" ]
     then
         echo "${padding}---------------------------------------------------"
-        echo "${padding}${1}"
+        echo "${padding}${1} ($(date))"
         echo "${padding}---------------------------------------------------"
     else
         echo "${padding}<BEGIN_${1}>"
@@ -141,7 +141,6 @@ function display_human
     #
     # Determine alert log
     #
-    ALERTLOG=$(showalertlogloc)
     
     echo "${padding}ALERT LOG:         ${ALERTLOG}"
     
@@ -170,6 +169,9 @@ function display_human
     echo "${padding}startup time             : ${STARTUP_TIME}"
     echo "${padding}dbid                     : ${DBID}"
     echo ""
+    echo "${padding}characterset             : ${NLS_CHARACTERSET}"
+    echo "${padding}characterset(nchar)      : ${NLS_NCHAR_CHARACTERSET}"
+    echo ""
     echo "${padding}cluster_database         : ${CLUSTER_DATABASE}"
     echo ""
     echo "${padding}dbsize(total)            : ${DBSIZE_GB}Gb"
@@ -192,8 +194,10 @@ function display_human
     echo "${padding}TDE                      : <unknown - check not yet implemented>"
     echo ""
     
-    echo "${padding}last successful bkup     : <unknown - check not yet implemented>"
     echo "${padding}current scn              : ${CURRENT_SCN}"
+    echo "${padding}last successful bkup     : <unknown - check not yet implemented>"
+    echo "" 
+
     echo "${padding}log mode                 : ${LOG_MODE}"
     echo "${padding}flashback on             : ${FLASHBACK_ON}"
     echo "${padding}force logging            : ${FORCE_LOGGING}"
@@ -237,10 +241,10 @@ function display_human
       #grep ^PDB: ${tmpfile}.pdbs | cut -d: -f2- | sed -e "s/^/${padding}/" -e "s/^$//" | awk -F: '{printf "%20s%s%s%s",$1, $2, $3, $4}'
 
       (
-      echo "CON_ID CON_NAME                       OPEN MODE  RESTRICTED"
-      echo "------ ------------------------------ ---------- ----------"
+      echo "CON_ID CON_NAME                       OPEN MODE  RESTRICTED SIZE(Mb)"
+      echo "------ ------------------------------ ---------- ---------- -------------"
   
-      grep ^PDB: ${tmpfile}.pdbs | cut -d: -f2- | sed -e "s/^/${padding}/" -e "s/^$//" | awk -F: '{print sprintf("%6d", $1) " " sprintf("%-30s", $2) " " sprintf("%-10s", $3) " " sprintf("%-4s", $4)}'
+      grep ^PDB: ${tmpfile}.pdbs | cut -d: -f2- | sed -e "s/^/${padding}/" -e "s/^$//" | awk -F: '{print sprintf("%6d", $1) " " sprintf("%-30s", $2) " " sprintf("%-10s", $3) " " sprintf("%-10s", $4) " " sprintf("%d15", $5)}'
       ) | sed -e 's/^/                /'
     fi
 
@@ -265,6 +269,8 @@ function display_machine
     echo "created:${CREATED}"
     echo "startup_time:${STARTUP_TIME}"
     echo "dbid:${DBID}"
+    echo "nls_charset:${NLS_CHARACTERSET}"
+    echo "nls_nchar_charset:${NLS_NCHAR_CHARACTERSET}"
     echo "cluster_database:${CLUSTER_DATABASE}"
     echo "dbsize_gb:${DBSIZE_GB}"
     echo "cdb:${CDB}"
@@ -359,7 +365,7 @@ fi
 #
 # Determine alert log
 #
-#ALERTLOG=$(showalertlogloc)
+ALERTLOG=$(showalertlogloc)
 
 ORAPW_FILE=${ORACLE_HOME}/dbs/orapw${ORACLE_SID}
 
@@ -410,6 +416,18 @@ awk '/<V_DATABASE>/ {
                                      process=="true" {
                                      print
                                      }' ${tmpfile} > ${tmpfile}.v_database
+
+awk '/<NLS_DATABASE_PARAMETERS>/ {
+                                     process="true"
+                                     next
+                                     }
+                                     /<\/NLS_DATABASE_PARAMETERS>/ {
+                                     process=""
+                                     next
+                                     }
+                                     process=="true" {
+                                     print
+                                     }' ${tmpfile} > ${tmpfile}.nls_database_parameters
 
 awk '/<V_PDBS>/ {
                                      process="true"
@@ -465,6 +483,9 @@ CURRENT_SCN=$(grep '^CURRENT_SCN[ ]*:' ${tmpfile}.v_database | cut -d: -f2- | xa
 FLASHBACK_ON=$(grep '^FLASHBACK_ON[ ]*:' ${tmpfile}.v_database | cut -d: -f2- | xargs)
 DB_UNIQUE_NAME=$(grep '^DB_UNIQUE_NAME[ ]*:' ${tmpfile}.v_database | cut -d: -f2- | xargs)
 CDB=$(grep '^CDB[ ]*:' ${tmpfile}.v_database | cut -d: -f2- | xargs)
+
+NLS_CHARACTERSET=$(grep '^NLS_CHARACTERSET[ ]*:' ${tmpfile}.nls_database_parameters | cut -d: -f2- | xargs)
+NLS_NCHAR_CHARACTERSET=$(grep '^NLS_NCHAR_CHARACTERSET[ ]*:' ${tmpfile}.nls_database_parameters | cut -d: -f2- | xargs)
 
 NUMBER_OF_STANDBY_DEST=$(grep '^NUMBER_OF_STANDBY_DEST:' ${tmpfile} | cut -d: -f2- | xargs)
 DBSIZE_GB=$(grep '^DBSIZE_GB:' ${tmpfile} | cut -d: -f2- | xargs)
