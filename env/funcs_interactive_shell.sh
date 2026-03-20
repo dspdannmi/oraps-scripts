@@ -26,6 +26,7 @@ for func in become \
             mcd \
             mcdwork \
             mvold \
+            prompt_confirm \
             psgrep \
             pslgwr \
             pslsn \

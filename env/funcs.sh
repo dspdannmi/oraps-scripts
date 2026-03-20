@@ -29,6 +29,7 @@ for func in catdebug \
             echoerr \
             error_encountered \
             graceful_exit \
+            prompt_confirm \
             scriptfooter \
             scriptheader \
             scriptout \

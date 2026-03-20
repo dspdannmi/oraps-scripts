@@ -19,7 +19,7 @@ function graceful_exit
     then
         SCRIPT_ABORTED=YES
 	echo
-	echo "${scriptname}: ABORTED: received terminate signal" > &2
+	echo "${scriptname}: ABORTED: received terminate signal" >&2
 
 	if [ "$EXITCODE" = "0" ]
 	then
@@ -38,7 +38,7 @@ function graceful_exit
                else
 	           error_text="encountered an error"
                fi
-	       echo "WARNING: $scriptname ${error_text} (rc=$EXITCODE)" > &2
+	       echo "WARNING: $scriptname ${error_text} (rc=$EXITCODE)" >&2
            else
                :
            fi

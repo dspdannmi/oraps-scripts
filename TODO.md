@@ -486,6 +486,9 @@ DEMO ==== - create demo VM with 6 databases installed - ORADB01 - ORADB02 - ORAD
 
 - /usr/sbin/column might be able to generate table->json output for you
 
+- getinfo.sql is a help script - it should really be renamed as it also creates an executable called "getinfo" so we should have a way to NOT create an executable for certain SQL
+
+
 
 
 
