@@ -14,12 +14,12 @@ function mcdwork
         suffix=".${suffix// /_}"	# replace spaces with _ and add .
     fi
 
-    if [ "${WORKDIR_TOP}" = "" ]
+    if [ "${DSP_USER_WORK_TOPDIR}" = "" ]
     then
-        echo "WARNING: WORKDIR_TOP not set - creating under $HOME/work"
+        echo "WARNING: DSP_USER_WORK_TOPDIR not set - creating under $HOME/work"
         topdir=${HOME}/work
     else
-        topdir=${WORKDIR_TOP}        
+        topdir=${DSP_USER_WORK_TOPDIR}        
     fi
 
     dir=${topdir}/$today${suffix}
@@ -35,7 +35,7 @@ function mcdwork
 
     if [ -d ${dir} ]
     then
-        export DSP_CURRENT_WORKDIR=${dir}
+        export DSP_WORKDIR_CURRENT=${dir}
 	cd ${dir}
 
         if [ -f ${notes_templates_file} ]

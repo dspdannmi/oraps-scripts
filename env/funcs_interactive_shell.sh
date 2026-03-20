@@ -37,6 +37,7 @@ for func in become \
             setpdb \
             setpdbroot \
             settoday \
+            setwork \
             showpath \
             showsqlpath \
             ssh-asap \

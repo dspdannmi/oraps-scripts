@@ -87,7 +87,7 @@ fi
 # need to do this interactive shell stuff AFTER calling dsp.env
 DSP_FUNCS_INTERACTIVE_SHELL_SCRIPT=${DSP_ENV_SCRIPT_DIR}/env/funcs_interactive_shell.sh
 DSP_INTERACTIVE_SHELL="YES"
-DSP_CURRENT_WORKDIR=""
+DSP_WORKDIR_CURRENT=""
 
 if [ ! -r ${DSP_FUNCS_INTERACTIVE_SHELL_SCRIPT} ]
 then

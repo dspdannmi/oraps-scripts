@@ -1,9 +1,9 @@
 
 function cdwork
     {
-    if [ "${DSP_CURRENT_WORKDIR}" != "" ]
+    if [ "${DSP_WORKDIR_CURRENT}" != "" ]
     then
-        cd ${DSP_CURRENT_WORKDIR}
+        cd ${DSP_WORKDIR_CURRENT}
     else
         echo "Current workdir not set - nothing to do"
     fi

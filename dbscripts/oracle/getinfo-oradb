@@ -254,10 +254,8 @@ function display_human
 
 function display_machine
     {
-    #
-    # ORACLE_HOME
-    #
     echo "<getinfo:oracle_database>"
+    echo "timestamp:$(date +%Y%m%d%H%M%S)"
 
     echo "oracle_sid:${ORACLE_SID}"
     echo "oracle_home:${ORACLE_HOME}"

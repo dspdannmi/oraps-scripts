@@ -12,12 +12,12 @@ function lastwork
 
     settoday
 
-    if [ "${WORKDIR_TOP}" = "" ]
+    if [ "${DSP_USER_WORK_TOPDIR}" = "" ]
     then
         echo "WARNING: WORKDIR_TOP not set - creating under $HOME/work"
         topdir=${HOME}/work
     else
-        topdir=${WORKDIR_TOP}        
+        topdir=${DSP_USER_WORK_TOPDIR}        
     fi
 
 #    if [ "${offset}" = "1" ] || [ "${offset}" = "" ]
@@ -29,7 +29,7 @@ function lastwork
 
     target_dir=$(ls -1d ${topdir}/* | tail -${offset} | head -1)
 
-    cd ${target_dir} && export DSP_CURRENT_WORKDIR=${target_dir}
+    cd ${target_dir} && export DSP_WORKDIR_CURRENT=${target_dir}
     }
 
 

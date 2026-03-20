@@ -3,29 +3,29 @@ function listwork
     {
     settoday
 
-    if [ "${WORKDIR_TOP}" = "" ]
+    if [ "${DSP_USER_WORK_TOPDIR}" = "" ]
     then
-        echo "WARNING: WORKDIR_TOP not set - creating under $HOME/work"
+        echo "WARNING: DSP_USER_WORK_TOPDIR not set - creating under $HOME/work"
         topdir=${HOME}/work
     else
-        topdir=${WORKDIR_TOP}        
+        topdir=${DSP_USER_WORK_TOPDIR}        
     fi
 
     echo
     echo "current work dir:"
     echo "-----------------"
 
-    if [ "${DSP_CURRENT_WORKDIR}" != "" ]
+    if [ "${DSP_WORKDIR_CURRENT}" != "" ]
     then
 
-        if [ -d ${DSP_CURRENT_WORKDIR} ]
+        if [ -d ${DSP_WORKDIR_CURRENT} ]
         then
             current_workdir_status="EXISTS"
         else
             current_workdir_status="DOES NOT EXIST"
         fi
 
-        echo "    ${DSP_CURRENT_WORKDIR} [${current_workdir_status}]"
+        echo "    ${DSP_WORKDIR_CURRENT} [${current_workdir_status}]"
         echo
     else
         echo "    <not set>"
@@ -41,7 +41,7 @@ function listwork
         one_exists=YES
         prefix="    "
 
-        if [ "${dir}" = "${DSP_CURRENT_WORKDIR}" ]
+        if [ "${dir}" = "${DSP_WORKDIR_CURRENT}" ]
         then
             prefix=">>> "
         fi

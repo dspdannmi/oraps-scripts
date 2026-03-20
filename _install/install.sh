@@ -91,7 +91,6 @@ function get_install_owner
             then
                 if [ "${tmp_owner}" != "" ]
                 then
-                     install_owner=${tmp_owner}
                      OK="YES"
                 else
                      :
