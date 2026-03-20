@@ -1,6 +1,12 @@
 
 function mcd
     {
+    if [ $# -gt 1 ]
+    then
+        echo "ERROR: too many parameters - expecting 1"
+        return 1
+    fi
+
     dir=${1}
 
     if [ -d ${dir} ] || [ -f ${dir} ]

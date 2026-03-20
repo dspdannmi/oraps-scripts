@@ -323,6 +323,8 @@ export ALERTLOG=""
     alias lastwork8='lastwork 8'
     alias lastwork9='lastwork 9'
 
+    alias mkwork='mcdwork'
+
     alias lu='du -sh * | sort -h'
     alias path='echo -e ${PATH//:/\\n}'
     alias cdssh='cd ${HOME}/.ssh'
