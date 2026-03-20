@@ -202,7 +202,7 @@ function display_human
     
     padding="    ${padding}"
     
-    echo "${padding}hostname               : ${HOSTNAME_HOSTNAME}"
+    echo "${padding}hostname               : ${THIS_HOSTNAME}"
     echo "${padding}dsp server id          : ${dspserverid}"
     echo ""
     echo "${padding}operating system       : ${UNAME_OPERATING_SYSTEM}"
@@ -238,20 +238,33 @@ function display_human
 function display_machine
     {
     echo "<getinfo:operating_system>"
-    (
-    echo "<dsp_version_file>"
+
+    echo "timestamp:$(date -d@${now_epoch} +%Y%m%d%H%M%S)"
+
+    echo "DSP_DISTRO:${DSP_DISTRO}"
+    echo "DSP_WHOAMI:${DSP_WHOAMI}"
+    echo "hostname:${THIS_HOSTNAME}"
+    echo "dspserverid:${dspserverid}"
+    
     if [ -r ${DSP_VERSION_FILE} ]
     then
-        cat ${DSP_VERSION_FILE}
+        echo "dsp_version:$(cat ${DSP_VERSION_FILE})"
     else
-        echo "error:file_not_found"
+        echo "dsp_version:file_not_found"
     fi
-    echo "</dsp_version_file>"
+
+    if serverstampcheck 2>&1 > /dev/null
+    then
+        echo "serverstampcheck:PASS"
+    else
+        echo "serverstampcheck:FAIL"
+    fi
+
 
     echo "<dsp_identity_file>"
     if [ -r ${DSP_IDENTITY_FILE} ]
     then
-        cat ${DSP_IDENTITY_FILE}
+        grep -v ^\$ ${DSP_IDENTITY_FILE}
         status=$?
     else
         echo "error:file_not_found"
@@ -259,11 +272,6 @@ function display_machine
     echo "</dsp_identity_file>"
 
     echo "<details>"
-    echo "timestamp:$(date -d@${now_epoch} +%Y%m%d%H%M%S)"
-    echo "DSP_OS:RPM_based_linux"
-    echo "DSP_WHOAMI:${DSP_WHOAMI}"
-    echo "hostname:${HOSTNAME_HOSTNAME}"
-    echo "dspserverid:${dspserverid}"
     echo "os:${UNAME_OPERATING_SYSTEM}"
     echo "architecture:${UNAME_HARDWARE_PLATFORM}"
     echo "system_release:${SYSTEM_RELEASE}"
@@ -285,7 +293,6 @@ function display_machine
     echo "</mac_addresses>"
 
     echo "</details>"
-    ) | base64
     echo "</getinfo:operating_system>"
     }
 
@@ -294,7 +301,7 @@ function display_machine
 # Define local script variables
 #
 
-HOSTNAME_HOSTNAME=$(hostname)
+THIS_HOSTNAME=$(hostname)
 HOSTNAME_IP_ADDRESSES=$(hostname -I)
 
 #

@@ -53,6 +53,11 @@ case "${style}" in
     *) echo "ERROR: invalid style [${style}] - exiting" ; exit 1 ;;
 esac
 
+if [ "${listener}" = "" ]
+then
+    listener="LISTENER"
+fi
+
 if [ "${ORACLE_HOME}" = "" ]
 then
     echo "ERROR: ORACLE_HOME not set and not passed via command line - exiting"
@@ -126,6 +131,52 @@ function show_listener
     }
 
 
+function show_listener_machine
+    {
+    echo "<getinfo:oracle_listener>"
+    echo "timestamp:$(date +%Y%m%d%H%M%S)"
+
+    echo "DSP_DISTRO:${DSP_DISTRO}"
+    echo "DSP_WHOAMI:${DSP_WHOAMI}"
+    echo "hostname:${HOSTNAME}"
+    echo "dspserverid:${dspserverid}"
+
+    if [ -r ${DSP_VERSION_FILE} ]
+    then
+        echo "dsp_version:$(cat ${DSP_VERSION_FILE})"
+    else
+        echo "dsp_version:file_not_found"
+    fi
+
+    if serverstampcheck 2>&1 > /dev/null
+    then
+        echo "serverstampcheck:PASS"
+    else
+        echo "serverstampcheck:FAIL"
+    fi
+
+    echo "<dsp_identity_file>"
+    if [ -r ${DSP_IDENTITY_FILE} ]
+    then
+        grep -v ^\$ ${DSP_IDENTITY_FILE}
+        status=$?
+    else
+        echo "error:file_not_found"
+    fi
+    echo "</dsp_identity_file>"
+
+    echo "<details>"
+    echo "oracle_home:${ORACLE_HOME}"
+    echo "listener_name:${listener}" 
+    echo "<lsnrctl_status>"
+    lsnrctl status ${listener}
+    echo "</lsnrctl_status>"
+    echo "</details>"
+
+    echo "</getinfo:oracle_listener>"
+    }
+
+
 
 #
 # Define local script variables
@@ -137,18 +188,23 @@ function show_listener
 #
 set_error_trap
 
-level=1
-TAG=ORACLE_LISTENER
-
-print_begin ${TAG}
-
-padding="    ${padding}"
-echo "${padding}LOC: ${ORACLE_HOME}"
-echo 
-
-show_listener 2
-
-print_end ${TAG}
+if [ "${style}" = "human" ]
+then
+    level=1
+    TAG=ORACLE_LISTENER
+    
+    print_begin ${TAG}
+    
+    padding="    ${padding}"
+    echo "${padding}LOC: ${ORACLE_HOME}"
+    echo 
+    
+    show_listener 2
+    
+    print_end ${TAG}
+else
+    show_listener_machine
+fi
 
 exit $EXITCODE
 

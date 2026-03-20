@@ -172,7 +172,7 @@ function display_human
     echo "${padding}characterset             : ${NLS_CHARACTERSET}"
     echo "${padding}characterset(nchar)      : ${NLS_NCHAR_CHARACTERSET}"
     echo ""
-    echo "${padding}cluster_database         : ${CLUSTER_DATABASE}"
+    echo "${padding}cluster database         : ${CLUSTER_DATABASE}"
     echo ""
     echo "${padding}dbsize(total)            : ${DBSIZE_GB}Gb"
     echo ""
@@ -241,10 +241,10 @@ function display_human
       #grep ^PDB: ${tmpfile}.pdbs | cut -d: -f2- | sed -e "s/^/${padding}/" -e "s/^$//" | awk -F: '{printf "%20s%s%s%s",$1, $2, $3, $4}'
 
       (
-      echo "CON_ID CON_NAME                       OPEN MODE  RESTRICTED SIZE(Mb)"
-      echo "------ ------------------------------ ---------- ---------- -------------"
+      echo "CON_ID CON_NAME                       OPEN MODE  RESTRICTED     SIZE(Mb)"
+      echo "------ ------------------------------ ---------- ---------- ------------"
   
-      grep ^PDB: ${tmpfile}.pdbs | cut -d: -f2- | sed -e "s/^/${padding}/" -e "s/^$//" | awk -F: '{print sprintf("%6d", $1) " " sprintf("%-30s", $2) " " sprintf("%-10s", $3) " " sprintf("%-10s", $4) " " sprintf("%d15", $5)}'
+      grep ^PDB: ${tmpfile}.pdbs | cut -d: -f2- | sed -e "s/^/${padding}/" -e "s/^$//" | awk -F: '{print sprintf("%6d", $1) " " sprintf("%-30s", $2) " " sprintf("%-10s", $3) " " sprintf("%-10s", $4) " " sprintf("%12d", $5)}'
       ) | sed -e 's/^/                /'
     fi
 
@@ -255,8 +255,39 @@ function display_human
 function display_machine
     {
     echo "<getinfo:oracle_database>"
+
     echo "timestamp:$(date +%Y%m%d%H%M%S)"
 
+    echo "DSP_DISTRO:${DSP_DISTRO}"
+    echo "DSP_WHOAMI:${DSP_WHOAMI}"
+    echo "hostname:${HOSTNAME}"
+    echo "dspserverid:${dspserverid}"
+
+    if [ -r ${DSP_VERSION_FILE} ]
+    then
+        echo "dsp_version:$(cat ${DSP_VERSION_FILE})"
+    else
+        echo "dsp_version:file_not_found"
+    fi
+
+    if serverstampcheck 2>&1 > /dev/null
+    then
+        echo "serverstampcheck:PASS"
+    else
+        echo "serverstampcheck:FAIL"
+    fi
+
+    echo "<dsp_identity_file>"
+    if [ -r ${DSP_IDENTITY_FILE} ]
+    then
+        grep -v ^\$ ${DSP_IDENTITY_FILE}
+        status=$?
+    else
+        echo "error:file_not_found"
+    fi
+    echo "</dsp_identity_file>"
+
+    echo "<details>"
     echo "oracle_sid:${ORACLE_SID}"
     echo "oracle_home:${ORACLE_HOME}"
     echo "alert_log:${ALERTLOG}"
@@ -281,8 +312,8 @@ function display_machine
     fi
     echo "version:${VERSION}"
     echo "open_mode:${OPEN_MODE}"
-    echo "tde:not_implemented"
-    echo "last_successful_bkup:not_implemented"
+    echo "tde:check_not_implemented"
+    echo "last_successful_bkup:check_not_implemented"
     echo "current_scn:${CURRENT_SCN}"
     echo "log_mode:${LOG_MODE}"
     echo "flashback_on:${FLASHBACK_ON}"
@@ -303,6 +334,8 @@ function display_machine
     echo "<pdbs>"
     grep ^PDB: ${tmpfile}.pdbs | cut -d: -f2-
     echo "</pdbs>"
+
+    echo "<details>"
 
     echo "</getinfo:oracle_database>"
     }

@@ -146,12 +146,18 @@ function print_end
 
 function show_databases
     {
-    level=$1
-    TAG=DATABASES
+    if [ "${style}" = "human" ]
+    then
+        level=$1
+        TAG=DATABASES
 
-    print_begin ${TAG}
+        print_begin ${TAG}
 
-    padding="    ${padding}"
+        padding="    ${padding}"
+    else
+        echo "<databases>"
+        padding=""
+    fi
 
     for DB in $(awk -F: -v v_ohome=${ORACLE_HOME} '$2==v_ohome {print $1}' ${ORATAB} | grep ^[a-zA-Z0-9_$] | sort)
     do
@@ -169,51 +175,149 @@ function show_databases
         echo "instance:${instance_status}"
     done
 
-    print_end ${TAG}
+    if [ "${style}" = "human" ]
+    then
+        print_end ${TAG}
+    else
+        echo "</databases>"
+    fi
+    }
+
+function show_java
+    {
+    level=$1
+    TAG=JAVA
+
+
+    if [ "${style}" = "human" ]
+    then
+        print_begin ${TAG}
+
+        let level=$level+1
+        TAG=JDK
+
+        print_begin ${TAG}
+    
+        padding="    ${padding}"
+
+        # java -version output seems to go to stderr therefore need to 
+        # redirect to stdout otherwise the pipe in to sed does not work
+        # resulting in no indentation
+
+        $ORACLE_HOME/jdk/bin/java -version 2>&1 | sed -e "s/^/${padding}/"
+
+        echo
+    else
+        echo "<java_jdk>"
+        $ORACLE_HOME/jdk/bin/java -version
+        echo "</java_jdk>"
+    fi
+
+    if [ "${style}" = "human" ]
+    then
+        TAG=JRE
+
+        print_begin ${TAG}
+
+        padding="    ${padding}"
+
+        # java -version output seems to go to stderr therefore need to 
+        # redirect to stdout otherwise the pipe in to sed does not work
+        # resulting in no indentation
+
+        $ORACLE_HOME/jdk/jre/bin/java -version 2>&1 | sed -e "s/^/${padding}/"
+
+        echo
+
+        print_end ${TAG}
+    else
+        echo "<java_jre>"
+        $ORACLE_HOME/jdk/jre/bin/java -version
+        echo "</java_jre>"
+    fi
+    }
+
+function show_perl
+    {
+    level=$1
+    TAG=PERL
+
+    if [ "${style}" = "human" ]
+    then
+        print_begin ${TAG}
+        padding="    ${padding}"
+        $ORACLE_HOME/perl/bin/perl -v | sed -e "s/^/${padding}/"
+        print_end ${TAG}
+    else
+        echo "<perl>"
+        $ORACLE_HOME/perl/bin/perl -V
+        echo "</perl>"
+    fi
     }
 
 function show_opatch_version
     {
-    level=$1
-    TAG=OPATCH_VERSION
-
-    print_begin ${TAG}
-
-    padding="    ${padding}"
-    ${ORACLE_HOME}/OPatch/opatch version | sed -e s"/^/${padding}/"
-    status=$?
-
-    print_end ${TAG}
+    if [ "${style}" = "human" ]
+    then
+        level=$1
+        TAG=OPATCH_VERSION
+    
+        print_begin ${TAG}
+    
+        padding="    ${padding}"
+        ${ORACLE_HOME}/OPatch/opatch version | sed -e "s/^/${padding}/"
+        status=$?
+    
+        print_end ${TAG}
+    else
+        echo "<opatch_version>"
+        ${ORACLE_HOME}/OPatch/opatch version | sed -e "s/^/${padding}/"
+        echo "</opatch_version>"
+    fi
     }
 
 
 function show_opatch_lspatches
     {
-    level=$1
-    TAG=OPATCH_LSPATCHES
-
-    print_begin ${TAG}
-
-    padding="    ${padding}"
-    ${ORACLE_HOME}/OPatch/opatch lspatches | sed -e s"/^/${padding}/"
-    status=$?
-
-    print_end ${TAG}
+    if [ "${style}" = "human" ]
+    then
+        level=$1
+        TAG=OPATCH_LSPATCHES
+    
+        print_begin ${TAG}
+    
+        padding="    ${padding}"
+        ${ORACLE_HOME}/OPatch/opatch lspatches | sed -e "s/^/${padding}/"
+        status=$?
+    
+        print_end ${TAG}
+    else
+        echo "<opatch_lspatches>"
+        ${ORACLE_HOME}/OPatch/opatch lspatches | sed -e "s/^/${padding}/"
+        echo "</opatch_lspatches>"
+    fi
     }
 
 
 function show_opatch_lsinventory
     {
-    level=$1
-    TAG=OPATCH_LSINVENTORY
-
-    print_begin ${TAG}
-
-    padding="    ${padding}"
-    ${ORACLE_HOME}/OPatch/opatch lsinventory | sed -e s"/^/${padding}/"
-    status=$?
-
-    print_end ${TAG}
+    if [ "${style}" = "human" ]
+    then
+        level=$1
+        TAG=OPATCH_LSINVENTORY
+    
+        print_begin ${TAG}
+    
+        padding="    ${padding}"
+        ${ORACLE_HOME}/OPatch/opatch lsinventory | sed -e "s/^/${padding}/"
+        status=$?
+    
+        print_end ${TAG}
+    else
+        echo "<opatch_lsinventory>"
+        ${ORACLE_HOME}/OPatch/opatch lsinventory | sed -e "s/^/${padding}/"
+        echo "</opatch_lsinventory>"
+    fi
     }
 
 
@@ -227,14 +331,52 @@ function show_opatch_lsinventory
 #
 set_error_trap
 
-level=1
-TAG=ORACLE_HOME-DATABASE
+if [ "${style}" = "human" ]
+then
+    level=1
+    TAG="ORACLE HOME (Oracle Database)"
+    
+    print_begin "${TAG}"
+    
+    padding="    ${padding}"
+    echo "${padding}LOC: ${ORACLE_HOME}"
+    echo 
+else
+    echo "<getinfo:oracle_home_database>"
+    echo "timestamp:$(date +%Y%m%d%H%M%S)"
 
-print_begin ${TAG}
+    echo "DSP_DISTRO:${DSP_DISTRO}"
+    echo "DSP_WHOAMI:${DSP_WHOAMI}"
+    echo "hostname:${HOSTNAME}"
+    echo "dspserverid:${dspserverid}"
 
-padding="    ${padding}"
-echo "${padding}LOC: ${ORACLE_HOME}"
-echo 
+    if [ -r ${DSP_VERSION_FILE} ]
+    then
+        echo "dsp_version:$(cat ${DSP_VERSION_FILE})"
+    else
+        echo "dsp_version:file_not_found"
+    fi
+
+    if serverstampcheck 2>&1 > /dev/null
+    then
+        echo "serverstampcheck:PASS"
+    else
+        echo "serverstampcheck:FAIL"
+    fi
+
+    echo "<dsp_identity_file>"
+    if [ -r ${DSP_IDENTITY_FILE} ]
+    then
+        grep -v ^\$ ${DSP_IDENTITY_FILE}
+        status=$?
+    else
+        echo "error:file_not_found"
+    fi
+    echo "</dsp_identity_file>"
+
+    echo "<details>"
+    echo "loc:${ORACLE_HOME}"
+fi
 
 (
 #
@@ -242,6 +384,8 @@ echo
 # TAG setting as each of the functions below
 # set TAG and without subshell
 show_databases 2
+show_java 2
+show_perl 2
 show_opatch_version 2
 show_opatch_lspatches 2
 
@@ -251,7 +395,14 @@ then
 fi
 )
 
-print_end ${TAG}
+if [ "${style}" = "human" ]
+then
+    print_end ${TAG}
+else
+    echo "</details>"
+
+    echo "</getinfo:oracle_home_database>"
+fi
 
 exit $EXITCODE
 
