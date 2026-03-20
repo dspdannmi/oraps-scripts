@@ -1,0 +1,119 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  dbowner
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       20-Mar-2026     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+CS_TOP=/opt/dsp
+. ${CS_TOP}/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="sid"
+
+if [ $# -gt 1 ]
+then
+    usage
+fi
+
+if [ $# -eq 0 ]
+then
+    sid=${ORACLE_SID}
+else
+    sid=${1}
+fi
+
+if [ "${sid}" = "" ]
+then
+    echo "ERROR: ORACLE_SID not set and sid not passed as parameter - exiting"
+    EXITCODE=1
+    exit ${EXITCODE}
+fi
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+OH=$(grep ^${sid}: ${ORATAB} | cut -d: -f2)
+oracle_binary=${OH}/bin/oracle
+
+if [ "${OH}" != "" ]
+then
+    if [ -f ${oracle_binary} ]
+    then
+        owner_from_binary=$(stat -c '%U' ${oracle_binary})
+    else
+        # weird - sid has entry in $ORATAB but path/binary does not exist
+        # unsure how to handle this but probably should raise an error
+        echo "ERROR: sid [${sid}] has entry in [${ORATAB}] but path/binary does not exist" >&2
+        EXITCODE=1
+    fi
+else
+    # eeek... not ideal... no entry in $ORATAB
+    :
+fi
+
+owner_from_ps=$(ps -ef | grep ora_lgwr_${sid}\$ | awk '{print $1}')
+status=$?
+
+if [ "${owner_from_binary}" = "${owner_from_ps}" ]
+then
+    if [ "${owner_from_binary}" != "" ]
+    then
+        # both same and therefore not empty so lets display just one, either one would do
+        echo "${owner_from_binary}"
+    else
+        echo "ERROR: sid [${sid}] not found in ps output and no entry in $ORATAB so unable to determine if DB exists and if so owner" >&2
+        EXITCODE=1
+    fi
+elif [ "${owner_from_binary}" != "" ]
+then
+    if [ "${owner_from_ps}" = "" ]
+    then
+        #DB not running but we found an entry in $ORATAB so lets go with that
+        echo "${owner_from_binary}"
+    else
+        # not sure how we got here, two different answers from ps output and $ORATAB
+        echo "ERROR: conflict - ps output says [${owner_from_ps}] and $ORATAB says [${owner_from_binary}] - please investigate" >&2
+        EXITCODE=1
+    fi
+elif [ "${owner_from_ps}" != "" ]
+then
+    if [ "${owner_from_binary}" = "" ]
+    then
+        #DB running so we found from ps but no entry found from $ORATAB which may or may not be a problem but cant flag it as
+        #such as absolutely OK to have a DB running that is not in $ORATAB
+        echo ${owner_from_ps}
+    else
+        # not sure how we got here, two different answers from ps output and $ORATAB
+        echo "ERROR: conflict - ps output says [${owner_from_ps}] and $ORATAB says [${owner_from_binary}] - please investigate" >&2
+        EXITCODE=1
+    fi
+else
+    :
+fi
+
+
+
+exit $EXITCODE
+
