@@ -1,0 +1,358 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  check_grid
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       20-Mar-2026     1.0     opc    Original version
+#
+#+++___________________________________________________________________________________
+
+CS_TOP=/opt/dsp
+. ${CS_TOP}/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING=""
+
+clear_error_trap
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+GRID_HOME=""
+GRID_USER=""
+FOUND_EVIDENCE_OF_GI="NO"
+CONFLICTING_EVIDENCE_GRID_HOME="NO"
+CONFLICTING_EVIDENCE_GRID_USER="NO"
+
+function validate_new_grid_home_evidence
+    {
+    x=${1} 
+
+    if [ "${GRID_HOME}" = "" ]
+    then
+        # first one found so no issue
+	GRID_HOME=${x}
+    else
+        if [ "${x}" = "${GRID_HOME}" ]
+        then
+            : # all good as finding matches what is already found
+        else
+            CONFLICTING_EVIDENCE_GRID_HOME="YES"
+        fi
+    fi
+    }
+
+function validate_new_grid_user_evidence
+    {
+    x=${1} 
+
+    if [ "${GRID_USER}" = "" ]
+    then
+        # first one found so no issue
+	GRID_USER=${x}
+    else
+        if [ "${x}" = "${GRID_USER}" ]
+        then
+            : # all good as finding matches what is already found
+        else
+            CONFLICTING_EVIDENCE_GRID_USER="YES"
+        fi
+    fi
+    }
+
+
+echo ""
+echo "Check for evidence of Oracle Grid Infrastructure installation:"
+echo "=============================================================="
+echo ""
+
+
+echo "check for crsd.bin running:"
+echo "---------------------------"
+
+PID=$(ps -fu root | grep 'bin/crsd.bin' | grep -v grep | awk '{print $2}')
+
+crsd_user=""
+if [ "${PID}" != "" ] 
+then
+    crsd_user=$(ps -fp ${PID} | grep $PID  | awk '{print $1}')
+
+    # get the binary - there is a better way to do this i know
+    # but it is late and this works - please change when next
+    # review
+    crsd_bin_exec=""
+    for i in $(ps -fp ${PID} | grep ${PID})
+    do
+        if echo ${i} | grep '/bin/crsd.bin$' > /dev/null
+        then
+            crsd_bin_exec=${i}
+        fi
+    done
+fi
+
+if [ "${crsd_bin_exec}" != "" ]
+then
+    bin_dir=$(dirname ${crsd_bin_exec})
+    grid_home=$(dirname ${bin_dir})
+
+    validate_new_grid_home_evidence ${grid_home}
+
+    #this will run as root so we should not consider
+    #when trying to find actual grid installation user
+    #validate_new_grid_user_evidence ${crsd_user}
+
+    echo "crsd.bin executable   : ${crsd_bin_exec} [RUNNING]"
+    echo "grid home             : ${grid_home}"
+    echo "crsd.bin user         : ${crsd_user}"
+else
+    echo "crsd.bin              : <not running>"
+    echo "crsd.bin user         : <undetermined>"
+fi
+echo ""
+
+
+echo "check for ASM running:"
+echo "----------------------"
+clear_error_trap
+
+#ASM instance
+X=""
+if ps -ef | grep asm_smon_ | grep -v grep 2>&1 > /dev/null
+then
+    X=$(ps -ef | grep asm_smon_ | grep -v grep | awk '{print $1 ":" $NF}' | grep asm_smon_)
+fi
+
+asm_instance_name="<undetermined - not found running>"
+if [ "${X}" != "" ]
+then
+    asm_user=$(echo $X | cut -d: -f1)
+    process=$(echo $X | cut -d: -f2)
+
+    asm_instance_name=$(echo $process | cut -d_ -f3)
+
+    validate_new_grid_user_evidence ${asm_user}
+
+    echo "asm_instance_name     : ${asm_instance_name} [RUNNING]"
+    echo "asm user              : ${asm_user}"
+else
+    echo "asm_instance_name     : <undetermined - not found running>"
+    echo "asm user              : <n/a>"
+fi
+echo ""
+
+#ASM proxy instance / flex ASM
+X=""
+if ps -ef | grep apx_pmon_ | grep -v grep 2>&1 >/dev/null
+then
+    X=$(ps -ef | grep apx_pmon_ | grep -v grep | awk '{print $1 ":" $NF}' | grep apx_pmon_)
+fi
+
+apx_instance_name="<undetermined - not found running>"
+if [ "${X}" != "" ]
+then
+    apx_user=$(echo $X | cut -d: -f1)
+    process=$(echo $X | cut -d: -f2)
+
+    apx_instance_name=$(echo $process | cut -d_ -f3)
+
+    validate_new_grid_user_evidence ${apx_user}
+
+    echo "apx_instance_name     : ${apx_instance_name} [RUNNING]"
+    echo "apx user              : ${apx_user}"
+else
+    echo "apx_instance_name     : <undetermined - not found running>"
+    echo "apx user              : <n/a>"
+fi
+
+
+echo ""
+
+
+echo "check for grid user:"
+echo "--------------------"
+
+#doing if grep check first and then setting grid_user
+#as was getting the error trap kicking in to give message
+#about last command being error - which is true - but
+#could not work out how to silence it so went with this
+#suboptimal solution
+if grep ^grid: /etc/passwd 2>&1 > /dev/null
+then
+    grid_user=$(grep ^grid: /etc/passwd)
+fi
+
+answer="<does_not_exist>"
+if [ "${grid_user}" != "" ]
+then
+    answer="EXISTS"
+fi
+echo "[grid] user           : ${answer}"
+echo ""
+
+echo "checking for ASM groups:"
+echo "------------------------"
+
+#doing if grep check first and then setting grid_user
+#as was getting the error trap kicking in to give message
+#about last command being error - which is true - but
+#could not work out how to silence it so went with this
+#suboptimal solution
+
+if grep ^asmadmin: /etc/group 2>&1 > /dev/null
+then
+    asmadmin_group=$(grep ^asmadmin: /etc/group)
+fi
+
+if grep ^asmdba: /etc/group 2>&1 > /dev/null
+then
+    asmdba_group=$(grep ^asmdba: /etc/group)
+fi
+
+if grep ^asmoper: /etc/group 2>&1 > /dev/null
+then
+    asmoper_group=$(grep ^asmoper: /etc/group)
+fi
+
+answer="<does_not_exist>"
+if [ "${asmadmin_group}" != "" ]
+then
+    answer="EXISTS"
+fi
+echo "[asmadmin] group      : ${answer}"
+
+answer="<does_not_exist>"
+if [ "${asmdba_group}" != "" ]
+then
+    answer="EXISTS"
+fi
+echo "[asmdba] group        : ${answer}"
+
+answer="<does_not_exist>"
+if [ "${asmoper_group}" != "" ]
+then
+    answer="EXISTS"
+fi
+echo "[asmoper] group       : ${answer}"
+
+echo
+echo "looking for crsctl.bin:"
+echo "-----------------------"
+
+#
+# locate crsctl which should be a shell script.  Once a crsctl
+# file is found check that it has a setting for ORA_CRS_HOME=
+# as if it does not this might suggest its coincidental file
+# and not indicative of GI files.  If we find a crsctl file
+# that contains string ^ORA_CRS_HOME= then check which directory
+# it points to and check that it matches the directory where it
+# is found.  This should help prevent matches where GI home has
+# been renamed or backed-up and we have found that.  for example
+# if /u01/app/19.0.0.0/grid.OLD/bin/crsctl was found we would
+# match on the fact we found a crsctl file but presumable ORA_CRS_HOME
+# would point to /u01/app/19.0.0.0/grid which is not the same as
+# where we found it meaning we can be 99% its a directory backup
+# and not a live/operational install
+
+# crsctl and grid home typically owned as root as well so need
+# to derive user from /etc/passwd and ORACLE_UESR= from crsctl
+# but still not a guarantee
+
+crsctl_found="NO"
+#locate -b '\SEARCHSTRING' recommended by locate manpage
+#send stderr to /dev/null on locate in case locate is not found/installed on
+#this server
+for i in $(locate -b '\crsctl' 2>/dev/null | xargs grep -il ^ORA_CRS_HOME=) 
+do
+    bin_dir=$(dirname ${i})
+    top_dir=$(dirname ${bin_dir})
+
+    grid_home=$(grep ^ORA_CRS_HOME= ${i} | cut -d= -f2)
+    oracle_user=$(grep ^ORACLE_USER= ${i} | cut -d= -f2)
+
+    validate_new_grid_home_evidence ${grid_home}
+    validate_new_grid_user_evidence ${oracle_user}
+
+    oracle_user_exists="<does_not_exist>"
+    if [ "${oracle_user}" != "" ]
+    then 
+        grep ^${oracle_user}: /etc/passwd > /dev/null && oracle_user_exists="EXISTS"
+    fi
+
+    echodebug top_dir=${top_dir}
+    echodebug grid_home=${grid_home}
+
+    if [ -d ${top_dir} ] && [ "${top_dir}" = "${grid_home}" ]
+    then
+        crsctl_found="YES"
+	echo "crsctl probably found : ${i}"
+	echo "grid home             : ${top_dir}"
+	echo "oracle user           : ${oracle_user} [${oracle_user_exists}]"
+    fi
+
+done	
+
+if [ "${crsctl_found}" != "YES" ] #not found by locate so keep looking in case mlocatedb
+	                          #not enabled
+then
+  echo "<warning: performing filesystem find - may take some time to run>"
+  for i in $(find / -type f -name crsctl 2>/dev/null | xargs grep -il ^ORA_CRS_HOME=)
+  do
+    bin_dir=$(dirname ${i})
+    top_dir=$(dirname ${bin_dir})
+
+    grid_home=$(grep ^ORA_CRS_HOME= ${i} | cut -d= -f2)
+    oracle_user=$(grep ^ORACLE_USER= ${i} | cut -d= -f2)
+
+    validate_new_grid_home_evidence ${grid_home}
+    validate_new_grid_user_evidence ${oracle_user}
+
+    oracle_user_exists="<does_not_exist>"
+    if [ "${oracle_user}" != "" ]
+    then 
+        grep ^${oracle_user}: /etc/passwd > /dev/null && oracle_user_exists="EXISTS"
+    fi
+
+    echodebug top_dir=${top_dir}
+    echodebug grid_home=${grid_home}
+
+    if [ -d ${top_dir} ] && [ "${top_dir}" = "${grid_home}" ]
+    then
+        crsctl_found="YES"
+	echo "crsctl probably found : ${i}"
+	echo "grid home             : ${top_dir}"
+	echo "oracle user           : ${oracle_user} [${oracle_user_exists}]"
+    fi
+  done	
+fi
+
+echo
+
+echo "GRID_HOME:   ${GRID_HOME}"
+echo "GRID_USER:   ${GRID_USER}"
+echo ""
+echo "CONFLICTING_EVIDENCE_GRID_HOME: ${CONFLICTING_EVIDENCE_GRID_HOME}"
+echo "CONFLICTING_EVIDENCE_GRID_USER: ${CONFLICTING_EVIDENCE_GRID_USER}"
+
+echo ""
+
+exit $EXITCODE
+
