@@ -431,6 +431,42 @@ then
     export ORACLE_PATH=${SQLPATH}
 
 fi
+
+if [ "${DSP_USER_TOPDIR}" != "" ]
+then
+    if [ ! -d ${DSP_USER_TOPDIR} ]
+    then
+        echo ""
+        echo "INFO: top-level directory [${DSP_USER_TOPDIR}] does not exist"
+        echo ""
+        if prompt_confirm "Do you wish to create it? (y/n)"
+        then
+
+            mkdir ${DSP_USER_TOPDIR}
+            status=$?
+
+            if [ $status -eq 0 ]
+            then
+                mkdir -p ${DSP_USER_SCRIPTS_TOPDIR} \
+                         ${DSP_USER_CHANGELOG_TOPDIR} \
+                         ${DSP_USER_LOG_TOPDIR} \
+                         ${DSP_USER_OUT_TOPDIR} \
+                         ${DSP_USER_SQL_TOPDIR} \
+                         ${DSP_USER_WORK_TOPDIR}
+                status=$?
+            else
+                echo "ERROR: encountered error creating [${DSP_USER_TOPDIR}]" >&2
+            fi
+         fi #prompt_confirm
+
+         echo ""
+    fi
+else
+    echo "WARNING: DSP_USER_TOPDIR not set - unexpected - work dir functionality might not work" >&2
+    echo "         likely bug - report to DOTS maintainer"                                       >&2
+fi
+
+
     
 #script --timing=/tmp/mtd.timing.$$ /tmp/mtd.scriptfile
 
