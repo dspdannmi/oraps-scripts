@@ -138,7 +138,7 @@ BANNER_FILE=${CS_TOP}/resources/banners/dsp/dsp.txt
     echo -e "                 --=== ${BGreen}Oracle Professional Services ${White}===--           "
     echo "                (OracleProfessionalServicesTeam@dsp.co.uk)          "
     echo ""
-    echo "                               (${DSP_VERSION})"
+    echo "                             (${DSP_VERSION})"
     
     serversummary
     
@@ -148,9 +148,9 @@ BANNER_FILE=${CS_TOP}/resources/banners/dsp/dsp.txt
     if [ $status -ne 0 ]
     then
         echo
-        echo -e "   ${BRed}*** WARNING: - server has not passed DSP registration checkhost${White}"
+        echo -e "   ${BRed}*** WARNING: - server has not passed DSP serverstampcheck${White}"
         echo "                - server and scripts still functional - but metadata is suspect or does not exist"
-        echo "                - run checkhost for more details"
+        echo "                - run [serverstampcheck] for more details"
     fi
     
     echo ""
@@ -225,6 +225,8 @@ export ALERTLOG=""
     
     #alias scp='scp -q -c arcfour'
     #alias ssh='ssh -oLogLevel=QUIET'
+    alias bkupauthkeys='bkup $HOME/.ssh/authorized_keys'
+    alias viauthkeys='vi $HOME/.ssh/authorized_keys'
     #
     #   -- aliases for Oracle environment
     #
