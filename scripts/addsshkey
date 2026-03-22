@@ -1,0 +1,158 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  add2authkeys
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       22-Mar-2026     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+CS_TOP=/opt/dsp
+. ${CS_TOP}/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING=""
+
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+ssh_dir=$HOME/.ssh
+auth_keys_file=${ssh_dir}/authorized_keys
+
+echo ""
+if [ ! -d ${ssh_dir} ]
+then
+    echo "SSH directory [${HOME}/.ssh] does not exist"
+    echo ""
+    echo "To create press <ENTER> to <ctrl-C> to abort"
+    read userinput
+
+    mkdir -m 700 ${ssh_dir}
+    status=$?
+
+    if [ $status -ne 0 ]
+    then
+        error "ERROR: encountered error creating directory [${ssh_dir}] - exiting"
+        EXITCODE=1
+        exit ${EXITCODE}
+    fi
+fi
+
+if [ ! -f ${auth_keys_file} ]
+then
+    # authorized_keys file does not exist - creating it
+    echo "Authorized keys file [${auth_keys_file}] does not exist"
+    echo ""
+    echo "To create press <ENTER> to <ctrl-C> to abort"
+    read userinput
+
+    touch ${auth_keys_file} && chmod 600 ${auth_keys_file}
+    status=$?
+
+    if [ $status -ne 0 ]
+    then
+        error "ERROR: encountered error file [${auth_keys_file}] - exiting"
+        EXITCODE=1
+        exit ${EXITCODE}
+    fi
+fi
+
+echo ""
+echo "authorized_keys file:"
+echo "---------------------"
+echo ""
+ls -ald ${auth_keys_file}
+status=$?
+
+echo ""
+OK="NO"
+while [ "${OK}" != "YES" ]
+do
+    echo "Paste the new key and press <ctrl-D>"
+    touch ${tmpfile}
+    status=$?
+    
+    if [ $status -ne 0 ]
+    then
+        error "ERROR: encountered error creating tmpfile [${tmpfile}]"
+        EXITCODE=1
+        exit ${EXITCODE}
+    fi
+    
+    cat | grep -v ^\$ > ${tmpfile}
+
+    if [ -s ${tmpfile} ]
+    then
+        OK="YES"
+    else
+        echo "INFO: nothing pasted - try again"
+        echo ""
+    fi
+done
+
+echo ""
+echo "To add the following to [${auth_keys_file}]:"
+echo ""
+echo "------------------------------------------------------------------"
+cat ${tmpfile}
+echo "------------------------------------------------------------------"
+echo ""
+echo "Press <ENTER> to continue or <ctrl-C> to abort"
+read userinput
+
+echo ""
+echo "Backing up [${auth_keys_file}]":
+bkup ${auth_keys_file}
+status=$?
+
+if [ $status -eq 0 ]
+then
+    echo "Adding keys to ${auth_keys_file}"
+    cat ${tmpfile} >> ${auth_keys_file}
+    status=$?
+
+    if [ $status -ne 0 ]
+    then
+        error "ERROR: encountered error writign to [${auth_keys_file}] - exiting"
+        EXITCODE=1
+        exit ${EXITCODE}
+    fi
+else
+    error "ERROR: encountered error backing up [${auth_keys_file}] - exiting"
+    EXITCODE=1
+    exit ${EXITCODE}
+fi
+
+echo ""
+echo "------------------------------------------------------------------"
+ls -ald ${auth_keys_file}
+echo "------------------------------------------------------------------"
+echo ""
+echo "------------------------------------------------------------------"
+cat ${auth_keys_file}
+status=$?
+echo "------------------------------------------------------------------"
+echo 
+
+exit $EXITCODE
+

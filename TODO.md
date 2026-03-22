@@ -1,6 +1,8 @@
 
 have a UIM directory log that we can get UIM to monitor for adhoc stuff, no?
 
+add script to bkup authorized_keys and add entry
+
  capture dspserverid in work direcotires so you can kinda tell if a VM is cloned and those work directories werenot applicable to this incarnation
 PACKAGING
 ========

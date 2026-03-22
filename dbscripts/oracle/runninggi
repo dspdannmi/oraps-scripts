@@ -25,7 +25,10 @@ CS_TOP=/opt/dsp
 
 USAGE_STRING=""
 
-clear_error_trap
+#first determine if crsd.bin is running and ASM are running
+#in theory that should be enough but if they are not found
+#running then resort to looking for crsctl / crsd and also
+#check if standard grid user and asm groups exist
 
 #
 # Define local script variables
