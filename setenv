@@ -131,8 +131,9 @@ BANNER_FILE=${CS_TOP}/resources/banners/dsp/dsp.txt
     echo -e "${BICyan}"
     cat ${BANNER_FILE} | sed -e 's/^/                           /'
     echo -e "${White}"
-    echo "DOTS (DSP Operational and Tooling Suite)" | sed -e 's/^/                 /'
-    echo "                                                                    "
+    echo "                                  DOTS"
+    echo "                   (DSP Operational and Tooling Suite)"
+    echo ""
     echo "                              maintained by:                        "
     echo -e "                 --=== ${BGreen}Oracle Professional Services ${White}===--           "
     echo "                (OracleProfessionalServicesTeam@dsp.co.uk)          "

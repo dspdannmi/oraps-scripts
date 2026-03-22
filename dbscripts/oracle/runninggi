@@ -3,9 +3,9 @@
 #+++___________________________________________________________________________________
 #
 #
-# Script name:                  check_grid
+# Script name:                  runninggi
 #
-# Description:
+# Description:			Attempt to determine if GI is installed or running
 #
 # Parameters:
 #

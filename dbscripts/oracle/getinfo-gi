@@ -1,0 +1,265 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  getinfo-oralsn
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       22-Oct-2025     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+CS_TOP=/opt/dsp
+. ${CS_TOP}/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="[-o ORACLE_HOME] [-m lite|basic|comp] [-s human|machine]"
+
+GRID_HOME=""
+ASM_ORACLE_SID=""
+mode="lite"
+style="human"
+
+while getopts 'a:o:m:s:' OPTION
+do
+    case "$OPTION" in
+        a) asm_oracle_sid=$OPTARG ;;
+        o) ORACLE_HOME=$OPTARG ;;
+        m) mode=$OPTARG ;;
+        s) style=$OPTARG ;;
+        ?) usage ;;
+    esac
+done
+
+case "${mode}" in
+    [lL][iI][tT][eE] ) mode=lite ;;
+    [bB][aA][sS][iI][cC] ) mode=basic ;;
+    [cC][oO][mM][pP] ) mode=comp ;;
+    *) echo "ERROR: invalid mode [${mode}] - exiting" ; exit 1 ;;
+esac
+
+case "${style}" in
+    [hH][uU][mM][aA][nN]) style=human;;
+    [mM][aA][cC][hH][iI][nN][eE]) style=machine;;
+    *) echo "ERROR: invalid style [${style}] - exiting" ; exit 1 ;;
+esac
+
+if [ "${ORACLE_HOME}" = "" ]
+then
+    echo "ERROR: ORACLE_HOME not set and not passed via command line - exiting"
+    exit 1
+fi
+
+
+if [ ! -d ${ORACLE_HOME} ]
+then
+   echo "ERROR: ${ORACLE_HOME} does not exist - exiting"
+   exit 1
+fi
+
+if [ "${ORACLE_SID}" = "" ]
+then
+    echo "ERROR: ORACLE_SID not set and not passed via command line - exiting"
+    exit 1
+fi
+
+
+typeset -i lvl
+typeset -i level
+
+CRSCTL_EXECUTABLE=${ORACLE_HOME}/bin/crsctl
+CRSD_EXECUTABLE=${ORACLE_HOME}/bin/crsd
+
+if [ ! -r ${CRSCTL_EXECUTABLE} ]
+then
+    echo "ERROR: crsctl executable [${CRSCTL_EXECUTABLE}] not found where expected - exiting"
+    EXITCODE=1
+    exit ${EXITCODE}
+fi
+
+if [ ! -r ${CRSD_EXECUTABLE} ]
+then
+    echo "ERROR: crsd  [${CRSD_EXECUTABLE}] not found where expected - exiting"
+    EXITCODE=1
+    exit ${EXITCODE}
+fi
+
+#ORA_CRS_HOME=/u01/app/19.0.0.0/grid
+#ORACLE_USER=grid
+
+oracle_user_from_crsctl=$(grep ^ORACLE_USER= ${CRSCTL_EXECUTABLE} | cut -d= -f2)
+ora_crs_home_from_crsctl=$(grep ^ORA_CRS_HOME= ${CRSCTL_EXECUTABLE} | cut -d= -f2)
+
+if [ "${DSP_WHOAMI}" = "root" ] || [ "${DSP_WHOAMI}" = "${oracle_user_from_crsctl}" ]
+then
+    : #continue
+else
+    echo "ERROR: need to be [root] or  [${oracle_user_from_crsctl}] but logged on as [${DSP_WHOAMI}] - exiting"
+    EXITCODE=1
+    exit ${EXITCODE}
+fi
+
+if [ "${ora_crs_home_from_crsctl}" != "" ]
+then
+    if [ "${ora_crs_home_from_crsctl}" != "${ORACLE_HOME}" ]
+    then
+        echo "ERROR: mismatch between ORA_CRS_HOME from [${ora_crs_home_from_crsctl}] and ORACLE_HOME [${ORACLE_HOME}] - exiting"
+        EXITCODE=1
+        exit ${EXITCODE}
+    fi
+else
+    echo "ERROR: could not determine ORA_CRS_HOME from [${CRSCTL_EXECUTABLE}] - exiting"
+    EXITCODE=1
+    exit ${EXITCODE}
+fi
+
+
+export PATH=${ORACLE_HOME}/OPatch:${ORACLE_HOME}/bin:${PATH}
+
+function print_begin
+    {
+    padding=""
+    lvl=1
+    while [ ${lvl} -lt ${level} ]
+    do
+        padding="    ${padding}"
+        let lvl=${lvl}+1
+    done
+
+    if [ "${style}" = "human" ]
+    then
+        echo "${padding}${1}"
+        echo "${padding}---------------------------------------------------"
+    else
+        echo "${padding}<BEGIN_${1}>"
+    fi
+    }
+
+
+function print_end
+    {
+    padding=""
+    lvl=1
+    while [ ${lvl} -lt ${level} ]
+    do
+        padding="    ${padding}"
+        let lvl=${lvl}+1
+    done
+
+    if [ "${style}" = "human" ]
+    then
+        echo ""
+    else
+        echo "${padding}<END_${1}>"
+    fi
+    }
+
+
+function show_grid_infrastructure_human
+    {
+    level=$1
+    TAG="GRID INFRASTRUCTURE"
+
+    print_begin "${TAG}"
+
+    padding="    ${padding}"
+
+    echo "GRID_HOME:   ${ORACLE_HOME}"
+    echo ""
+
+    ${CRSCTL_EXECUTABLE} status resource -t | sed -e "s/^/${padding}/"
+
+    print_end "${TAG}"
+    }
+
+
+function show_grid_infrastructure_machine
+    {
+    echo "<getinfo:grid_infrastructure>"
+    echo "timestamp:$(date +%Y%m%d%H%M%S)"
+
+    echo "DSP_DISTRO:${DSP_DISTRO}"
+    echo "DSP_WHOAMI:${DSP_WHOAMI}"
+    echo "hostname:${HOSTNAME}"
+    echo "dspserverid:${dspserverid}"
+
+    if [ -r ${DSP_VERSION_FILE} ]
+    then
+        echo "dsp_version:$(cat ${DSP_VERSION_FILE})"
+    else
+        echo "dsp_version:file_not_found"
+    fi
+
+    if serverstampcheck 2>&1 > /dev/null
+    then
+        echo "serverstampcheck:PASS"
+    else
+        echo "serverstampcheck:FAIL"
+    fi
+
+    echo "<dsp_identity_file>"
+    if [ -r ${DSP_IDENTITY_FILE} ]
+    then
+        grep -v ^\$ ${DSP_IDENTITY_FILE}
+        status=$?
+    else
+        echo "error:file_not_found"
+    fi
+    echo "</dsp_identity_file>"
+
+    echo "<details>"
+    echo "oracle_home:${ORACLE_HOME}"
+    
+    echo "<crsctl_stat_res_t>"
+    ${CRSCTL_EXECUTABLE} status resource -t
+    echo "</crsctl_stat_res_t>"
+
+    echo "<crsctl_stat_res_v>"
+    ${CRSCTL_EXECUTABLE} status resource -v
+    echo "</crsctl_stat_res_v>"
+
+    echo "<crsctl_stat_res_p>"
+    ${CRSCTL_EXECUTABLE} status resource -p
+    echo "</crsctl_stat_res_p>"
+
+    echo "</details>"
+
+    echo "</getinfo:grid_infrastructure>"
+    }
+
+
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+if [ "${style}" = "human" ]
+then
+    level=1
+    TAG="GRID INFRASTRUCTURE"
+    
+    show_grid_infrastructure_human
+    
+    print_end "${TAG}"
+else
+    show_grid_infrastructure_machine
+fi
+
+exit $EXITCODE
+

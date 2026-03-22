@@ -48,6 +48,9 @@ Scenarios:
 
 INSTALL
 =======
+- preinstall patching
+    - removing scripts/serverinfo script
+
 - Let's generate a checksum on our file
 
 - I hit an issue where I accidentally entered "y" for install directory ---> so let's do a check that istall directectory starts with a /
