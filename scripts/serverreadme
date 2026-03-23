@@ -1,0 +1,168 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  serverreadme
+
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       23-Mar-2026     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+CS_TOP=/opt/dsp
+. ${CS_TOP}/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="[c|e|s][f]"
+
+if [ "${DSP_SERVERREADME_FILE}" != "" ]
+then
+    dir=$(dirname ${DSP_SERVERREADME_FILE})
+
+    if [ ! -d ${dir} ]
+    then
+        echoerr "ERROR: DSP serverreadme file defined as [${DSP_SERVERREADME_FILE}] however directory [${dir}] does not exist - exiting"
+        EXITCODE=1
+        exit ${EXITCODE}
+    fi
+else
+    echo "INFO: DSP serverreadme file DSP_SERVERREADME_FILE is not set - defaulting to [${DSP_TOP}/local/SERVER_README.txt]"
+    DSP_SERVERREADME_FILE=${DSP_TOP}/local/SERVER_README.txt
+fi
+
+CREATE="NO"
+FORCE="NO"
+SHOW="NO"
+
+while getopts 'cefs' OPTION
+do
+    case "$OPTION" in
+        c) CREATE="YES" ; ;;
+        e) EDIT="YES" ; ;;
+        f) FORCE="YES" ; ;;
+        s) SHOW="YES" ;;
+        ?) usage ;;
+    esac
+done
+
+
+if [ "${CREATE}" = "YES" ] && [ "${SHOW}" = "YES" ]
+then
+    usage
+fi
+
+if [ $# -eq 0 ] && [ "${CREATE}" != "YES" ]
+then
+    SHOW="YES"
+fi
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+if [ "${CREATE}" = "YES" ]
+then
+    TEMPLATE_FILE=${DSP_TOP}/resources/templates/server-readme.txt.template
+
+    if serverstampcheck 2>&1 > /dev/null
+    then
+       if [ "${DSP_SERVERID}" != "" ]
+       then
+        if [ -f ${TEMPLATE_FILE} ]
+        then
+          if [ ! -f ${DSP_SERVERREADME_FILE} ] || [ "${FORCE}" = "YES" ]
+          then
+            if [ -f ${DSP_SERVERREADME_FILE} ]
+            then
+                if prompt_confirm "WARNING: server readme file already exists - ARE YOU SURE YOU WANT TO CONTINUE? (y/n)"
+                then
+                    bkup ${DSP_SERVERREADME_FILE}
+                    status=$?
+
+                    if [ $status -ne 0 ]
+                    then
+                        echoerr "ERROR: an error occurred backing up [${DSP_SERVERREADME_FILE}] - exiting"
+                        EXITCODE=1
+                        exit ${EXITCODE}
+                    fi
+                else
+                    echoerr "ERROR: terminating at user request"
+                    EXITCODE=1
+                    exit ${EXITCODE}
+                fi
+            fi
+
+            cp ${TEMPLATE_FILE} ${DSP_SERVERREADME_FILE} && chmod 644 ${DSP_SERVERREADME_FILE}
+            status=$?
+
+            if [ $status -eq 0 ]
+            then
+               sed -i -e "s/%%datetime%%/$(date +%Y-%m-%d:%H:%M:%S)/" \
+                      -e "s/%%hostname%%/${HOSTNAME}/" \
+                      -e "s/%%dsp_serverid%%/${DSP_SERVERID}/" ${DSP_SERVERREADME_FILE}
+
+               vi ${DSP_SERVERREADME_FILE}
+            else
+                :
+            fi
+          else #DSP_SERVERREADME_FILE or FORCE=YES
+              echoerr "ERROR: server readme file [${DSP_SERVERREADME_FILE}] already exists - need to use force flag to overwrite"
+              EXITCODE=1
+              exit ${EXITCODE}
+          fi
+        else
+            :#template file does not exist
+        fi
+       else #DSP_SERVERID
+           echoerr "ERROR: DSP_SERVERID is not set - please check server stamp and consult DOTS maintainers"
+           EXITCODE=1
+           exit ${EXITCODE}
+       fi
+    else
+        : #serverstamp has not passed
+        echoerr "ERROR: server has not passed serverstampcheck - please resolve before creating server readme"
+        EXITCODE=1
+        exit ${EXITCODE}
+    fi
+elif [ "${EDIT}" = "YES" ]
+then
+    bkup ${DSP_SERVERREADME_FILE}
+    vi ${DSP_SERVERREADME_FILE}
+elif [ "${SHOW}" = "YES" ]
+then
+    if [ "${DSP_SERVERREADME_FILE}" != "" ] && [ -r ${DSP_SERVERREADME_FILE} ]
+    then
+        echo ""
+        cat ${DSP_SERVERREADME_FILE}
+        echo ""
+    else
+        echo ""
+        echo "INFO: server readme file [${DSP_SERVERREADME_FILE}] does not exist"
+        echo ""
+    fi
+else
+    :
+fi
+
+
+
+
+
+exit $EXITCODE
+

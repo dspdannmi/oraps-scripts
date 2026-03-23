@@ -314,9 +314,9 @@ function discover_oracle_db
     echo "${mainheading}"
     echo ""
 
-    echo "-----------------"
-    echo "Running instances"
-    echo "-----------------"
+    echo "------------------------"
+    echo "Instances (up)"
+    echo "------------------------"
 
     runningdbs_file=${tmpfile}.runningdbs-l
     runningdbs -l > ${runningdbs_file}
@@ -324,28 +324,10 @@ function discover_oracle_db
 
 if [ -s ${runningdbs_file} ]
 then
-
-    OK="YES"
-    for dbuser in $(cut -d: -f2 ${runningdbs_file})
-    do
-        if [ "${DSP_WHOAMI}" = "root" ] && [ "${DSP_WHOAMI}" = "${dbuser}" ]
-        then
-            if checksudo ${dbuser} 2>/dev/null
-            then
-                : # no need to do anything
-            else
-                OK="NO"
-            fi
-        fi
-    done
-
-    if [ "${OK}" != "YES" ]
-    then
-        echo "(unable to su to some users so not all details available)"
-    fi
  
     for ORACLE_SID in $(cut -d: -f1 ${runningdbs_file} | sort)
     do
+        CAN_GET_DETAILED_INFO="YES"
         getinfo_file=${tmpfile}.getinfo.${ORACLE_SID}
 
         dbuser=$(grep ^${ORACLE_SID}: ${runningdbs_file} | cut -d: -f2)
@@ -354,17 +336,27 @@ then
         then
             runsql -c -d ${ORACLE_SID} getinfo.sql > ${getinfo_file}
             status=$?
-        elif ["${DSP_WHOAMI}" = "root" ]
+        elif [ "${DSP_WHOAMI}" = "root" ]
         then
-            su ${dbuser} -c "runsql -c -d ${ORACLE_SID} getinfo.sql" > ${getinfo_file}
-        elif checksudo ${dbuser} 2>/dev/null
+            su ${dbuser} -c "$(which runsql) -c -d ${ORACLE_SID} getinfo.sql" > ${getinfo_file}
+        elif checksudo ${dbuser} 2>&1 >/dev/null
         then
-            sudo su ${dbuser} -c "runsql -c -d ${ORACLE_SID} getinfo.sql" > ${getinfo_file}
+            sudo su ${dbuser} -c "$(which runsql) -c -d ${ORACLE_SID} getinfo.sql" > ${getinfo_file}
         else
-            echo "    <cannot switch to instance user [${dbuser}] to provide more info>"
+            CAN_GET_DETAILED_INFO="NO"
         fi
  
+        osuser=$(grep ^${ORACLE_SID}: ${runningdbs_file} | cut -d: -f2)
 
+        if grep ^${ORACLE_SID}: ${ORATAB} 2>&1 > /dev/null
+        then
+            in_oratab="Y"
+        else
+            in_oratab="N"
+        fi
+
+if [ "${CAN_GET_DETAILED_INFO}" = "YES" ]
+then
 awk '/<V_DATABASE>/ {
                                      process="true"
                                      next
@@ -414,7 +406,6 @@ awk '/<V_PDBS>/ {
                                      }' ${getinfo_file} > ${getinfo_file}.v_pdbs
 
 
-        osuser=$(grep ^${ORACLE_SID}: ${runningdbs_file} | cut -d: -f2)
 
         DBSIZE_GB=$(grep '^DBSIZE_GB:' ${getinfo_file} | cut -d: -f2- | xargs)
 
@@ -441,25 +432,31 @@ awk '/<V_PDBS>/ {
             CDB="N"
         fi
 
-        if grep ^${ORACLE_SID}: ${ORATAB} 2>&1 > /dev/null
-        then
-            in_oratab="Y"
-        else
-            in_oratab="N"
-        fi
-
         if [ "${OPEN_MODE}" = "" ] && [ "${INSTANCE_NAME}" != "" ]
         then
             OPEN_MODE="NOMOUNT"
             DBSIZE_GB="?"
         fi
+else
+    OPEN_MODE="?"
+    EDITION="?"
+    CDB="?"
+    VERSION="?"
+    DBSIZE_GB="?"
+    CLUSTER_DATABASE="?"
+fi
 
 #cnyi = check not yet implemented
         echo ""
         echo "    ${ORACLE_SID}: [osuser:${osuser}] [mode:${OPEN_MODE}] [edition:${EDITION}] [cdb:${CDB}] [vers:${VERSION}] [size_gb:${DBSIZE_GB}] [rac:${CLUSTER_DATABASE}] [dg:cnyi] [oratab:${in_oratab}]"
 
         underline=$(echo "    ${ORACLE_SID}" | sed -e 's/[a-zA-Z0-9]/~/g')
-        echo "${underline}"
+        if [ "${CAN_GET_DETAILED_INFO}" = "YES" ]
+        then
+            echo "${underline}"
+        else
+            echo "${underline}  <cannot switch to instance user [${dbuser}] to provide more info>"
+        fi
 
         #
         # pdbs
@@ -475,7 +472,7 @@ awk '/<V_PDBS>/ {
 
 else #runningdbs_file
     echo ""
-    echo "<none>"
+    echo "    <none>"
 fi #runningdbs_file
 
     #runningdbs | sed -e 's/$/XX: [osuser:oracle] [mode:${OPEN_MODE}]] [edition:EE] [arch:CDB] [vers:19.28] [size:10GiB] [rac:NO] [dg:YES(PRIMARY]] [oratab:Y]/'
@@ -483,14 +480,19 @@ fi #runningdbs_file
 
     echo ""
 
-    echo "-----------------"
-    echo "Stopped instances"
-    echo "-----------------"
-    echo ""
-
     ANY_NONRUNNING="NO"
     for ORACLE_SID in $(nonrunningdbs | sort)
     do
+        if [ "${ANY_NONRUNNING}" = "NO" ]
+        then
+            # first one is found so let us
+            # display header for section
+            echo "------------------------"
+            echo "Instances (stopped/down)"
+            echo "------------------------"
+            echo ""
+        fi
+
         ANY_NONRUNNING="YES"
         echo "    ${ORACLE_SID}"
     done

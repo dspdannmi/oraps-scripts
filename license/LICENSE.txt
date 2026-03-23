@@ -2,7 +2,7 @@
 
 **************************************************************************
 
-DOTS - (DSP [O]perations and [T]ooling [S]uite
+DOTS - (DSP [O]perations and [T]ooling [S]uite)
 
 **************************************************************************
 * LICENSE:  RESTRICTED USE
@@ -28,7 +28,7 @@ term and therefore no longer applies, the customer or any third-party
 no longer have license to use this scripts and they should be
 removed.  
 
-All rights reserved. (c) 2025 DSP Group
+All rights reserved. (c) 2026 DSP Group
 
 Scripts which have been included in this bundle that have been
 sourced from the public domain are not affected by this license.

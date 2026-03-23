@@ -1,0 +1,55 @@
+-----------------------------------------------------------------
+date              : %%datetime%%
+hostname:         : %%hostname%%
+dsp_serverid      : %%dsp_serverid%%
+-----------------------------------------------------------------
+
+>>>>>>>>>>Remove all those not applicable <<<<<<<<<<<<<<<<<<<<<<
+
+oracle engineered system:
+	Oracle Exadata    [?]
+	Oracle ODA        [?]
+	Oracle PCA        [?]
+
+oracle cloud infrastructure (OCI):
+        IaaS
+        Base Database Server / DB System
+
+cluster member:
+	Is this server in cluster with other servers - give details
+	RAC or non-RAC
+<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+
+------------------>>>>>IMPORTANT NOTES<<<<-----------------------
+...
+...  <<add here for really key important notes if applicable>>
+...
+-----------------------------------------------------------------
+
+
+-----------------------------------------------------------------
+Server Overview:
+-----------------------------------------------------------------
+
+Enviroments:   (eg. prod, non-prod, test, uat, DR, dev)
+
+Description:
+
+
+-----------------------------------------------------------------
+Useful Notes:
+-----------------------------------------------------------------
+
+
+
+-----------------------------------------------------------------
+Known Items/Issues Requiring Remediation:
+-----------------------------------------------------------------
+
+
+
+
+<end-of-file>
+
+-----------------------------------------------------------------
