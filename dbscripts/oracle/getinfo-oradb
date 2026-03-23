@@ -204,9 +204,19 @@ function display_human
     echo "${padding}supplemental log data min: ${SUPPLEMENTAL_LOG_DATA_MIN}"
     
     echo ""
-    
-    
+
+    show_standby_info="NO"
     if [ "${NUMBER_OF_STANDBY_DEST}" != "" ] && [ "${NUMBER_OF_STANDBY_DEST}" != "0" ]
+    then
+        show_standby_info="YES"
+    fi
+
+    if [ "${DATABASE_ROLE}" = "PHYSICAL STANDBY" ]
+    then
+        show_standby_info="YES"
+    fi
+
+    if [ "${show_standby_info}" = "YES" ]
     then
         echo "${padding}standby archlog dests    : ${NUMBER_OF_STANDBY_DEST}"
         echo "${padding}number of standby dest   : ${NUMBER_OF_STANDBY_DEST}"
@@ -222,7 +232,7 @@ function display_human
 
         echo "${padding}standby archlog dests    : ${NUMBER_OF_STANDBY_DEST}"
     fi
-    
+
     echo ""
     
     echo "${padding}active status            : ${ACTIVE_STATE}"

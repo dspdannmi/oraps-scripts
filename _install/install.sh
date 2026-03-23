@@ -399,7 +399,6 @@ function set_install_dir()
             install_group="dba"
         fi
     fi
-echo install_owner="${install_owner}"
 
     if [ "${INSTALL_DIR}" = "" ]
     then

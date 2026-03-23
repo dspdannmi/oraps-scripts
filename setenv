@@ -347,6 +347,10 @@ export ALERTLOG=""
 
     alias tailfsecure='tail -50f /var/log/secure'    
     alias tailsecuref='tail -50f /var/log/secure'    
+
+    alias catpasswd='cat /etc/passwd'
+    alias cathosts='cat /etc/hosts'
+    alias catfstab='cat /etc/fstab'
     #
     # Set prompt
     #
@@ -455,7 +459,10 @@ then
                          ${DSP_USER_LOG_TOPDIR} \
                          ${DSP_USER_OUT_TOPDIR} \
                          ${DSP_USER_SQL_TOPDIR} \
-                         ${DSP_USER_WORK_TOPDIR}
+                         ${DSP_USER_WORK_TOPDIR} \
+                         ${DSP_USER_RUNLATER_TOPDIR} \
+                         ${DSP_USER_RUNLATER_LOGDIR} \
+                         ${DSP_USER_RUNLATER_OUTDIR} 
                 status=$?
             else
                 echo "ERROR: encountered error creating [${DSP_USER_TOPDIR}]" >&2

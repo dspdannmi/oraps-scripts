@@ -28,7 +28,7 @@ function mcdwork
     then
 	echo "warn: ${dir} already exists"
     else
-	mkdir -p ${dir} || echo "mcd: mkdir error"
+	mkdir -p ${dir} || echoerr "mcdwork: mkdir error"
     fi
 
     dsp_server_id=${DSP_SERVERID}

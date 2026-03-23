@@ -322,6 +322,10 @@ header mount
 mount 2>&1 | tee mount.out > ${output_device}
 
 #---------------------------------------------------------------
+header /etc/localtime
+ls -ald /etc/localtime | tee localtime.out > ${output_device}
+
+#---------------------------------------------------------------
 header netstat -ar
 netstat -ar 2>&1 | tee netstat-ar.out > ${output_device}
 

@@ -446,9 +446,9 @@ else
     CLUSTER_DATABASE="?"
 fi
 
-#cnyi = check not yet implemented
+#cniy = check not yet implemented
         echo ""
-        echo "    ${ORACLE_SID}: [osuser:${osuser}] [mode:${OPEN_MODE}] [edition:${EDITION}] [cdb:${CDB}] [vers:${VERSION}] [size_gb:${DBSIZE_GB}] [rac:${CLUSTER_DATABASE}] [dg:cnyi] [oratab:${in_oratab}]"
+        echo "    ${ORACLE_SID}: [osuser:${osuser}] [mode:${OPEN_MODE}] [edition:${EDITION}] [cdb:${CDB}] [vers:${VERSION}] [size_gb:${DBSIZE_GB}] [rac:${CLUSTER_DATABASE}] [dg:cniy] [oratab:${in_oratab}]"
 
         underline=$(echo "    ${ORACLE_SID}" | sed -e 's/[a-zA-Z0-9]/~/g')
         if [ "${CAN_GET_DETAILED_INFO}" = "YES" ]
