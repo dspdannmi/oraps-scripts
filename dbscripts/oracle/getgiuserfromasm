@@ -1,0 +1,69 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  checkasmrunning
+#
+# Description:			Check if ASM is running
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       22-Mar-2026     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+CS_TOP=/opt/dsp
+. ${CS_TOP}/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING=""
+
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+ASM_RUNNING="NO"
+
+#ASM instance
+X=""
+if ps -ef | grep asm_smon_ | grep -v grep 2>&1 > /dev/null
+then
+    X=$(ps -ef | grep asm_smon_ | grep -v grep | awk '{print $1 ":" $NF}' | grep asm_smon_)
+fi
+
+asm_instance_name=""
+if [ "${X}" != "" ]
+then
+    ASM_RUNNING="YES"
+
+    asm_user=$(echo $X | cut -d: -f1)
+    process=$(echo $X | cut -d: -f2)
+
+    asm_instance_name=$(echo $process | cut -d_ -f3)
+    ASM_INSTANCE=${asm_instance_name}
+
+    #validate_new_grid_user_evidence ${asm_user}
+fi
+
+
+if [ "${ASM_RUNNING}" = "YES" ]
+then
+    echo ${asm_user}
+    exit 0	# it is running
+else
+    exit 1	# it is not running
+fi

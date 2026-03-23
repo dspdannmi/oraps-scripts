@@ -41,6 +41,9 @@ do
     cp $CS_TOP/resources/templates/sh.template ${newscript}
     status=$?
 
+    chmod 755 ${newscript}
+    status=$?
+
     if [ $status -ne 0 ]
     then
 	echo error: could not create script ${newscript}

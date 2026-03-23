@@ -1,0 +1,68 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  checkasmrunning
+#
+# Description:			Check if ASM is running
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       22-Mar-2026     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+CS_TOP=/opt/dsp
+. ${CS_TOP}/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="gi_home"
+
+if [ $# -ne 1 ]
+then
+    usage
+fi
+
+GRID_HOME=$1
+GRID_USER=""
+
+if [ ! -d ${GRID_HOME} ]
+then
+    echoerr "ERROR: directory [${GRID_HOME}] does not exist"
+    exit 1
+fi
+
+CRSCTL_FILE=${GRID_HOME}/bin/crsctl
+if [ ! -r ${CRSCTL_FILE} ]
+then
+    echoerr "ERROR: crsctl file [${GRID_HOME}/bin/crsctl] not found"
+    exit 1
+fi
+
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+#set_error_trap
+
+GRID_USER=$(grep ^ORACLE_USER= ${CRSCTL_FILE} | cut -d= -f2)
+
+if [ "${GRID_USER}" != "" ]
+then
+    echo ${GRID_USER}
+    exit 0	# it is running
+else
+    exit 1	# it is not running
+fi

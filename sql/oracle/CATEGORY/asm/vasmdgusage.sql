@@ -1,7 +1,7 @@
 
 --DESCRIBE: Show ASM disk group usage
 
-col name format a30
+col name format a20 heading "DISK_GROUP"
 col total_mb format 999999999999
 col free_mb format 999999999999
 col used format 999999999999

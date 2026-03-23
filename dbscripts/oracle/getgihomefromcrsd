@@ -1,0 +1,96 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  checkcrsdrunning
+#
+# Description:			Check if CRSD running
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       22-Mar-2026     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+CS_TOP=/opt/dsp
+. ${CS_TOP}/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING=""
+
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+GRID_HOME=""
+CRSD_RUNNING="NO"
+
+PID=$(ps -fu root | grep '/bin/crsd.bin' | grep -v grep | awk '{print $2}')
+
+crsd_user=""
+if [ "${PID}" != "" ]
+then
+    crsd_user=$(ps -fp ${PID} | grep $PID  | awk '{print $1}')
+
+    # get the binary - there is a better way to do this i know
+    # but it is late and this works - please change when next
+    # review
+    crsd_bin_exec=""
+    for i in $(ps -fp ${PID} | grep ${PID})
+    do
+        #crsd.bin$ means to match that string at the end of
+        #the line
+        if echo ${i} | grep '/bin/crsd.bin$' > /dev/null
+        then
+            crsd_bin_exec=${i}
+        fi
+    done
+
+    if [ "${crsd_bin_exec}" != "" ]
+    then
+        #found <path>/bin/crsd.bin running so let us assume that
+        #this is not a coincidence and that GI is running
+        #-----
+        #COULD/SHOULD PROBABLY DO A FEW MORE CHECKS HERE THOUGH
+        #-----
+        CRSD_RUNNING="YES"
+    
+        bin_dir=$(dirname ${crsd_bin_exec})
+        grid_home=$(dirname ${bin_dir})
+
+        crsctl_file=${bin_dir}/crsctl
+
+        if [ -f ${crsctl_file} ]
+        then
+            X=$(grep ^ORA_CRS_HOME= ${crsctl_file} | cut -d= -f2)
+
+            if [ "${X}" = ${grid_home} ]
+            then
+                GRID_HOME=${grid_home}
+            fi
+        fi
+    fi
+
+fi
+
+if [ "${CRSD_RUNNING}" = "YES" ] && [ -d ${GRID_HOME} ]
+then
+    echo ${GRID_HOME}
+    exit 0	# it is running
+else
+    exit 1	# it is not running
+fi

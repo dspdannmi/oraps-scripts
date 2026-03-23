@@ -1,0 +1,57 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  checksu
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       22-Mar-2026     1.0     opc    Original version
+#
+#+++___________________________________________________________________________________
+
+CS_TOP=/opt/dsp
+. ${CS_TOP}/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="user"
+
+if [ $# -eq 1 ]
+then
+    user=$1
+else
+    usage
+fi
+
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+
+X=$(sudo -n su ${user} -c "echo OK" 2>/dev/null)
+status=$?
+
+if [ "${X}" = "OK" ]
+then
+   : #yes passwordless sudo to ${user} is possible
+else
+   exit 1
+fi
+
+exit $EXITCODE

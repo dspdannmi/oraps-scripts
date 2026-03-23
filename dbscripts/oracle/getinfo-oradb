@@ -528,12 +528,29 @@ then
     CDB="NO"
 fi
 
+if [ "${OPEN_MODE}" = "" ] && [ "${INSTANCE_NAME}" != "" ]
+then
+    OPEN_MODE="NOMOUNT"
+    DBSIZE_GB="?"
+    CDB="?"
+
+    [ "${DB_UNIQUE_NAME}" = "" ] && DB_UNIQUE_NAME="?nomount?"
+    [ "${NAME}" = "" ] && NAME="?nomount?"
+
+    [ "${CREATED}" = "" ] && CREATED="?"
+    [ "${DBID}" = "" ] && DBID="?"
+
+    [ "${NLS_CHARACTERSET}" = "" ] && NLS_CHARACTERSET="?"
+    [ "${NLS_NCHAR_CHARACTERSET}" = "" ] && NLS_NCHAR_CHARACTERSET="?"
+fi
+
 if [ "${style}" = "human" ]
 then
     display_human
 else
     display_machine
 fi
+
 
 
 

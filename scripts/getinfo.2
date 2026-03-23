@@ -1,0 +1,309 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  oratell
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       22-Mar-2026     1.0     opc    Original version
+#
+#+++___________________________________________________________________________________
+
+CS_TOP=/opt/dsp
+. ${CS_TOP}/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING=""
+
+DEBUG="YES"
+
+ASM_RUNNING="NO"
+ASM_INSTANCE=""
+
+CRSD_RUNNING="-"
+
+GRID_USER_FROM_CRSD_CHECK=""
+GRID_USER_FROM_GRID_HOME_FIND=""
+GRID_USER_FROM_ASM_INSTANCE=""
+
+
+function check_asm_running
+    {
+    if checkasmrunning 2> /dev/null
+    then 
+        ASM_RUNNING="YES"
+
+        ASM_INSTANCE=$(ps -fu grid | grep asm_pmon_ | grep -v grep | awk -F_ '{print $NF}')
+    fi 
+    }
+
+
+function check_crsd_running
+    {
+    if checkcrsdrunning 2>/dev/null
+    then 
+        CRSD_RUNNING="YES"
+    fi 
+    }
+
+
+function show_detailed_gi_info
+    {
+    mode=$1	# root / sudo / nosudo
+
+    if [ "${mode}" = "" ] || [ "${mode}" = "nosudo" ]
+    then
+        showasmdgs /u01/app/19.0.0.0/grid +ASM1
+    elif [ "${mode}" = "root" ]
+    then
+        su grid -c "showasmdgs /u01/app/19.0.0.0/grid +ASM1" | sed -e 's/^/    /'
+    else
+        sudo su grid -c "showasmdgs /u01/app/19.0.0.0/grid +ASM1" | sed -e 's/^/    /'
+    fi
+    }
+#
+# Define local script variables
+#
+
+function discover_os
+    {
+    echo "================"
+    echo "Operating System"
+    echo "================"
+    echo ""
+
+    echo "hostname:        ${HOSTNAME}"
+    echo "dsp server ID:   ${dspserverid}"
+    echo ""
+
+if [ -f /etc/system-release ]
+then
+    systemrelease=$(cat /etc/system-release)
+elif [ -f /etc/oracle-release ]
+then
+    systemrelease=$(cat /etc/oracle-release)
+elif [ -f /etc/redhat-release ]
+then
+    systemrelease=$(cat /etc/reddhat-release)
+elif [ -f /etc/enterprise-release ]
+then
+    systemrelease=$(cat /etc/enterprise-release)
+elif [ -f /etc/os-release ]
+then
+    systemrelease=$(grep -i ^PRETTY_NAME= /etc/os-release | cut -d\" -f2)
+else
+    systemrelease="<unknown>"
+fi
+
+    echo "system release:  ${systemrelease}"
+    echo "kernel release:  $(uname -r)"
+    echo "kernel version:  $(uname -v)"
+    echo ""
+    echo "uptime:          $(uptime)"
+    echo ""
+    echo "ip addresses:"
+    showipaddrs | sed -e "s/^/                 /"
+
+    echo ""
+    }
+
+function discover_oracle_gi
+    {
+    echo "====================================="
+    echo "Oracle Grid Infrastructure (GI) / ASM"
+    echo "====================================="
+    echo ""
+
+    check_asm_running 2>/dev/null
+
+    check_crsd_running 2>/dev/null
+
+
+    if [ "${CRSD_RUNNING}" = "YES" ]
+    then
+        GRID_HOME=$(getgihomefromcrsd)
+        status=$?
+
+        if [ $status -eq 0 ]
+        then
+            GRID_USER_FROM_CRSD_CHECK=$(getgiuserfromcrsctl ${GRID_HOME})
+        fi
+    else
+        # crsd not running so going to have to go
+        # looking for a GI installation
+        GRID_HOME=$(findgihome 2>/dev/null)
+        status=$?
+
+        if [ $status -eq 0 ]
+        then
+            GRID_USER_FROM_GRID_HOME_FIND=$(getgiuserfromcrsctl ${GRID_HOME})
+            status=$?
+        fi
+    fi
+    if [ "${ASM_RUNNING}" = "YES" ]
+    then
+        GRID_USER_FROM_ASM_INSTANCE=$(getgiuserfromasm)
+        status=$?
+    fi
+            
+    if [ "${CRSD_RUNNING}" = "YES" ]
+    then
+        if [ "${GRID_USER_FROM_CRSD_CHECK}" = "${GRID_USER_FROM_ASM_INSTANCE:-${GRID_USER_FROM_CRSD_CHECK}}" ]
+        then
+            GRID_USER=${GRID_USER_FROM_CRSD_CHECK}
+        else
+            echo "WOAH! This is unexpected!  Two different grid users from two different sources but expecting same"
+            echo "      How can crsctl have [ORACLE_USER=${GRID_USER_FROM_CRSD_CHECK}] but ASM is running as [${GRID_USER_FROM_ASM_INSTANCE}]"
+            EXITCODE=1
+        fi
+    else
+        if [ "${ASM_RUNNING}" = "YES" ]
+        then
+            #unusual situation with CRSD not found running but ASM running - need to raise this
+            echo "WOAH! This is unexpected.  CRSD not found running but ASM found running "
+            echo "      Please report this to DOTS maintainers.  Trying to continue... may be"
+            echo "      some unexpected/inconsistent results to follow."
+
+            EXITCODE=1
+            if [ "${GRID_USER_FROM_GRID_HOME_FIND}" = "${GRID_USER_FROM_ASM_INSTANCE:-${GRID_USER_FROM_GRID_HOME_FIND}}" ]
+            then
+                GRID_USER=${GRID_USER_FROM_GRID_HOME_FIND}
+            else
+                echo "WOAH! This is unexpected!  Two different grid users from two different sources but expecting same"
+                echo "      How can crsctl have [ORACLE_USER=${GRID_USER_FROM_GRID_HOME_FIND}] but ASM is running as [${GRID_USER_FROM_ASM_INSTANCE}]"
+                EXITCODE=1
+            fi
+        else
+            :
+        fi
+    fi
+
+    echo "--------"
+    echo "Overview"
+    echo "--------"
+    echo ""
+
+    if [ -d "${GRID_HOME}" ]
+    then
+        echo "GI installed : YES"
+    else
+        echo "GI installed : NO"
+    fi
+
+    echo "     GI home : ${GRID_HOME:--}"
+    echo "     GI user : ${GRID_USER:--}"
+    echo ""
+
+    if [ "${ASM_RUNNING}" = "YES" ]
+    then
+        echo " ASM running : ${ASM_RUNNING} (instance:${ASM_INSTANCE})"
+    else
+        echo " ASM running : -"
+    fi
+
+    echo "CRSD running : ${CRSD_RUNNING}"
+    echo ""
+
+
+    echo "-------------------------------------------"
+    echo "ASM disk group status and connected clients"
+    echo "-------------------------------------------"
+    echo ""
+
+    if [ "${ASM_RUNNING}" = "YES" ]
+    then
+        if [ "${DSP_WHOAMI}" = "root" ]
+        then
+            : #show more detailed info
+            show_detailed_gi_info root
+        elif [ "${DSP_WHOAMI}" = "${GRID_USER}" ] 
+        then
+            : #show more detailed info
+            show_detailed_gi_info nosudo
+        else
+            if checksudo ${GRID_USER} 2>/dev/null
+            then
+                : #we can sudo without password we can show more detailed info
+                show_detailed_gi_info sudo
+            else
+                : #not possible to show more info
+                echo "*** cannot show as current user [${DSP_WHOAMI}] cannot su/sudo to GI user [${GRID_USER}] ***"
+            fi
+        fi
+    else #ASM_RUNNING=YES
+        echo "n/a - ASM not running"
+    fi
+
+    echo ""
+    }
+
+function discover_oracle_listener
+    {
+    echo "================="
+    echo "Oracle Listener(s)"
+    echo "================="
+    echo ""
+
+    }
+
+function discover_oracle_db
+    {
+# list running DBS
+#    - are they OPEN (maybe entry in /etc/oratab not correct)
+# list DBs listed in /etc/oratab that are not running
+#
+    echo "==============="
+    echo "Oracle Database"
+    echo "==============="
+    echo ""
+
+    echo "-----------------"
+    echo "Running instances"
+    echo "-----------------"
+    echo ""
+ 
+    runningdbs | sed -e 's/$/XX: [osuser:oracle] [mode:RESRICTED] [edition:EE] [arch:CDB] [vers:19.28] [size:10GiB] [rac:NO] [dg:YES(PRIMARY]]/'
+    status=$?
+
+    echo ""
+
+    echo "-----------------"
+    echo "Stopped instances"
+    echo "-----------------"
+    echo ""
+
+    nonrunningdbs
+    status=$?
+
+    echo ""
+    }
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+echo ""
+
+discover_os
+
+discover_oracle_gi
+
+discover_oracle_listener
+
+discover_oracle_db
+
+
+exit $EXITCODE
+

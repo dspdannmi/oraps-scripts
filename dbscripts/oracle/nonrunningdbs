@@ -1,0 +1,57 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  runningdbs
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       26-Mar-2004     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+
+. /opt/dsp/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+
+#
+# Script starts here
+#
+#
+#set_error_trap
+
+#long listing
+LONG=NO
+
+function usage
+{
+echo usage
+exit 1
+}
+
+while getopts ':l' OPTION ${*}
+do
+    case "$OPTION" in
+        l) LONG=YES ;;
+        \?) usage ;;
+        \:) usage ;;
+    esac
+done
+
+runningdbs -l > ${tmpfile}
+cut -d: -f1 ${tmpfile} > ${tmpfile}.running_sids
+
+grep ^[a-zA-Z0-9_$] ${ORATAB} | grep -v -f ${tmpfile}.running_sids | cut -d: -f1
+
+exit $EXITCODE
+

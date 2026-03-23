@@ -1,0 +1,524 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  oratell
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       22-Mar-2026     1.0     opc    Original version
+#
+#+++___________________________________________________________________________________
+
+CS_TOP=/opt/dsp
+. ${CS_TOP}/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING=""
+
+DEBUG="YES"
+
+ASM_RUNNING="NO"
+ASM_INSTANCE=""
+
+CRSD_RUNNING="-"
+
+GRID_USER_FROM_CRSD_CHECK=""
+GRID_USER_FROM_GRID_HOME_FIND=""
+GRID_USER_FROM_ASM_INSTANCE=""
+
+mainheading="========================================================================"
+
+
+function check_asm_running
+    {
+    if checkasmrunning 2> /dev/null
+    then 
+        ASM_RUNNING="YES"
+
+        ASM_INSTANCE=$(ps -fu grid | grep asm_pmon_ | grep -v grep | awk -F_ '{print $NF}')
+    fi 
+    }
+
+
+function check_crsd_running
+    {
+    if checkcrsdrunning 2>/dev/null
+    then 
+        CRSD_RUNNING="YES"
+    fi 
+    }
+
+
+function show_detailed_gi_info
+    {
+    mode=$1	# root / sudo / nosudo
+
+    if [ "${mode}" = "" ] || [ "${mode}" = "nosudo" ]
+    then
+        showasmdgs /u01/app/19.0.0.0/grid +ASM1
+    elif [ "${mode}" = "root" ]
+    then
+        su grid -c "showasmdgs /u01/app/19.0.0.0/grid +ASM1" | sed -e 's/^/    /'
+    else
+        sudo su grid -c "showasmdgs /u01/app/19.0.0.0/grid +ASM1" | sed -e 's/^/    /'
+    fi
+    }
+#
+# Define local script variables
+#
+
+function discover_os
+    {
+    echo "${mainheading}"
+    echo "Operating System"
+    echo "${mainheading}"
+    echo ""
+
+    echo "hostname:        ${HOSTNAME}"
+    echo "dsp server ID:   ${dspserverid}"
+    echo ""
+
+if [ -f /etc/system-release ]
+then
+    systemrelease=$(cat /etc/system-release)
+elif [ -f /etc/oracle-release ]
+then
+    systemrelease=$(cat /etc/oracle-release)
+elif [ -f /etc/redhat-release ]
+then
+    systemrelease=$(cat /etc/reddhat-release)
+elif [ -f /etc/enterprise-release ]
+then
+    systemrelease=$(cat /etc/enterprise-release)
+elif [ -f /etc/os-release ]
+then
+    systemrelease=$(grep -i ^PRETTY_NAME= /etc/os-release | cut -d\" -f2)
+else
+    systemrelease="<unknown>"
+fi
+
+#
+# Get CPU info
+#
+NUM_CPUS=$(grep -i '^processor' /proc/cpuinfo | wc -l)
+
+
+#
+# Get memory stats
+#
+mem_free=$(free -h 2>/dev/null | grep ^Mem: | awk '{print $4}')
+status=$?
+
+if [ "${mem_free}" != "" ]
+then
+    mem_total=$(free -h | grep ^Mem: | awk '{print $2}')
+
+    swap_free=$(free -h | grep ^Swap: | awk '{print $4}')
+    swap_total=$(free -h | grep ^Swap: | awk '{print $2}')
+else
+    mem_free="$(free -m | grep ^Mem: | awk '{print $4}')Mb"
+    mem_total="$(free -m | grep ^Mem: | awk '{print $2}')Mb"
+
+    swap_free="$(free -m | grep ^Swap: | awk '{print $4}')Mb"
+    swap_total="$(free -m | grep ^Swap: | awk '{print $2}')Mb"
+fi
+
+
+
+
+    echo "system release:  ${systemrelease}"
+    echo "kernel release:  $(uname -r)"
+    echo "kernel version:  $(uname -v)"
+    echo ""
+    echo "vCPU(s):         ${NUM_CPUS}"
+    echo "memory:          ${mem_free} (free) / ${mem_total} (total)"
+    echo "swap:            ${swap_free} (free) / ${swap_total} (total)"
+    echo ""
+    echo "uptime:         $(uptime)"	#needs to be 1 character to left as uptime output starts with space
+    echo ""
+    echo "ip addresses:"
+    showipaddrs | sed -e "s/^/                 /"
+
+    echo ""
+    }
+
+function discover_oracle_gi
+    {
+    echo ""
+    echo "${mainheading}"
+    echo "Oracle Grid Infrastructure (GI) / ASM"
+    echo "${mainheading}"
+    echo ""
+
+    check_asm_running 2>/dev/null
+
+    check_crsd_running 2>/dev/null
+
+
+    if [ "${CRSD_RUNNING}" = "YES" ]
+    then
+        GRID_HOME=$(getgihomefromcrsd)
+        status=$?
+
+        if [ $status -eq 0 ]
+        then
+            GRID_USER_FROM_CRSD_CHECK=$(getgiuserfromcrsctl ${GRID_HOME})
+        fi
+    else
+        # crsd not running so going to have to go
+        # looking for a GI installation
+        GRID_HOME=$(findgihome 2>/dev/null)
+        status=$?
+
+        if [ $status -eq 0 ]
+        then
+            GRID_USER_FROM_GRID_HOME_FIND=$(getgiuserfromcrsctl ${GRID_HOME})
+            status=$?
+        fi
+    fi
+    if [ "${ASM_RUNNING}" = "YES" ]
+    then
+        GRID_USER_FROM_ASM_INSTANCE=$(getgiuserfromasm)
+        status=$?
+    fi
+            
+    if [ "${CRSD_RUNNING}" = "YES" ]
+    then
+        if [ "${GRID_USER_FROM_CRSD_CHECK}" = "${GRID_USER_FROM_ASM_INSTANCE:-${GRID_USER_FROM_CRSD_CHECK}}" ]
+        then
+            GRID_USER=${GRID_USER_FROM_CRSD_CHECK}
+        else
+            echo "WOAH! This is unexpected!  Two different grid users from two different sources but expecting same"
+            echo "      How can crsctl have [ORACLE_USER=${GRID_USER_FROM_CRSD_CHECK}] but ASM is running as [${GRID_USER_FROM_ASM_INSTANCE}]"
+            EXITCODE=1
+        fi
+    else
+        if [ "${ASM_RUNNING}" = "YES" ]
+        then
+            #unusual situation with CRSD not found running but ASM running - need to raise this
+            echo "WOAH! This is unexpected.  CRSD not found running but ASM found running "
+            echo "      Please report this to DOTS maintainers.  Trying to continue... may be"
+            echo "      some unexpected/inconsistent results to follow."
+
+            EXITCODE=1
+            if [ "${GRID_USER_FROM_GRID_HOME_FIND}" = "${GRID_USER_FROM_ASM_INSTANCE:-${GRID_USER_FROM_GRID_HOME_FIND}}" ]
+            then
+                GRID_USER=${GRID_USER_FROM_GRID_HOME_FIND}
+            else
+                echo "WOAH! This is unexpected!  Two different grid users from two different sources but expecting same"
+                echo "      How can crsctl have [ORACLE_USER=${GRID_USER_FROM_GRID_HOME_FIND}] but ASM is running as [${GRID_USER_FROM_ASM_INSTANCE}]"
+                EXITCODE=1
+            fi
+        else
+            :
+        fi
+    fi
+
+    echo "--------"
+    echo "Overview"
+    echo "--------"
+    echo ""
+
+    if [ -d "${GRID_HOME}" ]
+    then
+        echo "GI installed : YES"
+    else
+        echo "GI installed : NO"
+    fi
+
+    echo "     GI home : ${GRID_HOME:--}"
+    echo "     GI user : ${GRID_USER:--}"
+    echo ""
+
+    if [ "${ASM_RUNNING}" = "YES" ]
+    then
+        echo " ASM running : ${ASM_RUNNING} [instance: ${ASM_INSTANCE} ]"
+    else
+        echo " ASM running : -"
+    fi
+
+    echo "CRSD running : ${CRSD_RUNNING}"
+    echo ""
+
+
+    if [ "${ASM_RUNNING}" = "YES" ]
+    then
+        echo "-------------------------------------------"
+        echo "ASM disk group status and connected clients"
+        echo "-------------------------------------------"
+        #echo ""
+
+        if [ "${DSP_WHOAMI}" = "root" ]
+        then
+            : #show more detailed info
+            show_detailed_gi_info root
+        elif [ "${DSP_WHOAMI}" = "${GRID_USER}" ] 
+        then
+            : #show more detailed info
+            show_detailed_gi_info nosudo
+        else
+            if checksudo ${GRID_USER} 2>/dev/null
+            then
+                : #we can sudo without password we can show more detailed info
+                show_detailed_gi_info sudo
+            else
+                : #not possible to show more info
+                echo "*** cannot show as current user [${DSP_WHOAMI}] cannot su/sudo to GI user [${GRID_USER}] ***"
+            fi
+        fi
+    fi
+
+    echo ""
+    }
+
+function discover_oracle_listener
+    {
+    echo ""
+    echo "${mainheading}"
+    echo "Oracle Listener(s)"
+    echo "${mainheading}"
+    echo ""
+
+    ps -ef | grep tnslsn[r] > ${tmpfile}
+
+    if [ -s ${tmpfile} ]
+    then    
+        cat ${tmpfile} | sed -e 's/^/    /' 
+    else    
+        echo "    <none>"
+    fi    
+ 
+    echo ""
+
+    }
+
+function discover_oracle_db
+    {
+# list running DBS
+#    - are they OPEN (maybe entry in /etc/oratab not correct)
+# list DBs listed in /etc/oratab that are not running
+#
+    echo ""
+    echo "${mainheading}"
+    echo "Oracle Database(s)"
+    echo "${mainheading}"
+    echo ""
+
+    echo "-----------------"
+    echo "Running instances"
+    echo "-----------------"
+
+    runningdbs_file=${tmpfile}.runningdbs-l
+    runningdbs -l > ${runningdbs_file}
+    status=$?
+
+if [ -s ${runningdbs_file} ]
+then
+
+    OK="YES"
+    for dbuser in $(cut -d: -f2 ${runningdbs_file})
+    do
+        if [ "${DSP_WHOAMI}" = "root" ] && [ "${DSP_WHOAMI}" = "${dbuser}" ]
+        then
+            if checksudo ${dbuser} 2>/dev/null
+            then
+                : # no need to do anything
+            else
+                OK="NO"
+            fi
+        fi
+    done
+
+    if [ "${OK}" != "YES" ]
+    then
+        echo "(unable to su to some users so not all details available)"
+    fi
+ 
+    for ORACLE_SID in $(cut -d: -f1 ${runningdbs_file} | sort)
+    do
+        getinfo_file=${tmpfile}.getinfo.${ORACLE_SID}
+
+        dbuser=$(grep ^${ORACLE_SID}: ${runningdbs_file} | cut -d: -f2)
+
+        if [ "${DSP_WHOAMI}" = "${dbuser}" ]
+        then
+            runsql -c -d ${ORACLE_SID} getinfo.sql > ${getinfo_file}
+            status=$?
+        elif ["${DSP_WHOAMI}" = "root" ]
+        then
+            su ${dbuser} -c "runsql -c -d ${ORACLE_SID} getinfo.sql" > ${getinfo_file}
+        elif checksudo ${dbuser} 2>/dev/null
+        then
+            sudo su ${dbuser} -c "runsql -c -d ${ORACLE_SID} getinfo.sql" > ${getinfo_file}
+        else
+            echo "    <cannot switch to instance user [${dbuser}] to provide more info>"
+        fi
+ 
+
+awk '/<V_DATABASE>/ {
+                                     process="true"
+                                     next
+                                     }
+                                     /<\/V_DATABASE>/ {
+                                     process=""
+                                     next
+                                     }
+                                     process=="true" {
+                                     print
+                                     }' ${getinfo_file} > ${getinfo_file}.v_database
+
+awk '/<V_INSTANCE>/ {
+                                     process="true"
+                                     next
+                                     }
+                                     /<\/V_INSTANCE>/ {
+                                     process=""
+                                     next
+                                     }
+                                     process=="true" {
+                                     print
+                                     }' ${getinfo_file} > ${getinfo_file}.v_instance
+
+awk '/<V_PARAMETERS>/ {
+                                     process="true"
+                                     next
+                                     }
+                                     /<\/V_PARAMETERS>/ {
+                                     process=""
+                                     next
+                                     }
+                                     process=="true" {
+                                     print
+                                     }' ${getinfo_file} > ${getinfo_file}.v_parameters
+
+awk '/<V_PDBS>/ {
+                                     process="true"
+                                     next
+                                     }
+                                     /<\/V_PDBS>/ {
+                                     process=""
+                                     next
+                                     }
+                                     process=="true" {
+                                     print
+                                     }' ${getinfo_file} > ${getinfo_file}.v_pdbs
+
+
+        osuser=$(grep ^${ORACLE_SID}: ${runningdbs_file} | cut -d: -f2)
+
+        DBSIZE_GB=$(grep '^DBSIZE_GB:' ${getinfo_file} | cut -d: -f2- | xargs)
+
+        OPEN_MODE=$(grep '^OPEN_MODE[ ]*:' ${getinfo_file}.v_database | cut -d: -f2- | xargs)
+        CDB=$(grep '^CDB[ ]*:' ${getinfo_file}.v_database | cut -d: -f2- | xargs)
+
+        EDITION=$(grep '^EDITION[ ]*:' ${getinfo_file}.v_instance | cut -d: -f2- | xargs)
+        INSTANCE_NAME=$(grep '^INSTANCE_NAME[ ]*:' ${getinfo_file}.v_instance | cut -d: -f2- | xargs)
+        VERSION=$(grep '^VERSION[ ]*:' ${getinfo_file}.v_instance | cut -d: -f2- | xargs)
+        VERSION_LEGACY=$(grep '^VERSION_LEGACY[ ]*:' ${getinfo_file}.v_instance | cut -d: -f2- | xargs)
+        VERSION_FULL=$(grep '^VERSION_FULL[ ]*:' ${getinfo_file}.v_instance | cut -d: -f2- | xargs)
+
+        CLUSTER_DATABASE=$(grep '^cluster_database[ ]*:' ${getinfo_file}.v_parameters | cut -d: -f2- | xargs)
+
+        if [ "${VERSION_FULL}" != "" ]
+        then
+            VERSION=${VERSION_FULL}
+        fi
+
+        if [ "${CDB}" = "YES" ]
+        then
+            CDB="Y"
+        else
+            CDB="N"
+        fi
+
+        if grep ^${ORACLE_SID}: ${ORATAB} 2>&1 > /dev/null
+        then
+            in_oratab="Y"
+        else
+            in_oratab="N"
+        fi
+
+        if [ "${OPEN_MODE}" = "" ] && [ "${INSTANCE_NAME}" != "" ]
+        then
+            OPEN_MODE="NOMOUNT"
+            DBSIZE_GB="?"
+        fi
+
+#cnyi = check not yet implemented
+        echo ""
+        echo "    ${ORACLE_SID}: [osuser:${osuser}] [mode:${OPEN_MODE}] [edition:${EDITION}] [cdb:${CDB}] [vers:${VERSION}] [size_gb:${DBSIZE_GB}] [rac:${CLUSTER_DATABASE}] [dg:cnyi] [oratab:${in_oratab}]"
+
+        underline=$(echo "    ${ORACLE_SID}" | sed -e 's/[a-zA-Z0-9]/~/g')
+        echo "${underline}"
+
+        #
+        # pdbs
+        if [ "${CDB}" = "Y" ]
+        then
+            #echo ""
+            echo "        pdbs: con_id con_name                       open mode  restricted     size(Mb)"
+            echo "              ------ ------------------------------ ---------- ---------- ------------"
+            grep ^PDB: ${getinfo_file}.v_pdbs | cut -d: -f2- | awk -F: '{print "              " sprintf("%6d", $1) " " sprintf("%-30s", $2) " " sprintf("%-10s", $3) " " sprintf("%-10s", $4) " " sprintf("%12d", $5)}'
+
+        fi
+    done
+
+else #runningdbs_file
+    echo ""
+    echo "<none>"
+fi #runningdbs_file
+
+    #runningdbs | sed -e 's/$/XX: [osuser:oracle] [mode:${OPEN_MODE}]] [edition:EE] [arch:CDB] [vers:19.28] [size:10GiB] [rac:NO] [dg:YES(PRIMARY]] [oratab:Y]/'
+    status=$?
+
+    echo ""
+
+    echo "-----------------"
+    echo "Stopped instances"
+    echo "-----------------"
+    echo ""
+
+    ANY_NONRUNNING="NO"
+    for ORACLE_SID in $(nonrunningdbs | sort)
+    do
+        ANY_NONRUNNING="YES"
+        echo "    ${ORACLE_SID}"
+    done
+
+    if [ "${ANY_NONRUNNING}" = "NO" ]
+    then
+        echo "    <none>"
+    fi
+
+    echo ""
+    }
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+echo ""
+
+discover_os
+
+discover_oracle_gi
+
+discover_oracle_listener
+
+discover_oracle_db
+
+
+exit $EXITCODE
+

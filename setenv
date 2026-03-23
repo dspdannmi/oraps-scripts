@@ -138,7 +138,7 @@ BANNER_FILE=${CS_TOP}/resources/banners/dsp/dsp.txt
     echo -e "                 --=== ${BGreen}Oracle Professional Services ${White}===--           "
     echo "                (OracleProfessionalServicesTeam@dsp.co.uk)          "
     echo ""
-    echo "                             (${DSP_VERSION})"
+    echo "                            (${DSP_VERSION})"
     
     serversummary
     

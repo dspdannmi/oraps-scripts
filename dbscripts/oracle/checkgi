@@ -3,9 +3,9 @@
 #+++___________________________________________________________________________________
 #
 #
-# Script name:                  runninggi
+# Script name:                  checkgi
 #
-# Description:			Attempt to determine if GI is installed or running
+# Description:
 #
 # Parameters:
 #
@@ -25,10 +25,16 @@ CS_TOP=/opt/dsp
 
 USAGE_STRING=""
 
-#first determine if crsd.bin is running and ASM are running
-#in theory that should be enough but if they are not found
-#running then resort to looking for crsctl / crsd and also
-#check if standard grid user and asm groups exist
+verbose="NO"
+while getopts ':v' OPTION ${*}
+do
+    case "$OPTION" in
+        v) verbose="YES" ;;
+    esac
+done
+
+
+clear_error_trap
 
 #
 # Define local script variables
@@ -46,8 +52,25 @@ FOUND_EVIDENCE_OF_GI="NO"
 CONFLICTING_EVIDENCE_GRID_HOME="NO"
 CONFLICTING_EVIDENCE_GRID_USER="NO"
 
+# assume not running until find proof
+GI_INSTALLED="NO"
+CRSD_RUNNING="NO"
+ASM_RUNNING="NO"
+
+
+function scriptecho
+    {
+    if [ "${verbose}" = "YES" ]
+    then
+        echo "${*}"
+    fi
+    }
+
 function validate_new_grid_home_evidence
     {
+    # found a new potential GRID_HOME directory
+    # so check to see if it conflicts what we
+    # thought to this point was GRID_HOME
     x=${1} 
 
     if [ "${GRID_HOME}" = "" ]
@@ -66,6 +89,9 @@ function validate_new_grid_home_evidence
 
 function validate_new_grid_user_evidence
     {
+    # found a new potential grid user
+    # so check to see if it conflicts what we
+    # thought to this point was grid user
     x=${1} 
 
     if [ "${GRID_USER}" = "" ]
@@ -83,14 +109,14 @@ function validate_new_grid_user_evidence
     }
 
 
-echo ""
-echo "Check for evidence of Oracle Grid Infrastructure installation:"
-echo "=============================================================="
-echo ""
+scriptecho ""
+scriptecho "Check for evidence of Oracle Grid Infrastructure installation:"
+scriptecho "=============================================================="
+scriptecho ""
 
 
-echo "check for crsd.bin running:"
-echo "---------------------------"
+scriptecho "check for crsd.bin running:"
+scriptecho "---------------------------"
 
 PID=$(ps -fu root | grep 'bin/crsd.bin' | grep -v grep | awk '{print $2}')
 
@@ -105,6 +131,8 @@ then
     crsd_bin_exec=""
     for i in $(ps -fp ${PID} | grep ${PID})
     do
+        #crsd.bin$ means to match that string at the end of
+        #the line
         if echo ${i} | grep '/bin/crsd.bin$' > /dev/null
         then
             crsd_bin_exec=${i}
@@ -114,6 +142,13 @@ fi
 
 if [ "${crsd_bin_exec}" != "" ]
 then
+    #found <path>/bin/crsd.bin running so let us assume that
+    #this is not a coincidence and that GI is running
+    #-----
+    #COULD/SHOULD PROBABLY DO A FEW MORE CHECKS HERE THOUGH
+    #-----
+    CRSD_RUNNING="YES"
+
     bin_dir=$(dirname ${crsd_bin_exec})
     grid_home=$(dirname ${bin_dir})
 
@@ -123,18 +158,18 @@ then
     #when trying to find actual grid installation user
     #validate_new_grid_user_evidence ${crsd_user}
 
-    echo "crsd.bin executable   : ${crsd_bin_exec} [RUNNING]"
-    echo "grid home             : ${grid_home}"
-    echo "crsd.bin user         : ${crsd_user}"
+    scriptecho "crsd.bin executable   : ${crsd_bin_exec} [RUNNING]"
+    scriptecho "grid home             : ${grid_home}"
+    scriptecho "crsd.bin user         : ${crsd_user}"
 else
-    echo "crsd.bin              : <not running>"
-    echo "crsd.bin user         : <undetermined>"
+    scriptecho "crsd.bin              : <not running>"
+    scriptecho "crsd.bin user         : <undetermined>"
 fi
-echo ""
+scriptecho ""
 
 
-echo "check for ASM running:"
-echo "----------------------"
+scriptecho "check for ASM running:"
+scriptecho "----------------------"
 clear_error_trap
 
 #ASM instance
@@ -147,20 +182,23 @@ fi
 asm_instance_name="<undetermined - not found running>"
 if [ "${X}" != "" ]
 then
+    ASM_RUNNING="YES"
+
     asm_user=$(echo $X | cut -d: -f1)
     process=$(echo $X | cut -d: -f2)
 
     asm_instance_name=$(echo $process | cut -d_ -f3)
+    ASM_INSTANCE=${asm_instance_name}
 
     validate_new_grid_user_evidence ${asm_user}
 
-    echo "asm_instance_name     : ${asm_instance_name} [RUNNING]"
-    echo "asm user              : ${asm_user}"
+    scriptecho "asm_instance_name     : ${asm_instance_name} [RUNNING]"
+    scriptecho "asm user              : ${asm_user}"
 else
-    echo "asm_instance_name     : <undetermined - not found running>"
-    echo "asm user              : <n/a>"
+    scriptecho "asm_instance_name     : <undetermined - not found running>"
+    scriptecho "asm user              : <n/a>"
 fi
-echo ""
+scriptecho ""
 
 #ASM proxy instance / flex ASM
 X=""
@@ -179,19 +217,19 @@ then
 
     validate_new_grid_user_evidence ${apx_user}
 
-    echo "apx_instance_name     : ${apx_instance_name} [RUNNING]"
-    echo "apx user              : ${apx_user}"
+    scriptecho "apx_instance_name     : ${apx_instance_name} [RUNNING]"
+    scriptecho "apx user              : ${apx_user}"
 else
-    echo "apx_instance_name     : <undetermined - not found running>"
-    echo "apx user              : <n/a>"
+    scriptecho "apx_instance_name     : <undetermined - not found running>"
+    scriptecho "apx user              : <n/a>"
 fi
 
 
-echo ""
+scriptecho ""
 
 
-echo "check for grid user:"
-echo "--------------------"
+scriptecho "check for grid user:"
+scriptecho "--------------------"
 
 #doing if grep check first and then setting grid_user
 #as was getting the error trap kicking in to give message
@@ -208,11 +246,11 @@ if [ "${grid_user}" != "" ]
 then
     answer="EXISTS"
 fi
-echo "[grid] user           : ${answer}"
-echo ""
+scriptecho "[grid] user           : ${answer}"
+scriptecho ""
 
-echo "checking for ASM groups:"
-echo "------------------------"
+scriptecho "checking for ASM groups:"
+scriptecho "------------------------"
 
 #doing if grep check first and then setting grid_user
 #as was getting the error trap kicking in to give message
@@ -240,25 +278,25 @@ if [ "${asmadmin_group}" != "" ]
 then
     answer="EXISTS"
 fi
-echo "[asmadmin] group      : ${answer}"
+scriptecho "[asmadmin] group      : ${answer}"
 
 answer="<does_not_exist>"
 if [ "${asmdba_group}" != "" ]
 then
     answer="EXISTS"
 fi
-echo "[asmdba] group        : ${answer}"
+scriptecho "[asmdba] group        : ${answer}"
 
 answer="<does_not_exist>"
 if [ "${asmoper_group}" != "" ]
 then
     answer="EXISTS"
 fi
-echo "[asmoper] group       : ${answer}"
+scriptecho "[asmoper] group       : ${answer}"
 
-echo
-echo "looking for crsctl.bin:"
-echo "-----------------------"
+scriptecho
+scriptecho "looking for crsctl.bin:"
+scriptecho "-----------------------"
 
 #
 # locate crsctl which should be a shell script.  Once a crsctl
@@ -306,9 +344,9 @@ do
     if [ -d ${top_dir} ] && [ "${top_dir}" = "${grid_home}" ]
     then
         crsctl_found="YES"
-	echo "crsctl probably found : ${i}"
-	echo "grid home             : ${top_dir}"
-	echo "oracle user           : ${oracle_user} [${oracle_user_exists}]"
+	scriptecho "crsctl probably found : ${i}"
+	scriptecho "grid home             : ${top_dir}"
+	scriptecho "oracle user           : ${oracle_user} [${oracle_user_exists}]"
     fi
 
 done	
@@ -316,7 +354,9 @@ done
 if [ "${crsctl_found}" != "YES" ] #not found by locate so keep looking in case mlocatedb
 	                          #not enabled
 then
-  echo "<warning: performing filesystem find - may take some time to run>"
+  scriptecho "<warning: performing filesystem find - may take some time to run>"
+  scriptecho "<could not find using the locate command so assuming it may not>"
+  scriptecho "<be installed hence performing filesystem search>"
   for i in $(find / -type f -name crsctl 2>/dev/null | xargs grep -il ^ORA_CRS_HOME=)
   do
     bin_dir=$(dirname ${i})
@@ -340,20 +380,41 @@ then
     if [ -d ${top_dir} ] && [ "${top_dir}" = "${grid_home}" ]
     then
         crsctl_found="YES"
-	echo "crsctl probably found : ${i}"
-	echo "grid home             : ${top_dir}"
-	echo "oracle user           : ${oracle_user} [${oracle_user_exists}]"
+	scriptecho "crsctl probably found : ${i}"
+	scriptecho "grid home             : ${top_dir}"
+	scriptecho "oracle user           : ${oracle_user} [${oracle_user_exists}]"
     fi
   done	
 fi
 
-echo
+scriptecho
 
-echo "GRID_HOME:   ${GRID_HOME}"
-echo "GRID_USER:   ${GRID_USER}"
+if [ "${GRID_HOME}" != "" ] && [ -d ${GRID_HOME} ]
+then
+    GI_INSTALLED="YES"
+fi
+
+if [ "${GI_INSTALLED}" != "YES" ]
+then
+    ASM_INSTANCE="-"
+    ASM_RUNNING="-"
+    CRSD_RUNNING="-"
+    GRID_HOME="-"
+    GRID_USER="-"
+fi
+
 echo ""
-echo "CONFLICTING_EVIDENCE_GRID_HOME: ${CONFLICTING_EVIDENCE_GRID_HOME}"
-echo "CONFLICTING_EVIDENCE_GRID_USER: ${CONFLICTING_EVIDENCE_GRID_USER}"
+echo "Grid Infrastructure Summary:"
+echo "----------------------------"
+echo "GI installed            : ${GI_INSTALLED}"
+echo "CRSD running            : ${CRSD_RUNNING}"
+echo "ASM running             : ${ASM_RUNNING}"
+echo "ASM instance            : ${ASM_INSTANCE}"
+echo "GI home                 : ${GRID_HOME}"
+echo "GI user                 : ${GRID_USER}"
+scriptecho ""
+scriptecho "CONFLICTING_EVIDENCE_GRID_HOME: ${CONFLICTING_EVIDENCE_GRID_HOME}"
+scriptecho "CONFLICTING_EVIDENCE_GRID_USER: ${CONFLICTING_EVIDENCE_GRID_USER}"
 
 echo ""
 

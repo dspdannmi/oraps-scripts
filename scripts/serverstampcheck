@@ -207,6 +207,7 @@ echo
 check_status_colour=${Red}
 echo -e "Checking MAC addresses:"
 echo    "----------------------"
+echo    "(only needs to find one (1) match)"
 echo -e "        expecting: ${BYellow}${registered_macaddr}${White}"
 prefix="actual: "
 for macaddr in $(showmacaddrs)
@@ -238,6 +239,7 @@ echo
 echo
 echo -e "Checking IP addresses:"
 echo    "---------------------"
+echo    "(only needs to find one (1) match)"
 echo -e "        expecting: ${BYellow}${registered_ipaddr}${White}"
 prefix="actual: "
 for ipaddr in $(showipaddrs) 

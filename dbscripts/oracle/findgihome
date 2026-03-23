@@ -1,0 +1,123 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  findgihome
+#
+# Description:			CRS not running so try to find GI home
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       22-Mar-2026     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+CS_TOP=/opt/dsp
+. ${CS_TOP}/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING=""
+
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+GI_HOME=""
+
+#
+# locate crsctl which should be a shell script.  Once a crsctl
+# file is found check that it has a setting for ORA_CRS_HOME=
+# as if it does not this might suggest its coincidental file
+# and not indicative of GI files.  If we find a crsctl file
+# that contains string ^ORA_CRS_HOME= then check which directory
+# it points to and check that it matches the directory where it
+# is found.  This should help prevent matches where GI home has
+# been renamed or backed-up and we have found that.  for example
+# if /u01/app/19.0.0.0/grid.OLD/bin/crsctl was found we would
+# match on the fact we found a crsctl file but presumable ORA_CRS_HOME
+# would point to /u01/app/19.0.0.0/grid which is not the same as
+# where we found it meaning we can be 99% its a directory backup
+# and not a live/operational install
+
+# crsctl and grid home typically owned as root as well so need
+# to derive user from /etc/passwd and ORACLE_UESR= from crsctl
+# but still not a guarantee
+
+crsctl_found="NO"
+#locate -b '\SEARCHSTRING' recommended by locate manpage
+#send stderr to /dev/null on locate in case locate is not found/installed on
+#this server
+for i in $(locate -b '\crsctl' 2>/dev/null | xargs grep -il ^ORA_CRS_HOME=)
+do
+    bin_dir=$(dirname ${i})
+    top_dir=$(dirname ${bin_dir})
+
+    grid_home=$(grep ^ORA_CRS_HOME= ${i} | cut -d= -f2)
+    oracle_user=$(grep ^ORACLE_USER= ${i} | cut -d= -f2)
+
+    #user parameter name oracle_user because that is the parameter in ORA_CRS_HOME
+    oracle_user_exists=""
+    if [ "${oracle_user}" != "" ]
+    then
+        grep ^${oracle_user}: /etc/passwd > /dev/null && oracle_user_exists="EXISTS"
+    fi
+
+    if [ -d ${top_dir} ] && [ "${top_dir}" = "${grid_home}" ]
+    then
+        crsctl_found="YES"
+        GRID_HOME=${grid_home}
+    fi
+
+done
+
+if [ "${crsctl_found}" != "YES" ] #not found by locate so keep looking in case mlocatedb
+                                  #not enabled
+then
+  for i in $(find / -type f -name crsctl 2>/dev/null | xargs grep -il ^ORA_CRS_HOME=)
+  do
+    bin_dir=$(dirname ${i})
+    top_dir=$(dirname ${bin_dir})
+
+    grid_home=$(grep ^ORA_CRS_HOME= ${i} | cut -d= -f2)
+    oracle_user=$(grep ^ORACLE_USER= ${i} | cut -d= -f2)
+
+    oracle_user_exists="<does_not_exist>"
+    if [ "${oracle_user}" != "" ]
+    then
+        grep ^${oracle_user}: /etc/passwd > /dev/null && oracle_user_exists="EXISTS"
+    fi
+
+    # get the grid_home from the crsctl file itself so we can check ORA_CRS_HOME
+    # file matches the same path to avoid an error condition where we find a full
+    # directory backup of a GI installation as it would not be the one we are
+    # looking for
+    if [ -d ${top_dir} ] && [ "${top_dir}" = "${grid_home}" ]
+    then
+        crsctl_found="YES"
+        GRID_HOME=${grid_home}
+    fi
+  done
+fi
+
+
+if [ "${crsctl_found}" = "YES" ] && [ -d "${GRID_HOME}" ]
+then
+    echo ${GRID_HOME}
+    exit 0	# it is running
+else
+    exit 1	# it is not running
+fi

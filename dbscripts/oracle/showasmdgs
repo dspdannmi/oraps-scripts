@@ -1,0 +1,77 @@
+#!/bin/bash
+
+#+++___________________________________________________________________________________
+#
+#
+# Script name:                  showasmdgs
+#
+# Description:
+#
+# Parameters:
+#
+# Environment:
+#
+# Return codes:
+#
+# Modification history:
+#
+#       22-Mar-2026     1.0     oracle    Original version
+#
+#+++___________________________________________________________________________________
+
+CS_TOP=/opt/dsp
+. ${CS_TOP}/env/dsp.env
+. ${CS_TOP}/env/funcs.sh
+
+USAGE_STRING="grid_home asm_sid"
+
+if [ $# -eq 2 ]
+then
+    export GRID_HOME=$1
+    export ORACLE_SID=$2
+else
+    usage
+fi
+
+if [ ! -d ${GRID_HOME} ]
+then
+    echoerr "ERROR: directory [${GRID_HOME}] does not exist - exiting"
+    EXITCODE=1
+    exit ${EXITCODE}
+fi
+
+if [ ! -f ${GRID_HOME}/bin/crsctl ]
+then
+    echoerr "ERROR: directory [${GRID_HOME}] exists but cannot find bin/crsctl - may not be GI home - exiting"
+    EXITCODE=1
+    exit ${EXITCODE}
+fi
+
+export ORACLE_SID=${2}
+export ORACLE_HOME=${GRID_HOME}
+
+export PATH=${ORACLE_HOME}/bin:${PATH}
+
+
+
+#
+# Define local script variables
+#
+
+#
+# Script starts here
+#
+#
+set_error_trap
+
+${ORACLE_HOME}/bin/sqlplus -s / as sysasm << *EOF*
+@vasmdgusage.sql
+REM @vasmclient.sql
+*EOF*
+
+
+
+
+
+exit $EXITCODE
+

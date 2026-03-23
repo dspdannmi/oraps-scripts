@@ -128,23 +128,22 @@ echo "--------"
 echo "${HOSTNAME}"
 echo
 echo
-echo "Register UUID for the server ID"
-echo "-------------------------------"
-echo
+echo "Select UUID to stamp this server"
+echo "--------------------------------"
 if [ "${newid}" != "" ] && [ $status -eq 0 ]	# uuidgen exists and we could generate our own uuid
 then
   unset selections
 
   if [ "${ALLOW_KEEP_ID}" = "YES" ]
   then
-      selections=("Keep existing" "Generate a server ID" "Provide a UUID to use for server ID")
+      selections=("Keep existing" "Generate a new UUID" "Provide a UUID")
   else
-      selections=("Generate a server ID" "Provide a UUID to use for server ID")
+      selections=("Generate a new UUID" "Provide a UUID")
   fi
-  choose_from_menu "Please select a MAC address to use to stamp this server" selected_choice "${selections[@]}"
+  choose_from_menu "Please select an option for the server ID" selected_choice "${selections[@]}"
   echo "Selected choice: $selected_choice"
 
-  if [ "${selected_choice}" = "Provide a UUID to use for server ID" ]
+  if [ "${selected_choice}" = "Provide a UUID" ]
   then
       echo -n "Enter the UUID you wish to stamp for this server: "
       read newid
@@ -168,9 +167,8 @@ fi
 
 echo ""
 echo ""
-echo "Choose MAC Address"
-echo "------------------"
-echo
+echo "Associate MAC Address"
+echo "---------------------"
 
 unset selections
 selections=( $(showmacaddrs | grep -v '00:00:00:00:00:00') )
@@ -180,25 +178,23 @@ macaddr=${selected_choice}
 
 echo ""
 echo ""
-echo "Choose IP Address"
-echo "-----------------"
+echo "Associate IP Address"
+echo "--------------------"
 
 unset selections
 selections=( $(showipaddrs | sort -n) )
-choose_from_menu "Please select an IP address to use to stamp this server" selected_choice "${selections[@]}"
+choose_from_menu "Please select the main IP address to use to stamp this server" selected_choice "${selections[@]}"
 ipaddr=${selected_choice}
 
 echo ""
 echo ""
-echo "Choose machine type"
+echo "Select machine type"
 echo "-------------------"
 
 unset selections
 selections=( "physical server" "virtual machine (on-prem)" "virtual machine (cloud)")
 choose_from_menu "Please select a machine type" selected_choice "${selections[@]}"
 machine_type=${selected_choice}
-
-echo machine_type=${machine_type}
 
 case "${machine_type}" in
     "physical server" ) prefix="0[0-9][0-9]" ;;
@@ -213,6 +209,8 @@ IFS_SAVE=${IFS}
 IFS=$'\n'
 selections=( $(cat ${tmpfile}.array) )
 IFS=${IFS_SAVE}
+
+echo ""
 
 choose_from_menu "Please select a machine sub-type" selected_choice "${selections[@]}"
 machine_subtype=${selected_choice}
@@ -233,7 +231,7 @@ fi
 
 echo ""
 echo ""
-echo "Choose Database Hosting Status"
+echo "Select Database Hosting Status"
 echo "------------------------------"
 
 unset selections
@@ -254,15 +252,12 @@ dbhosting_status_code=$(awk -v dbhosting_status="${dbhosting_status}" -F: '$2 ==
 # double-check validation
 X=$(grep ^${dbhosting_status_code}: ${DBHOSTING_LOOKUP_FILE} | awk -F: '{print $2}')
 
-echo dbhosting_status=[$dbhosting_status]
 if [ "${X}" != "${dbhosting_status}" ] # something weird has happened
 then
     echo "ERROR: unknown error - double-check validation failed on dbhosting_status - please raise with code maintainer(s) - exiting"
     EXITCODE=1
     exit
 fi
-
-
 
 echo ""
 echo "CONFIRMATION"

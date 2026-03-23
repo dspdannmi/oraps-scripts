@@ -70,10 +70,12 @@ echo "This is not an exact or guaranteed output.  The list of (if any) software 
 echo "components shown is based only on pattern matching against output of the"
 echo "ps command.  Please consider the POSSIBILITY of FALSE POSITIVES and software"
 echo "may be installed and running that this script has not been configured to"
-echo "identity.  This output should be considered with healthy scepticism.  Please"
-echo "help maintain this script by informing the code maintainer of any software"
+echo "identify.  This output should be considered with healthy scepticism.  Please"
+echo "help maintain this script by informing the DOTS maintainer of any software"
 echo "you believe it has not correctly detected."
 echo "****************************************************************************"
+echo ""
+echo "The following MAY be running.  Please see message above ^^^^^"
 echo ""
 
 # Oracle Grid
