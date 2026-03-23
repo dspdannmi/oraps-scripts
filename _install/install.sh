@@ -524,7 +524,7 @@ else
     exit 1
 fi
 
-NEW_INSTALL_FILE=dsp-${NEW_VERSION}.cpio.gz
+NEW_INSTALL_FILE=dots-${NEW_VERSION}.cpio.gz
 
 if [ ! -r ${NEW_INSTALL_FILE} ]
 then
