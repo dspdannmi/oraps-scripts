@@ -7,7 +7,7 @@ REM
 
 REM SET lines 120 pages 66 feedback off
 REM SET PAGES 22 LINES 80 FEEDBACK ON
-SET TTITLE OFF
+SET TITLE OFF
 
 
 COLUMN tablespace_name             format a20        heading 'Tablespace|(TBS)|Name'

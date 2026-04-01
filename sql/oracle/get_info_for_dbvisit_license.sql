@@ -1,0 +1,1 @@
+CATEGORY/dbvisit/get_info_for_dbvisit_license.sql
