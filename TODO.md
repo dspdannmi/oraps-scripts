@@ -114,6 +114,8 @@ HealthChecks
 PRIORITY:  HIGH
 ===============
 
+- have someone on the server itself a place to track known non-urgent remediation on the server itself so next downtime opportunity etc. we have a chance of piggyback
+
 - need to find way of changing ownership and updating owner.txt file
     created a scripted [changedspownership] but only supported as running as [root] currently
 
