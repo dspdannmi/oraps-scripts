@@ -495,6 +495,10 @@ DEMO ==== - create demo VM with 6 databases installed - ORADB01 - ORADB02 - ORAD
 
 - getinfo.sql is a help script - it should really be renamed as it also creates an executable called "getinfo" so we should have a way to NOT create an executable for certain SQL
 
+- bkup bug doesn't handle symbolic links well
+
+
+
 
 
 
