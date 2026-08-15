@@ -243,7 +243,7 @@ function do_install()
 
         # add -v clause for verbose
         echodebug "gunzip -c ${NEW_INSTALL_FILE} | cpio -icdm --owner ${install_owner}:${install_group} -u -D ${INSTALL_DIR}"
-        gunzip -c ${NEW_INSTALL_FILE} | cpio -icdm --owner ${install_owner}:${install_group} -u -D ${INSTALL_DIR}
+        gunzip -c ${NEW_INSTALL_FILE} | (cd ${INSTALL_DIR} && cpio -icdm --owner ${install_owner}:${install_group} -u) 
         status=$?
 
         echodebug "status=$status"
